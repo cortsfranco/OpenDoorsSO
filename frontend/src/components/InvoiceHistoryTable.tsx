@@ -45,6 +45,9 @@ interface Invoice {
   payment_status: string;
   movimiento_cuenta: boolean;  // CRÍTICO: Campo de movimiento de cuenta
   otros_impuestos: number;     // Otros impuestos además del IVA
+  metodo_pago: string;         // Método de pago: contado, transferencia, tarjeta_credito
+  es_compensacion_iva: boolean; // Si es solo para compensar IVA
+  invoice_direction: string;    // emitida o recibida
   created_at: string;
   updated_at: string;
 }
@@ -371,6 +374,9 @@ const InvoiceHistoryTable: React.FC = () => {
       'IVA': invoice.extracted_data?.iva || 0,
       'Mov. Cta.': invoice.movimiento_cuenta ? 'SI' : 'NO',
       'Otros Impuestos': invoice.otros_impuestos || 0,
+      'Método Pago': invoice.metodo_pago || 'transferencia',
+      'Compensación IVA': invoice.es_compensacion_iva ? 'SI' : 'NO',
+      'Dirección': invoice.invoice_direction || 'recibida',
       'Estado Pago': invoice.payment_status,
       'Cargado Por': invoice.owner,
       'Fecha Carga': format(new Date(invoice.created_at), 'dd/MM/yyyy HH:mm')
@@ -386,8 +392,8 @@ const InvoiceHistoryTable: React.FC = () => {
   const exportToCSV = () => {
     const headers = [
       'ID', 'Archivo', 'Categoría', 'Tipo', 'Fecha Emisión', 
-      'Cliente/Proveedor', 'CUIT', 'Total', 'IVA', 'Mov. Cta.', 'Otros Impuestos', 'Estado Pago', 
-      'Cargado Por', 'Fecha Carga'
+      'Cliente/Proveedor', 'CUIT', 'Total', 'IVA', 'Mov. Cta.', 'Otros Impuestos', 'Método Pago', 
+      'Compensación IVA', 'Dirección', 'Estado Pago', 'Cargado Por', 'Fecha Carga'
     ];
     
     const csvContent = [
@@ -711,6 +717,33 @@ const InvoiceHistoryTable: React.FC = () => {
                   </th>
                   <th 
                     className="sortable cursor-pointer"
+                    onClick={() => handleSort('metodo_pago')}
+                  >
+                    <div className="flex items-center gap-2">
+                      Método Pago
+                      {getSortIcon('metodo_pago')}
+                    </div>
+                  </th>
+                  <th 
+                    className="sortable cursor-pointer"
+                    onClick={() => handleSort('invoice_direction')}
+                  >
+                    <div className="flex items-center gap-2">
+                      Dirección
+                      {getSortIcon('invoice_direction')}
+                    </div>
+                  </th>
+                  <th 
+                    className="sortable cursor-pointer"
+                    onClick={() => handleSort('es_compensacion_iva')}
+                  >
+                    <div className="flex items-center gap-2">
+                      Comp. IVA
+                      {getSortIcon('es_compensacion_iva')}
+                    </div>
+                  </th>
+                  <th 
+                    className="sortable cursor-pointer"
                     onClick={() => handleSort('payment_status')}
                   >
                     <div className="flex items-center gap-2">
@@ -785,6 +818,40 @@ const InvoiceHistoryTable: React.FC = () => {
                         ) : (
                           <Badge className="bg-orange-100 text-orange-800 border-orange-200">
                             <AlertTriangle className="w-3 h-3 mr-1" />
+                            NO
+                          </Badge>
+                        )}
+                      </div>
+                    </td>
+                    <td>
+                      <Badge variant="outline" className="text-xs">
+                        {invoice.metodo_pago === 'contado' && '💰 Contado'}
+                        {invoice.metodo_pago === 'transferencia' && '🏦 Transferencia'}
+                        {invoice.metodo_pago === 'tarjeta_credito' && '💳 Crédito'}
+                        {invoice.metodo_pago === 'tarjeta_debito' && '💳 Débito'}
+                        {invoice.metodo_pago === 'cheque' && '📝 Cheque'}
+                        {!invoice.metodo_pago && '🏦 Transferencia'}
+                      </Badge>
+                    </td>
+                    <td>
+                      <Badge variant="outline" className={
+                        invoice.invoice_direction === 'emitida' 
+                          ? 'bg-blue-100 text-blue-800 border-blue-200' 
+                          : 'bg-purple-100 text-purple-800 border-purple-200'
+                      }>
+                        {invoice.invoice_direction === 'emitida' ? '📤 Emitida' : '📥 Recibida'}
+                      </Badge>
+                    </td>
+                    <td>
+                      <div className="flex items-center justify-center">
+                        {invoice.es_compensacion_iva ? (
+                          <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">
+                            <AlertTriangle className="w-3 h-3 mr-1" />
+                            SI
+                          </Badge>
+                        ) : (
+                          <Badge className="bg-green-100 text-green-800 border-green-200">
+                            <CheckCircle className="w-3 h-3 mr-1" />
                             NO
                           </Badge>
                         )}

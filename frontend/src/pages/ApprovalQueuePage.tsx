@@ -30,6 +30,11 @@ interface PendingInvoice {
   owner?: string;
   extracted_data?: any;
   user_name: string;
+  movimiento_cuenta: boolean;
+  metodo_pago: string;
+  invoice_direction: string;
+  es_compensacion_iva: boolean;
+  payment_status: string;
 }
 
 interface ApprovalModalData extends PendingInvoice {
@@ -61,10 +66,12 @@ const ApprovalQueuePage: React.FC = () => {
     try {
       setLoading(true);
       const response = await apiService.getPendingApprovals();
-      setPendingInvoices(response);
+      // Asegurar que siempre sea un array
+      setPendingInvoices(Array.isArray(response) ? response : []);
     } catch (err: any) {
       error('Error', 'No se pudieron cargar las facturas pendientes de aprobación.');
       console.error('Error fetching pending approvals:', err);
+      setPendingInvoices([]); // Asegurar array vacío en caso de error
     } finally {
       setLoading(false);
     }
@@ -255,6 +262,9 @@ const ApprovalQueuePage: React.FC = () => {
                   <TableHead className="text-white font-semibold">Archivo</TableHead>
                   <TableHead className="text-white font-semibold">Cliente</TableHead>
                   <TableHead className="text-white font-semibold">Total</TableHead>
+                  <TableHead className="text-white font-semibold">Mov. Cta.</TableHead>
+                  <TableHead className="text-white font-semibold">Método Pago</TableHead>
+                  <TableHead className="text-white font-semibold">Dirección</TableHead>
                   <TableHead className="text-white font-semibold">Propietario</TableHead>
                   <TableHead className="text-white font-semibold">Cargado Por</TableHead>
                   <TableHead className="text-white font-semibold">Fecha Carga</TableHead>
@@ -280,6 +290,34 @@ const ApprovalQueuePage: React.FC = () => {
                     </TableCell>
                     <TableCell className="font-medium text-green-600">
                       {invoice.total ? formatCurrency(invoice.total) : 'N/A'}
+                    </TableCell>
+                    <TableCell>
+                      <Badge className={
+                        invoice.movimiento_cuenta 
+                          ? 'bg-green-100 text-green-800' 
+                          : 'bg-orange-100 text-orange-800'
+                      }>
+                        {invoice.movimiento_cuenta ? 'SI' : 'NO'}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className="text-xs">
+                        {invoice.metodo_pago === 'contado' && '💰 Contado'}
+                        {invoice.metodo_pago === 'transferencia' && '🏦 Transferencia'}
+                        {invoice.metodo_pago === 'tarjeta_credito' && '💳 Crédito'}
+                        {invoice.metodo_pago === 'tarjeta_debito' && '💳 Débito'}
+                        {invoice.metodo_pago === 'cheque' && '📝 Cheque'}
+                        {!invoice.metodo_pago && '🏦 Transferencia'}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className={
+                        invoice.invoice_direction === 'emitida' 
+                          ? 'bg-blue-100 text-blue-800' 
+                          : 'bg-purple-100 text-purple-800'
+                      }>
+                        {invoice.invoice_direction === 'emitida' ? '📤 Emitida' : '📥 Recibida'}
+                      </Badge>
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">

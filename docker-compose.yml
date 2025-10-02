@@ -46,25 +46,25 @@ services:
       # CORS
       ALLOWED_HOSTS: http://localhost:3000,http://localhost:5173
       
-      # Azure Storage - Configuración real
-      AZURE_STORAGE_ACCOUNT_NAME: mfnopendoorssearchbyidt
-      AZURE_STORAGE_ACCOUNT_KEY: ls1dWh3RV7z7FtFTsVjUmQGVWp6RBfrn4WnfBTloGWP0sUOIf4GA8QWDWEf6iDdj39KD7p60/nQs+AStmmgwBg==
-      AZURE_STORAGE_CONTAINER_NAME: invoices
+      # Azure Storage - Usar variables de entorno del .env
+      AZURE_STORAGE_ACCOUNT_NAME: ${AZURE_STORAGE_ACCOUNT_NAME}
+      AZURE_STORAGE_ACCOUNT_KEY: ${AZURE_STORAGE_ACCOUNT_KEY}
+      AZURE_STORAGE_CONTAINER_NAME: ${AZURE_STORAGE_CONTAINER_NAME}
       
-      # Azure OpenAI - Configuración real
-      AZURE_OPENAI_ENDPOINT: https://mfn-opendoors-openai.openai.azure.com/
-      AZURE_OPENAI_API_KEY: Ab2T1zO11h8pvAhw4qKU7KdBEPe0kBYLSWkWKBcn45ZaHvB1gxOIJQQJ99BIACYeBjFXJ3w3AAABACOGtIj4
-      AZURE_OPENAI_DEPLOYMENT_NAME: gpt-4o
-      OPENAI_API_VERSION: 2024-02-01
+      # Azure OpenAI - Usar variables de entorno del .env
+      AZURE_OPENAI_ENDPOINT: ${AZURE_OPENAI_ENDPOINT}
+      AZURE_OPENAI_API_KEY: ${AZURE_OPENAI_API_KEY}
+      AZURE_OPENAI_DEPLOYMENT_NAME: ${AZURE_OPENAI_DEPLOYMENT_NAME}
+      OPENAI_API_VERSION: ${OPENAI_API_VERSION}
       
-      # Azure Document Intelligence - Configuración real
-      AZURE_DOC_INTELLIGENCE_ENDPOINT: https://mfn-opendoors-docintel.cognitiveservices.azure.com/
-      AZURE_DOC_INTELLIGENCE_KEY: Bfly4Mb9ElydDPQNh2lEJo6vF2PYNPtgBOPE6WjcWgrhdlyB5nHhJQQJ99BIACYeBjFXJ3w3AAALACOGZJ2f
+      # Azure Document Intelligence - Usar variables de entorno del .env
+      AZURE_DOC_INTELLIGENCE_ENDPOINT: ${AZURE_DOC_INTELLIGENCE_ENDPOINT}
+      AZURE_DOC_INTELLIGENCE_KEY: ${AZURE_DOC_INTELLIGENCE_KEY}
       
-      # Azure Cognitive Search - Configuración real
-      AZURE_SEARCH_ENDPOINT: https://mfnsearchv2.search.windows.net
-      AZURE_SEARCH_ADMIN_KEY: gk3y5ExYXjx4XwN5p4e6JcnUzruRZgPaxZ2nqkQ0ULAzSeCy5DiN
-      AZURE_SEARCH_INDEX_NAME: opendoors-invoices
+      # Azure Cognitive Search - Usar variables de entorno del .env
+      AZURE_SEARCH_ENDPOINT: ${AZURE_SEARCH_ENDPOINT}
+      AZURE_SEARCH_ADMIN_KEY: ${AZURE_SEARCH_ADMIN_KEY}
+      AZURE_SEARCH_INDEX_NAME: ${AZURE_SEARCH_INDEX_NAME}
       
       # AFIP - VACÍO para modo desarrollo
       AFIP_TAX_ID: ""

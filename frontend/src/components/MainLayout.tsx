@@ -16,6 +16,10 @@ import ExecutiveAnalyticsPage from '../pages/ExecutiveAnalyticsPage';
 import ApprovalQueuePage from '../pages/ApprovalQueuePage';
 import ActivityLogPage from '../pages/ActivityLogPage';
 import UserSettingsPage from '../pages/UserSettingsPage';
+import UserManagementPage from '../pages/UserManagementPage';
+import AITrainingPage from '../pages/AITrainingPage';
+import ExcelImportPage from '../pages/ExcelImportPage';
+import ProjectCashFlowPage from '../pages/ProjectCashFlowPage';
 import AIAssistant from './AIAssistant';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -49,12 +53,17 @@ type ViewType =
   | 'analytics'
   | 'activity-log'
   | 'trash'
-  | 'user-settings';
+  | 'user-management'
+  | 'user-settings'
+  | 'ai-training'
+  | 'excel-import'
+  | 'project-cashflow';
 
 // Configuración del menú de navegación
 const menuItems = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { id: 'upload', label: 'Cargar Facturas', icon: Upload },
+  { id: 'excel-import', label: 'Importar Excel', icon: Upload },
   { id: 'history', label: 'Historial Facturas', icon: FileText },
   { id: 'sales-vs-purchases', label: 'Ventas vs Compras', icon: TrendingUp },
   { id: 'review-queue', label: 'Cola de Revisión', icon: Clock },
@@ -62,7 +71,10 @@ const menuItems = [
   { id: 'clients', label: 'Clientes/Proveedores', icon: Users },
   { id: 'reports', label: 'Reportes', icon: BarChart3 },
   { id: 'analytics', label: 'Analytics Ejecutivos', icon: BarChart3 },
+  { id: 'project-cashflow', label: 'Cash Flow Proyectos', icon: TrendingUp },
   { id: 'activity-log', label: 'Registro de Actividades', icon: Activity },
+  { id: 'user-management', label: 'Gestión de Usuarios', icon: Users },
+  { id: 'ai-training', label: 'Entrenamiento IA', icon: Brain },
   { id: 'user-settings', label: 'Mi Perfil', icon: User },
   { id: 'trash', label: 'Papelera de Reciclaje', icon: Trash2 },
 ];
@@ -102,6 +114,14 @@ const MainLayout: React.FC = () => {
         return <ActivityLogPage />;
       case 'trash':
         return <TrashPage />;
+      case 'user-management':
+        return <UserManagementPage />;
+      case 'ai-training':
+        return <AITrainingPage />;
+      case 'excel-import':
+        return <ExcelImportPage />;
+      case 'project-cashflow':
+        return <ProjectCashFlowPage />;
       case 'user-settings':
         return <UserSettingsPage />;
       default:

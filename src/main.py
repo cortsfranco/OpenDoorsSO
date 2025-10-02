@@ -9,15 +9,19 @@ from contextlib import asynccontextmanager
 
 from src.core.config import settings
 from src.core.database import engine
-from src.api.routers import auth, users, companies, invoices, clients, invoice_upload, analysis, approval, partners, system_settings
+from src.api.routers import auth, users, companies, invoices, clients, invoice_upload, analysis, approval, partners, system_settings, financial_reports
 from src.core.database import init_db
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Gestiona el ciclo de vida de la aplicación."""
-    # Inicializar base de datos
-    await init_db()
+    # Inicializar base de datos (opcional - solo si está disponible)
+    try:
+        await init_db()
+    except Exception as e:
+        print(f"Warning: Database not available - {e}")
+        print("Running in development mode without database.")
     yield
     # Cleanup (si es necesario)
 
@@ -49,6 +53,7 @@ app.include_router(analysis.router, prefix="/api/v1/analysis", tags=["análisis 
 app.include_router(approval.router, prefix="/api/v1/approval", tags=["aprobación de pagos"])
 app.include_router(partners.router, prefix="/api/v1/partners", tags=["socios y proveedores"])
 app.include_router(system_settings.router, prefix="/api/v1/system", tags=["configuraciones del sistema"])
+app.include_router(financial_reports.router, prefix="/api/v1", tags=["reportes financieros"])
 
 
 @app.get("/")

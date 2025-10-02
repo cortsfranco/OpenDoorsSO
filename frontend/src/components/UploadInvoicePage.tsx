@@ -50,6 +50,9 @@ interface ManualInvoiceData {
   owner: string;
   movimiento_cuenta: boolean;  // CRÍTICO: Campo de movimiento de cuenta
   otros_impuestos: number;     // Otros impuestos además del IVA
+  metodo_pago: string;         // Método de pago: contado, transferencia, tarjeta_credito
+  es_compensacion_iva: boolean; // Si es solo para compensar IVA
+  invoice_direction: string;    // emitida o recibida
 }
 
 interface DuplicateCheck {
@@ -85,8 +88,11 @@ const UploadInvoicePage: React.FC = () => {
     total: 0,
     description: '',
     owner: 'Hernán Pagani',
-    movimiento_cuenta: true,  // CRÍTICO: Por defecto True
-    otros_impuestos: 0.0      // Por defecto 0
+    movimiento_cuenta: true,        // CRÍTICO: Por defecto True
+    otros_impuestos: 0.0,           // Por defecto 0
+    metodo_pago: 'transferencia',   // Por defecto transferencia
+    es_compensacion_iva: false,     // Por defecto FALSE
+    invoice_direction: 'recibida',  // Por defecto recibida
   });
 
   const { success, error, warning } = useNotifications();
@@ -235,12 +241,29 @@ const UploadInvoicePage: React.FC = () => {
     }
   };
 
+  // Función para calcular total automáticamente
+  const calculateTotal = () => {
+    const subtotal = parseFloat(manualInvoiceData.subtotal.toString()) || 0;
+    const iva = parseFloat(manualInvoiceData.iva.toString()) || 0;
+    const otrosImpuestos = parseFloat(manualInvoiceData.otros_impuestos.toString()) || 0;
+    return subtotal + iva + otrosImpuestos;
+  };
+
   const handleManualInvoiceSubmit = async () => {
+    if (!manualInvoiceData.invoice_number || !manualInvoiceData.client_name) {
+      error('Error', 'Por favor completa los campos obligatorios');
+      return;
+    }
+
     try {
       setIsUploading(true);
       
+      // Calcular total automáticamente
+      const total = calculateTotal();
+      
       const invoiceData = {
         ...manualInvoiceData,
+        total: total,
         owner: selectedOwner === 'Otro socio' ? customOwnerName : selectedOwner
       };
 
@@ -260,7 +283,12 @@ const UploadInvoicePage: React.FC = () => {
         iva: 0,
         total: 0,
         description: '',
-        owner: 'Hernán Pagani'
+        owner: 'Hernán Pagani',
+        movimiento_cuenta: true,
+        otros_impuestos: 0.0,
+        metodo_pago: 'transferencia',
+        es_compensacion_iva: false,
+        invoice_direction: 'recibida'
       });
       setShowManualForm(false);
       
@@ -503,10 +531,10 @@ const UploadInvoicePage: React.FC = () => {
                 <Input
                   id="total"
                   type="number"
-                  value={manualInvoiceData.total}
+                  value={calculateTotal()}
                   readOnly
                   placeholder="0"
-                  className="bg-gray-50"
+                  className="bg-gray-50 font-semibold"
                 />
               </div>
               
@@ -552,6 +580,83 @@ const UploadInvoicePage: React.FC = () => {
                 <p className="text-xs text-gray-500 mt-1">
                   Impuestos adicionales al IVA (ej: IIBB, Ganancias)
                 </p>
+              </div>
+              
+              <div>
+                <Label htmlFor="metodo_pago">Método de Pago</Label>
+                <Select
+                  value={manualInvoiceData.metodo_pago}
+                  onValueChange={(value) => 
+                    setManualInvoiceData({
+                      ...manualInvoiceData, 
+                      metodo_pago: value
+                    })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Seleccionar método" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="contado">💰 Contado</SelectItem>
+                    <SelectItem value="transferencia">🏦 Transferencia</SelectItem>
+                    <SelectItem value="tarjeta_credito">💳 Tarjeta de Crédito</SelectItem>
+                    <SelectItem value="tarjeta_debito">💳 Tarjeta de Débito</SelectItem>
+                    <SelectItem value="cheque">📝 Cheque</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-gray-500 mt-1">
+                  Cómo se pagó/cobró esta factura
+                </p>
+              </div>
+              
+              <div>
+                <Label htmlFor="invoice_direction">Dirección de Factura</Label>
+                <Select
+                  value={manualInvoiceData.invoice_direction}
+                  onValueChange={(value) => 
+                    setManualInvoiceData({
+                      ...manualInvoiceData, 
+                      invoice_direction: value
+                    })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Seleccionar dirección" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="emitida">📤 Emitida (Venta - Tú cobras)</SelectItem>
+                    <SelectItem value="recibida">📥 Recibida (Compra - Tú pagas)</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-gray-500 mt-1">
+                  {manualInvoiceData.invoice_direction === 'emitida' 
+                    ? "Factura que emites a tus clientes" 
+                    : "Factura que recibes de proveedores"
+                  }
+                </p>
+              </div>
+              
+              <div className="col-span-2">
+                <div className="flex items-center space-x-3 p-4 border rounded-lg bg-yellow-50 border-yellow-200">
+                  <Switch
+                    id="es_compensacion_iva"
+                    checked={manualInvoiceData.es_compensacion_iva}
+                    onCheckedChange={(checked) => 
+                      setManualInvoiceData({...manualInvoiceData, es_compensacion_iva: checked})
+                    }
+                  />
+                  <div className="flex-1">
+                    <Label htmlFor="es_compensacion_iva" className="text-sm font-medium text-yellow-900">
+                      Factura de Compensación IVA
+                    </Label>
+                    <p className="text-xs text-yellow-700 mt-1">
+                      {manualInvoiceData.es_compensacion_iva 
+                        ? "⚠️ Solo para compensar IVA (no afecta caja real)"
+                        : "✅ Factura normal (afecta tanto IVA como caja)"
+                      }
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
             <div>

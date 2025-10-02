@@ -158,9 +158,7 @@ class ApiService {
           // Métodos de aprobación
           async getPendingApprovals() {
             // Simular datos de ejemplo mientras se implementa el endpoint
-            return {
-              invoices: []
-            };
+            return []; // Devolver array vacío directamente
           }
 
           async getInvoiceApprovalDetails(invoiceId: number) {
@@ -187,6 +185,25 @@ class ApiService {
           async analyzeFinancialData(query: string, period?: string) {
             const response = await this.api.post('/analysis/', { query, period });
             return response;
+          }
+
+          // Métodos de reportes financieros (nuevos endpoints)
+          async getBalanceIVA(owner?: string, fechaDesde?: string, fechaHasta?: string) {
+            const params = new URLSearchParams();
+            if (owner) params.append('owner', owner);
+            if (fechaDesde) params.append('fecha_desde', fechaDesde);
+            if (fechaHasta) params.append('fecha_hasta', fechaHasta);
+            const response = await this.api.get(`/financial/balance-iva?${params.toString()}`);
+            return response.data;
+          }
+
+          async getBalanceGeneral(owner?: string, fechaDesde?: string, fechaHasta?: string) {
+            const params = new URLSearchParams();
+            if (owner) params.append('owner', owner);
+            if (fechaDesde) params.append('fecha_desde', fechaDesde);
+            if (fechaHasta) params.append('fecha_hasta', fechaHasta);
+            const response = await this.api.get(`/financial/balance-general?${params.toString()}`);
+            return response.data;
           }
 
           // Métodos de papelera (soft delete)

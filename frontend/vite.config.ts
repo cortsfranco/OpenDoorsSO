@@ -55,9 +55,13 @@ export default defineConfig({
   server: {
     host: '0.0.0.0',
     port: 3000,
+    strictPort: true,  // Agregar
+    hmr: {
+      clientPort: 3000  // Agregar para HMR
+    },
     proxy: {
       '/api': {
-        target: 'http://localhost:8000',
+        target: 'http://backend:8000',  // Usar nombre servicio Docker
         changeOrigin: true,
       },
     },

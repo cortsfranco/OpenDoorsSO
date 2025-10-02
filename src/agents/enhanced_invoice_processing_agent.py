@@ -25,23 +25,29 @@ class EnhancedInvoiceProcessingAgent:
     def __init__(self, session=None):
         self.session = session
         
-        # Cliente de Azure Document Intelligence
-        self.doc_client = DocumentAnalysisClient(
-            endpoint=settings.AZURE_DOC_INTELLIGENCE_ENDPOINT,
-            credential=AzureKeyCredential(settings.AZURE_DOC_INTELLIGENCE_KEY)
-        )
-
-        # Cliente de Azure OpenAI
-        self.openai_client = AsyncOpenAI(
-            api_key=settings.AZURE_OPENAI_API_KEY,
-            base_url=f"{settings.AZURE_OPENAI_ENDPOINT}openai/deployments/{settings.AZURE_OPENAI_DEPLOYMENT_NAME}/"
-        )
-
-        # Cliente de Azure Blob Storage
-        self.blob_client = BlobServiceClient(
-            account_url=f"https://{settings.AZURE_STORAGE_ACCOUNT_NAME}.blob.core.windows.net",
-            credential=settings.AZURE_STORAGE_ACCOUNT_KEY
-        )
+        # Inicialización lazy de clientes Azure (solo si hay credenciales)
+        self.doc_client = None
+        self.openai_client = None
+        self.blob_client = None
+        
+        # Solo inicializar si hay credenciales configuradas
+        if settings.AZURE_DOC_INTELLIGENCE_ENDPOINT and settings.AZURE_DOC_INTELLIGENCE_KEY:
+            self.doc_client = DocumentAnalysisClient(
+                endpoint=settings.AZURE_DOC_INTELLIGENCE_ENDPOINT,
+                credential=AzureKeyCredential(settings.AZURE_DOC_INTELLIGENCE_KEY)
+            )
+        
+        if settings.AZURE_OPENAI_API_KEY and settings.AZURE_OPENAI_ENDPOINT:
+            self.openai_client = AsyncOpenAI(
+                api_key=settings.AZURE_OPENAI_API_KEY,
+                base_url=f"{settings.AZURE_OPENAI_ENDPOINT}openai/deployments/{settings.AZURE_OPENAI_DEPLOYMENT_NAME}/"
+            )
+        
+        if settings.AZURE_STORAGE_ACCOUNT_NAME and settings.AZURE_STORAGE_ACCOUNT_KEY:
+            self.blob_client = BlobServiceClient(
+                account_url=f"https://{settings.AZURE_STORAGE_ACCOUNT_NAME}.blob.core.windows.net",
+                credential=settings.AZURE_STORAGE_ACCOUNT_KEY
+            )
     
     async def extract_with_doc_intelligence(self, blob_url: str) -> Dict[str, Any]:
         """Extrae datos usando Azure Document Intelligence con campos específicos."""

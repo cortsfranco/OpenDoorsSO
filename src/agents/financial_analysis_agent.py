@@ -71,7 +71,7 @@ class FinancialAnalysisAgent:
             
             # Filtro por propietario si se especifica
             if owner_id:
-                query = query.where(Invoice.user_id == owner_id)
+                query = query.where(Invoice.owner == owner_id)
             
             if start_date:
                 query = query.where(Invoice.created_at >= start_date)
@@ -81,8 +81,8 @@ class FinancialAnalysisAgent:
             result = await self.session.execute(query)
             invoices = result.scalars().all()
             
-            iva_compras = 0.0  # IVA a favor (compras)
-            iva_ventas = 0.0   # IVA a pagar (ventas)
+            iva_compras = 0.0  # IVA a favor (compras recibidas)
+            iva_ventas = 0.0   # IVA a pagar (ventas emitidas)
             
             for invoice in invoices:
                 if invoice.extracted_data:
@@ -91,14 +91,13 @@ class FinancialAnalysisAgent:
                     
                     # CRÍTICO: Solo facturas tipo "A" para cálculo de IVA
                     if invoice_type == 'A':
-                        total = float(invoice.extracted_data.get('total', 0))
-                        
-                        # Determinar si es venta o compra basándose en el total
-                        # (esto podría necesitar ajuste según la lógica de negocio específica)
-                        if total > 0:  # Ventas (IVA a pagar)
-                            iva_ventas += iva_amount
-                        else:  # Compras (IVA a favor)
+                        # Usar el campo invoice_direction para determinar si es crédito o débito fiscal
+                        if invoice.invoice_direction == 'recibida':
+                            # Facturas recibidas (compras) = Crédito fiscal (IVA a favor)
                             iva_compras += abs(iva_amount)
+                        elif invoice.invoice_direction == 'emitida':
+                            # Facturas emitidas (ventas) = Débito fiscal (IVA a pagar)
+                            iva_ventas += abs(iva_amount)
             
             balance_iva = iva_compras - iva_ventas
             
@@ -134,7 +133,7 @@ class FinancialAnalysisAgent:
             
             # Filtro por propietario si se especifica
             if owner_id:
-                query = query.where(Invoice.user_id == owner_id)
+                query = query.where(Invoice.owner == owner_id)
             
             if start_date:
                 query = query.where(Invoice.created_at >= start_date)
@@ -151,9 +150,12 @@ class FinancialAnalysisAgent:
                 if invoice.extracted_data:
                     total = float(invoice.extracted_data.get('total', 0))
                     
-                    if total > 0:  # Ingresos
-                        total_ingresos += total
-                    else:  # Egresos
+                    # Usar invoice_direction para determinar ingresos vs egresos
+                    if invoice.invoice_direction == 'emitida':
+                        # Facturas emitidas = Ingresos (cash flow positivo)
+                        total_ingresos += abs(total)
+                    elif invoice.invoice_direction == 'recibida':
+                        # Facturas recibidas = Egresos (cash flow negativo)
                         total_egresos += abs(total)
             
             balance_general = total_ingresos - total_egresos
@@ -189,7 +191,7 @@ class FinancialAnalysisAgent:
             
             # Filtro por propietario si se especifica
             if owner_id:
-                query = query.where(Invoice.user_id == owner_id)
+                query = query.where(Invoice.owner == owner_id)
             
             if start_date:
                 query = query.where(Invoice.created_at >= start_date)
@@ -347,7 +349,7 @@ class FinancialAnalysisAgent:
             
             # Filtro por propietario si se especifica
             if owner_id:
-                query = query.where(Invoice.user_id == owner_id)
+                query = query.where(Invoice.owner == owner_id)
             
             result = await self.session.execute(query)
             invoices = result.scalars().all()
@@ -398,7 +400,7 @@ class FinancialAnalysisAgent:
             
             # Filtro por propietario si se especifica
             if owner_id:
-                query = query.where(Invoice.user_id == owner_id)
+                query = query.where(Invoice.owner == owner_id)
             
             result = await self.session.execute(query)
             invoices = result.scalars().all()

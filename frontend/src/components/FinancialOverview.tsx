@@ -15,7 +15,9 @@ import {
   ArrowDownRight,
   Minus,
   Plus,
-  User
+  User,
+  Activity,
+  PieChart as PieChartIcon
 } from 'lucide-react';
 import { 
   AreaChart, 
@@ -27,6 +29,11 @@ import {
   ResponsiveContainer,
   BarChart,
   Bar,
+  LineChart,
+  Line,
+  PieChart,
+  Pie,
+  Cell,
   Legend
 } from 'recharts';
 import apiService from '@/services/api';
@@ -55,65 +62,78 @@ interface FinancialSummary {
 const FinancialOverview: React.FC = () => {
   const [summary, setSummary] = useState<FinancialSummary | null>(null);
   const [loading, setLoading] = useState(true);
-  const [chartType, setChartType] = useState<'area' | 'bar'>('area');
+  const [chartType, setChartType] = useState<'area' | 'bar' | 'line' | 'pie'>('area');
   
-  const { error } = useNotifications();
+  const { error: showError } = useNotifications();
 
   useEffect(() => {
     fetchFinancialSummary();
-  }, []);
+  }, [selectedOwner, dateRange]);
 
   const fetchFinancialSummary = async () => {
     try {
       setLoading(true);
       
-      // Usar datos de ejemplo por ahora hasta que las APIs estén completamente implementadas
-      const exampleData = {
-        total_income: 2500000,
-        total_expenses: 1800000,
-        iva_balance: 450000,
-        general_balance: 700000
+      // CRÍTICO: Usar los nuevos endpoints con lógica fiscal argentina correcta
+      const ivaBalanceData = await apiService.getBalanceIVA(selectedOwner, dateRange?.from?.toISOString().split('T')[0], dateRange?.to?.toISOString().split('T')[0]);
+      const generalBalanceData = await apiService.getBalanceGeneral(selectedOwner, dateRange?.from?.toISOString().split('T')[0], dateRange?.to?.toISOString().split('T')[0]);
+      
+      // Generar datos mensuales basados en los datos reales
+      const realData = {
+        total_income: generalBalanceData.ingresos_totales || 0,
+        total_expenses: generalBalanceData.egresos_totales || 0,
+        iva_balance: ivaBalanceData.balance_iva || 0,
+        general_balance: generalBalanceData.balance_general || 0
       };
       
-      // Generar datos mensuales de ejemplo para los últimos 12 meses
-      const monthlyData = generateMonthlyData(exampleData);
+      const monthlyData = generateMonthlyData(realData);
       
-      // Datos de ejemplo para balances por socio
+      // Datos de ejemplo para balances por socio (hasta implementar endpoint específico)
       const balancesPorSocio = [
         {
           socio: "Franco",
-          balance_iva: 150000,
-          balance_general: 250000,
-          total_ingresos: 800000,
-          total_egresos: 550000
+          balance_iva: (ivaBalanceData.balance_iva || 0) / 3,
+          balance_general: (generalBalanceData.balance_general || 0) / 3,
+          total_ingresos: (generalBalanceData.ingresos_totales || 0) / 3,
+          total_egresos: (generalBalanceData.egresos_totales || 0) / 3
         },
         {
           socio: "Joni",
-          balance_iva: 200000,
-          balance_general: 300000,
-          total_ingresos: 1000000,
-          total_egresos: 700000
+          balance_iva: (ivaBalanceData.balance_iva || 0) / 3,
+          balance_general: (generalBalanceData.balance_general || 0) / 3,
+          total_ingresos: (generalBalanceData.ingresos_totales || 0) / 3,
+          total_egresos: (generalBalanceData.egresos_totales || 0) / 3
         },
         {
           socio: "Hernán",
-          balance_iva: 100000,
-          balance_general: 150000,
-          total_ingresos: 700000,
-          total_egresos: 550000
+          balance_iva: (ivaBalanceData.balance_iva || 0) / 3,
+          balance_general: (generalBalanceData.balance_general || 0) / 3,
+          total_ingresos: (generalBalanceData.ingresos_totales || 0) / 3,
+          total_egresos: (generalBalanceData.egresos_totales || 0) / 3
         }
       ];
       
       setSummary({
-        total_income: exampleData.total_income,
-        total_expenses: exampleData.total_expenses,
-        iva_balance: exampleData.iva_balance,
-        general_balance: exampleData.general_balance,
+        total_income: realData.total_income,
+        total_expenses: realData.total_expenses,
+        iva_balance: realData.iva_balance,
+        general_balance: realData.general_balance,
         monthly_data: monthlyData,
         balances_por_socio: balancesPorSocio
       });
     } catch (err: any) {
       console.error('Error fetching financial summary:', err);
-      // No mostrar error al usuario por ahora, usar datos de ejemplo
+      showError('Error al cargar el resumen financiero');
+      // Fallback a datos de ejemplo en caso de error
+      const fallbackData = {
+        total_income: 0,
+        total_expenses: 0,
+        iva_balance: 0,
+        general_balance: 0,
+        monthly_data: [],
+        balances_por_socio: []
+      };
+      setSummary(fallbackData);
     } finally {
       setLoading(false);
     }
@@ -226,6 +246,24 @@ const FinancialOverview: React.FC = () => {
             >
               <BarChart3 className="w-4 h-4 mr-2" />
               Barras
+            </Button>
+            <Button
+              size="sm"
+              variant={chartType === 'line' ? 'default' : 'outline'}
+              onClick={() => setChartType('line')}
+              className="btn-animated"
+            >
+              <Activity className="w-4 h-4 mr-2" />
+              Líneas
+            </Button>
+            <Button
+              size="sm"
+              variant={chartType === 'pie' ? 'default' : 'outline'}
+              onClick={() => setChartType('pie')}
+              className="btn-animated"
+            >
+              <PieChartIcon className="w-4 h-4 mr-2" />
+              Torta
             </Button>
           </div>
         </div>
@@ -392,7 +430,7 @@ const FinancialOverview: React.FC = () => {
                     name="Egresos"
                   />
                 </AreaChart>
-              ) : (
+              ) : chartType === 'bar' ? (
                 <BarChart data={summary?.monthly_data || []}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
                   <XAxis 
@@ -419,6 +457,78 @@ const FinancialOverview: React.FC = () => {
                   <Bar dataKey="income" fill="#10B981" name="Ingresos" radius={[4, 4, 0, 0]} />
                   <Bar dataKey="expenses" fill="#EF4444" name="Egresos" radius={[4, 4, 0, 0]} />
                 </BarChart>
+              ) : chartType === 'line' ? (
+                <LineChart data={summary?.monthly_data || []}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                  <XAxis 
+                    dataKey="month" 
+                    stroke="#6B7280"
+                    fontSize={12}
+                  />
+                  <YAxis 
+                    stroke="#6B7280"
+                    fontSize={12}
+                    tickFormatter={(value) => `$${(value / 1000).toFixed(0)}K`}
+                  />
+                  <Tooltip 
+                    formatter={(value: number) => [formatTooltipValue(value), '']}
+                    labelStyle={{ color: '#374151' }}
+                    contentStyle={{ 
+                      backgroundColor: 'white', 
+                      border: '1px solid #E5E7EB',
+                      borderRadius: '8px',
+                      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                    }}
+                  />
+                  <Legend />
+                  <Line 
+                    type="monotone" 
+                    dataKey="income" 
+                    stroke="#10B981" 
+                    strokeWidth={3}
+                    name="Ingresos"
+                    dot={{ fill: '#10B981', strokeWidth: 2, r: 4 }}
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="expenses" 
+                    stroke="#EF4444" 
+                    strokeWidth={3}
+                    name="Egresos"
+                    dot={{ fill: '#EF4444', strokeWidth: 2, r: 4 }}
+                  />
+                </LineChart>
+              ) : (
+                <PieChart>
+                  <Pie
+                    data={[
+                      { name: 'Ingresos', value: summary?.total_income || 0, color: '#10B981' },
+                      { name: 'Egresos', value: summary?.total_expenses || 0, color: '#EF4444' }
+                    ]}
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={120}
+                    dataKey="value"
+                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                  >
+                    {[
+                      { name: 'Ingresos', value: summary?.total_income || 0, color: '#10B981' },
+                      { name: 'Egresos', value: summary?.total_expenses || 0, color: '#EF4444' }
+                    ].map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip 
+                    formatter={(value: number) => [formatTooltipValue(value), '']}
+                    contentStyle={{ 
+                      backgroundColor: 'white', 
+                      border: '1px solid #E5E7EB',
+                      borderRadius: '8px',
+                      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                    }}
+                  />
+                  <Legend />
+                </PieChart>
               )}
             </ResponsiveContainer>
           </div>
