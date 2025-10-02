@@ -63,6 +63,8 @@ const FinancialOverview: React.FC = () => {
   const [summary, setSummary] = useState<FinancialSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [chartType, setChartType] = useState<'area' | 'bar' | 'line' | 'pie'>('area');
+  const [selectedOwner, setSelectedOwner] = useState<string>('');
+  const [dateRange, setDateRange] = useState<{from?: Date, to?: Date} | undefined>(undefined);
   
   const { error: showError } = useNotifications();
 

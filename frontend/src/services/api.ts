@@ -188,23 +188,23 @@ class ApiService {
           }
 
           // Métodos de reportes financieros (nuevos endpoints)
-          async getBalanceIVA(owner?: string, fechaDesde?: string, fechaHasta?: string) {
-            const params = new URLSearchParams();
-            if (owner) params.append('owner', owner);
-            if (fechaDesde) params.append('fecha_desde', fechaDesde);
-            if (fechaHasta) params.append('fecha_hasta', fechaHasta);
-            const response = await this.api.get(`/financial/balance-iva?${params.toString()}`);
-            return response.data;
-          }
+  async getBalanceIVA(owner?: string, fechaDesde?: string, fechaHasta?: string) {
+    const params = new URLSearchParams();
+    if (owner) params.append('owner', owner);
+    if (fechaDesde) params.append('fecha_desde', fechaDesde);
+    if (fechaHasta) params.append('fecha_hasta', fechaHasta);
+    const response = await this.api.get(`/v1/financial/balance-iva?${params.toString()}`);
+    return response.data;
+  }
 
-          async getBalanceGeneral(owner?: string, fechaDesde?: string, fechaHasta?: string) {
-            const params = new URLSearchParams();
-            if (owner) params.append('owner', owner);
-            if (fechaDesde) params.append('fecha_desde', fechaDesde);
-            if (fechaHasta) params.append('fecha_hasta', fechaHasta);
-            const response = await this.api.get(`/financial/balance-general?${params.toString()}`);
-            return response.data;
-          }
+  async getBalanceGeneral(owner?: string, fechaDesde?: string, fechaHasta?: string) {
+    const params = new URLSearchParams();
+    if (owner) params.append('owner', owner);
+    if (fechaDesde) params.append('fecha_desde', fechaDesde);
+    if (fechaHasta) params.append('fecha_hasta', fechaHasta);
+    const response = await this.api.get(`/v1/financial/balance-general?${params.toString()}`);
+    return response.data;
+  }
 
           // Métodos de papelera (soft delete)
           async deleteInvoice(invoiceId: number) {

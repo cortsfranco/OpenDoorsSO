@@ -29,26 +29,27 @@ class FinancialService:
             fecha_hasta: Fecha fin del período
         """
         filters = [
-            Invoice.extracted_data["invoice_type"].astext.in_(['A', 'B', 'C'])
+            Invoice.invoice_type.in_(['A', 'B', 'C'])
         ]
         
-        if owner:
-            filters.append(Invoice.owner == owner)
+        # TODO: Implementar filtro por owner cuando el campo esté disponible
+        # if owner:
+        #     filters.append(Invoice.owner == owner)
         if fecha_desde:
-            filters.append(Invoice.upload_date >= fecha_desde)
+            filters.append(Invoice.issue_date >= fecha_desde)
         if fecha_hasta:
-            filters.append(Invoice.upload_date <= fecha_hasta)
+            filters.append(Invoice.issue_date <= fecha_hasta)
         
         query = select(
             func.sum(
                 case(
-                    (Invoice.invoice_direction == 'emitida', Invoice.extracted_data["iva"].astext.cast(Float)),
+                    (Invoice.invoice_direction == 'emitida', Invoice.tax_amount),
                     else_=0
                 )
             ).label('iva_emitido'),
             func.sum(
                 case(
-                    (Invoice.invoice_direction == 'recibida', Invoice.extracted_data["iva"].astext.cast(Float)),
+                    (Invoice.invoice_direction == 'recibida', Invoice.tax_amount),
                     else_=0
                 )
             ).label('iva_recibido')
@@ -90,23 +91,24 @@ class FinancialService:
             Invoice.movimiento_cuenta == True
         ]
         
-        if owner:
-            filters.append(Invoice.owner == owner)
+        # TODO: Implementar filtro por owner cuando el campo esté disponible
+        # if owner:
+        #     filters.append(Invoice.owner == owner)
         if fecha_desde:
-            filters.append(Invoice.upload_date >= fecha_desde)
+            filters.append(Invoice.issue_date >= fecha_desde)
         if fecha_hasta:
-            filters.append(Invoice.upload_date <= fecha_hasta)
+            filters.append(Invoice.issue_date <= fecha_hasta)
         
         query = select(
             func.sum(
                 case(
-                    (Invoice.invoice_direction == 'emitida', Invoice.extracted_data["total"].astext.cast(Float)),
+                    (Invoice.invoice_direction == 'emitida', Invoice.total_amount),
                     else_=0
                 )
             ).label('ingresos'),
             func.sum(
                 case(
-                    (Invoice.invoice_direction == 'recibida', Invoice.extracted_data["total"].astext.cast(Float)),
+                    (Invoice.invoice_direction == 'recibida', Invoice.total_amount),
                     else_=0
                 )
             ).label('egresos')

@@ -39,7 +39,7 @@ async def init_db():
     """
     async with engine.begin() as conn:
         # Importar todos los modelos aquí para que SQLModel los registre
-        from src.db.models import user, company, invoice, client  # noqa
+        from src.models import user, invoice, partner  # noqa
         
         # Crear todas las tablas
         await conn.run_sync(SQLModel.metadata.create_all)

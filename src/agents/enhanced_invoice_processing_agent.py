@@ -54,53 +54,56 @@ class EnhancedInvoiceProcessingAgent:
         try:
             logger.info("Extrayendo datos con Azure Document Intelligence mejorado")
             
-            # Obtener nombre del blob desde la URL
-            blob_name = blob_url.split('/')[-1]
-            
-            # Descargar el archivo desde Azure Blob Storage
-            blob_client = self.blob_client.get_blob_client(
-                container=settings.AZURE_STORAGE_CONTAINER_NAME,
-                blob=blob_name
-            )
-            
-            blob_data = blob_client.download_blob().readall()
+            # Determinar si es un archivo local o un blob de Azure
+            if blob_url.startswith('file://'):
+                # Archivo local
+                file_path = blob_url.replace('file://', '')
+                with open(file_path, 'rb') as f:
+                    blob_data = f.read()
+            else:
+                # Blob de Azure Storage
+                blob_name = blob_url.split('/')[-1]
+                blob_client = self.blob_client.get_blob_client(
+                    container=settings.AZURE_STORAGE_CONTAINER_NAME,
+                    blob=blob_name
+                )
+                blob_data = blob_client.download_blob().readall()
             
             # Analizar documento con Azure Document Intelligence
-            async with self.doc_client:
-                poller = await self.doc_client.begin_analyze_document(
-                    "prebuilt-invoice",
-                    document=blob_data
-                )
-                result = await poller.result()
-                
-                # Extraer datos relevantes con campos específicos
-                extracted_data = {}
-                
-                # Mapeo de campos de Document Intelligence
-                field_mapping = {
-                    'VendorName': 'proveedor',
-                    'CustomerName': 'cliente',
-                    'InvoiceId': 'numero_factura',
-                    'InvoiceDate': 'fecha_emision',
-                    'DueDate': 'fecha_vencimiento',
-                    'InvoiceTotal': 'total',
-                    'SubTotal': 'subtotal',
-                    'TotalTax': 'iva',
-                    'Items': 'items'
-                }
-                
-                for document in result.documents:
-                    for name, field in document.fields.items():
-                        if name in field_mapping:
-                            extracted_data[field_mapping[name]] = field.value
-                        else:
-                            extracted_data[name.lower()] = field.value
-                
-                # Extraer información fiscal específica
-                extracted_data = await self._extract_fiscal_info(extracted_data, result)
-                
-                return extracted_data
-                
+            poller = self.doc_client.begin_analyze_document(
+                "prebuilt-invoice",
+                document=blob_data
+            )
+            result = poller.result()
+            
+            # Extraer datos relevantes con campos específicos
+            extracted_data = {}
+            
+            # Mapeo de campos de Document Intelligence
+            field_mapping = {
+                'VendorName': 'proveedor',
+                'CustomerName': 'cliente',
+                'InvoiceId': 'numero_factura',
+                'InvoiceDate': 'fecha_emision',
+                'DueDate': 'fecha_vencimiento',
+                'InvoiceTotal': 'total',
+                'SubTotal': 'subtotal',
+                'TotalTax': 'iva',
+                'Items': 'items'
+            }
+            
+            for document in result.documents:
+                for name, field in document.fields.items():
+                    if name in field_mapping:
+                        extracted_data[field_mapping[name]] = field.value
+                    else:
+                        extracted_data[name.lower()] = field.value
+            
+            # Extraer información fiscal específica
+            extracted_data = await self._extract_fiscal_info(extracted_data, result)
+            
+            return extracted_data
+            
         except Exception as e:
             logger.error(f"Error en extracción mejorada: {str(e)}")
             raise

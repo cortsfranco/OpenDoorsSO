@@ -74,7 +74,8 @@ const ClientsSuppliersPage: React.FC = () => {
     try {
       setLoading(true);
       const response = await apiService.getPartners(searchTerm, businessTypeFilter === 'all' ? undefined : businessTypeFilter);
-      setPartners(response);
+      // Asegurar que siempre sea un array
+      setPartners(Array.isArray(response) ? response : response.partners || []);
     } catch (error) {
       console.error('Error fetching partners:', error);
       showError('Error al cargar socios/proveedores');
