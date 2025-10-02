@@ -1,0 +1,102 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: opendoors_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: opendoors_user
+      POSTGRES_PASSWORD: opendoors_password
+      POSTGRES_DB: opendoors_db
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U opendoors_user -d opendoors_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  backend:
+    container_name: opendoors_backend
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    command: uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
+    volumes:
+      - .:/app
+      - /app/__pycache__
+    ports:
+      - "8001:8000"
+    environment:
+      # Base de datos
+      POSTGRES_USER: opendoors_user
+      POSTGRES_PASSWORD: opendoors_password
+      POSTGRES_SERVER: db
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: opendoors_db
+      
+      # Seguridad
+      SECRET_KEY: tu_clave_secreta_aqui_cambiar_en_produccion
+      ACCESS_TOKEN_EXPIRE_MINUTES: 10080
+      
+      # CORS
+      ALLOWED_HOSTS: http://localhost:3000,http://localhost:5173
+      
+      # Azure Storage - Configuración real
+      AZURE_STORAGE_ACCOUNT_NAME: mfnopendoorssearchbyidt
+      AZURE_STORAGE_ACCOUNT_KEY: ls1dWh3RV7z7FtFTsVjUmQGVWp6RBfrn4WnfBTloGWP0sUOIf4GA8QWDWEf6iDdj39KD7p60/nQs+AStmmgwBg==
+      AZURE_STORAGE_CONTAINER_NAME: invoices
+      
+      # Azure OpenAI - Configuración real
+      AZURE_OPENAI_ENDPOINT: https://mfn-opendoors-openai.openai.azure.com/
+      AZURE_OPENAI_API_KEY: Ab2T1zO11h8pvAhw4qKU7KdBEPe0kBYLSWkWKBcn45ZaHvB1gxOIJQQJ99BIACYeBjFXJ3w3AAABACOGtIj4
+      AZURE_OPENAI_DEPLOYMENT_NAME: gpt-4o
+      OPENAI_API_VERSION: 2024-02-01
+      
+      # Azure Document Intelligence - Configuración real
+      AZURE_DOC_INTELLIGENCE_ENDPOINT: https://mfn-opendoors-docintel.cognitiveservices.azure.com/
+      AZURE_DOC_INTELLIGENCE_KEY: Bfly4Mb9ElydDPQNh2lEJo6vF2PYNPtgBOPE6WjcWgrhdlyB5nHhJQQJ99BIACYeBjFXJ3w3AAALACOGZJ2f
+      
+      # Azure Cognitive Search - Configuración real
+      AZURE_SEARCH_ENDPOINT: https://mfnsearchv2.search.windows.net
+      AZURE_SEARCH_ADMIN_KEY: gk3y5ExYXjx4XwN5p4e6JcnUzruRZgPaxZ2nqkQ0ULAzSeCy5DiN
+      AZURE_SEARCH_INDEX_NAME: opendoors-invoices
+      
+      # AFIP - VACÍO para modo desarrollo
+      AFIP_TAX_ID: ""
+      AFIP_CERTIFICATE_PATH: ""
+      AFIP_PRIVATE_KEY_PATH: ""
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+
+  frontend:
+    container_name: opendoors_frontend
+    image: node:20-alpine
+    command: sh -c "npm install && npm run dev"
+    working_dir: /app
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    ports:
+      - "3000:3000"
+    environment:
+      - VITE_API_URL=http://localhost:8001
+    depends_on:
+      - backend
+    stdin_open: true
+    tty: true
+    restart: unless-stopped
+
+volumes:
+  postgres_data:

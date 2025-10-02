@@ -1,0 +1,53 @@
+# FastAPI y dependencias core
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+python-multipart==0.0.6
+
+# Base de datos
+sqlmodel==0.0.14
+sqlalchemy==2.0.23
+alembic==1.12.1
+psycopg2-binary==2.9.9
+asyncpg==0.29.0
+
+# Autenticación y seguridad
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+python-decouple==3.8
+
+# Validación de datos
+pydantic[email]==2.5.0
+
+# LangGraph y dependencias de IA
+langgraph==0.2.45
+langchain==0.2.16
+langchain-openai==0.1.23
+langgraph-checkpoint-postgres==2.0.24
+langchain-core==0.2.43
+
+# Azure OpenAI
+openai==1.40.0
+
+# Azure Document Intelligence
+azure-ai-documentintelligence==1.0.0b4
+
+# Azure Cognitive Search
+azure-search-documents==11.4.0
+
+# Azure Storage
+azure-storage-blob==12.19.0
+# azure-storage-blob-aio==12.21.0  # Comentado temporalmente - no disponible
+azure-identity==1.15.0
+azure-ai-formrecognizer==3.3.2
+
+# AFIP SDK
+# afip==0.0.2  # Comentado temporalmente - requiere swig para compilar
+
+# Desarrollo y testing
+pytest==7.4.3
+pytest-asyncio==0.21.1
+httpx==0.25.2
+playwright==1.40.0
+
+# Utilidades
+python-dotenv==1.0.0

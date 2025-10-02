@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  db-test:
+    image: postgres:15
+    container_name: opendoors_db_test
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: test_db
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d test_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend-test:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: opendoors_backend_test
+    ports:
+      - "8001:8000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@db-test:5432/test_db
+      - SECRET_KEY=test-secret-key
+      - AZURE_OPENAI_ENDPOINT=test-endpoint
+      - AZURE_OPENAI_API_KEY=test-key
+      - AZURE_OPENAI_DEPLOYMENT_NAME=test-deployment
+      - OPENAI_API_VERSION=2024-02-01
+      - AZURE_DOC_INTELLIGENCE_ENDPOINT=test-endpoint
+      - AZURE_DOC_INTELLIGENCE_KEY=test-key
+      - AZURE_SEARCH_ENDPOINT=test-endpoint
+      - AZURE_SEARCH_ADMIN_KEY=test-key
+      - AZURE_SEARCH_INDEX_NAME=test-index
+      - AZURE_STORAGE_ACCOUNT_NAME=test-account
+      - AZURE_STORAGE_ACCOUNT_KEY=test-key
+    depends_on:
+      db-test:
+        condition: service_healthy
+    command: uvicorn src.main:app --host 0.0.0.0 --port 8000
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  frontend-test:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: opendoors_frontend_test
+    ports:
+      - "3001:3000"
+    environment:
+      - VITE_API_URL=http://localhost:8001
+    depends_on:
+      - backend-test
+    command: npm run build && npm run preview -- --host 0.0.0.0

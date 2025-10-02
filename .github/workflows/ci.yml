@@ -1,0 +1,249 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  # Job para linting y formateo
+  lint:
+    name: Lint & Format
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install black flake8 isort
+        
+    - name: Run Black (formatter)
+      run: black --check src/
+      
+    - name: Run isort (import sorter)
+      run: isort --check-only src/
+      
+    - name: Run flake8 (linter)
+      run: flake8 src/
+      
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: frontend/package-lock.json
+        
+    - name: Install frontend dependencies
+      working-directory: ./frontend
+      run: npm ci
+      
+    - name: Run ESLint
+      working-directory: ./frontend
+      run: npm run lint
+
+  # Job para pruebas unitarias y de integración
+  test:
+    name: Test Backend
+    runs-on: ubuntu-latest
+    needs: lint
+    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: test_db
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest pytest-asyncio pytest-cov
+        
+    - name: Run tests
+      env:
+        DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_db
+        SECRET_KEY: test-secret-key
+      run: |
+        pytest tests/ -v --cov=src --cov-report=xml
+        
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+
+  # Job para pruebas E2E con Playwright
+  test-e2e:
+    name: E2E Tests
+    runs-on: ubuntu-latest
+    needs: test
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        
+    - name: Install Playwright
+      run: |
+        pip install playwright
+        playwright install
+        
+    - name: Build Docker images
+      run: |
+        docker-compose -f docker-compose.test.yml build
+        
+    - name: Start services
+      run: |
+        docker-compose -f docker-compose.test.yml up -d
+        
+    - name: Wait for services
+      run: |
+        sleep 30
+        
+    - name: Run E2E tests
+      run: |
+        pytest tests/e2e/ -v
+
+  # Job para construir imágenes Docker
+  build:
+    name: Build Docker Images
+    runs-on: ubuntu-latest
+    needs: [test, test-e2e]
+    if: github.event_name == 'push'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+      
+    - name: Log in to Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Extract metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=sha,prefix={{branch}}-
+          
+    - name: Build and push backend image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: ./Dockerfile.backend
+        push: true
+        tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-backend:${{ github.sha }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        
+    - name: Build and push frontend image
+      uses: docker/build-push-action@v5
+      with:
+        context: ./frontend
+        file: ./frontend/Dockerfile
+        push: true
+        tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-frontend:${{ github.sha }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+  # Job para despliegue en staging
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/develop'
+    environment: staging
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Deploy to staging server
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.STAGING_HOST }}
+        username: ${{ secrets.STAGING_USERNAME }}
+        key: ${{ secrets.STAGING_SSH_KEY }}
+        script: |
+          cd /opt/opendoors
+          docker-compose pull
+          docker-compose up -d
+          docker-compose exec backend alembic upgrade head
+
+  # Job para despliegue en producción
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    environment: production
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Deploy to production server
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.PRODUCTION_HOST }}
+        username: ${{ secrets.PRODUCTION_USERNAME }}
+        key: ${{ secrets.PRODUCTION_SSH_KEY }}
+        script: |
+          cd /opt/opendoors
+          docker-compose pull
+          docker-compose up -d
+          docker-compose exec backend alembic upgrade head
+          
+    - name: Notify deployment
+      if: success()
+      run: |
+        echo "Despliegue exitoso en producción"

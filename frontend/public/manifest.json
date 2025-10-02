@@ -1,0 +1,16 @@
+{
+  "name": "Open Doors - Sistema de Gestión",
+  "short_name": "Open Doors",
+  "description": "Sistema de gestión empresarial con IA para Open Doors",
+  "theme_color": "#ffffff",
+  "background_color": "#ffffff",
+  "display": "standalone",
+  "start_url": "/",
+  "icons": [
+    {
+      "src": "vite.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
