@@ -1,12 +1,18 @@
+"""
+Servicio de cálculos financieros usando el modelo actualizado.
+"""
+
 from typing import Optional, Dict, Any
-from datetime import datetime
+from datetime import datetime, date
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, and_, func, case, Float
+from sqlalchemy import select, and_, func, case, cast, Float
 from src.models.invoice import Invoice
 
 
 class FinancialService:
-    """Servicio para cálculos financieros y fiscales."""
+    """
+    Servicio para cálculos financieros y fiscales usando el nuevo modelo de Invoice.
+    """
     
     def __init__(self, session: AsyncSession):
         self.session = session
@@ -14,101 +20,99 @@ class FinancialService:
     async def get_balance_iva(
         self,
         owner: Optional[str] = None,
-        fecha_desde: Optional[datetime] = None,
-        fecha_hasta: Optional[datetime] = None
+        fecha_desde: Optional[date] = None,
+        fecha_hasta: Optional[date] = None
     ) -> Dict[str, Any]:
         """
         Calcula el Balance IVA según normativa argentina.
+        REGLA DE JONI: Solo facturas tipo A.
         
         Balance IVA = IVA de facturas EMITIDAS - IVA de facturas RECIBIDAS
-        Solo se consideran facturas fiscales (A, B, C), no las X.
         
         Args:
-            owner: Filtrar por propietario (Hernán, Joni, Maxi, Leo)
+            owner: Filtrar por propietario (Hernán, Joni, Maxi, Leo, Franco)
             fecha_desde: Fecha inicio del período
             fecha_hasta: Fecha fin del período
         """
         filters = [
-            Invoice.invoice_type.in_(['A', 'B', 'C'])
+            Invoice.tipo_factura == 'A',
+            Invoice.is_deleted == False
         ]
         
-        # TODO: Implementar filtro por owner cuando el campo esté disponible
-        # if owner:
-        #     filters.append(Invoice.owner == owner)
+        if owner:
+            filters.append(Invoice.owner == owner)
         if fecha_desde:
-            filters.append(Invoice.issue_date >= fecha_desde)
+            filters.append(Invoice.fecha_emision >= fecha_desde)
         if fecha_hasta:
-            filters.append(Invoice.issue_date <= fecha_hasta)
+            filters.append(Invoice.fecha_emision <= fecha_hasta)
         
         query = select(
             func.sum(
                 case(
-                    (Invoice.invoice_direction == 'emitida', Invoice.tax_amount),
+                    (Invoice.invoice_direction == 'emitida', cast(Invoice.iva_monto, Float)),
                     else_=0
                 )
-            ).label('iva_emitido'),
+            ).label('iva_ventas'),
             func.sum(
                 case(
-                    (Invoice.invoice_direction == 'recibida', Invoice.tax_amount),
+                    (Invoice.invoice_direction == 'recibida', cast(Invoice.iva_monto, Float)),
                     else_=0
                 )
-            ).label('iva_recibido')
+            ).label('iva_compras')
         ).where(and_(*filters))
         
         result = await self.session.execute(query)
         row = result.first()
         
-        iva_emitido = float(row.iva_emitido or 0)
-        iva_recibido = float(row.iva_recibido or 0)
-        balance_iva = iva_emitido - iva_recibido
+        iva_ventas = float(row.iva_ventas or 0)
+        iva_compras = float(row.iva_compras or 0)
+        balance_iva = iva_ventas - iva_compras
         
         return {
             "balance_iva": balance_iva,
-            "iva_emitido_total": iva_emitido,
-            "iva_recibido_total": iva_recibido,
-            "estado": "A FAVOR" if balance_iva > 0 else "A PAGAR" if balance_iva < 0 else "NEUTRO",
-            "descripcion": "Balance IVA = IVA Cobrado (ventas) - IVA Pagado (compras)"
+            "iva_debito_fiscal": iva_ventas,
+            "iva_credito_fiscal": iva_compras,
+            "estado": "a_pagar" if balance_iva > 0 else "a_favor" if balance_iva < 0 else "neutro",
+            "descripcion": "Balance IVA solo de facturas tipo A (IVA Ventas - IVA Compras)"
         }
     
     async def get_balance_general(
         self,
         owner: Optional[str] = None,
-        fecha_desde: Optional[datetime] = None,
-        fecha_hasta: Optional[datetime] = None
+        fecha_desde: Optional[date] = None,
+        fecha_hasta: Optional[date] = None
     ) -> Dict[str, Any]:
         """
         Calcula el Balance General (flujo de caja real).
-        
-        Solo cuenta facturas que REALMENTE movieron dinero (movimiento_cuenta = True).
-        Balance General = Ingresos (emitidas pagadas) - Egresos (recibidas pagadas)
+        REGLA DE JONI: Solo facturas con movimiento_cuenta = True.
         
         Args:
-            owner: Filtrar por propietario (Hernán, Joni, Maxi, Leo)
+            owner: Filtrar por propietario (Hernán, Joni, Maxi, Leo, Franco)
             fecha_desde: Fecha inicio del período
             fecha_hasta: Fecha fin del período
         """
         filters = [
-            Invoice.movimiento_cuenta == True
+            Invoice.movimiento_cuenta == True,
+            Invoice.is_deleted == False
         ]
         
-        # TODO: Implementar filtro por owner cuando el campo esté disponible
-        # if owner:
-        #     filters.append(Invoice.owner == owner)
+        if owner:
+            filters.append(Invoice.owner == owner)
         if fecha_desde:
-            filters.append(Invoice.issue_date >= fecha_desde)
+            filters.append(Invoice.fecha_emision >= fecha_desde)
         if fecha_hasta:
-            filters.append(Invoice.issue_date <= fecha_hasta)
+            filters.append(Invoice.fecha_emision <= fecha_hasta)
         
         query = select(
             func.sum(
                 case(
-                    (Invoice.invoice_direction == 'emitida', Invoice.total_amount),
+                    (Invoice.invoice_direction == 'emitida', cast(Invoice.total, Float)),
                     else_=0
                 )
             ).label('ingresos'),
             func.sum(
                 case(
-                    (Invoice.invoice_direction == 'recibida', Invoice.total_amount),
+                    (Invoice.invoice_direction == 'recibida', cast(Invoice.total, Float)),
                     else_=0
                 )
             ).label('egresos')
@@ -125,6 +129,32 @@ class FinancialService:
             "balance_general": balance,
             "ingresos_totales": ingresos,
             "egresos_totales": egresos,
-            "estado": "POSITIVO" if balance > 0 else "NEGATIVO" if balance < 0 else "NEUTRO",
-            "descripcion": "Flujo de caja real (solo facturas que movieron dinero en cuenta)"
+            "estado": "positivo" if balance > 0 else "negativo" if balance < 0 else "neutro",
+            "descripcion": "Flujo de caja real (solo movimiento_cuenta=SI)"
         }
+    
+    async def get_balance_por_socio(
+        self,
+        fecha_desde: Optional[date] = None,
+        fecha_hasta: Optional[date] = None
+    ) -> Dict[str, Any]:
+        """
+        Obtiene el balance de IVA y General separado por socio.
+        
+        Args:
+            fecha_desde: Fecha inicio del período
+            fecha_hasta: Fecha fin del período
+        """
+        socios = ['Hernán', 'Joni', 'Maxi', 'Leo', 'Franco']
+        resultados = {}
+        
+        for socio in socios:
+            balance_iva = await self.get_balance_iva(socio, fecha_desde, fecha_hasta)
+            balance_general = await self.get_balance_general(socio, fecha_desde, fecha_hasta)
+            
+            resultados[socio] = {
+                'balance_iva': balance_iva,
+                'balance_general': balance_general
+            }
+        
+        return resultados

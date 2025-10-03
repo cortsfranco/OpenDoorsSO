@@ -136,60 +136,140 @@ class Invoice(Base):
         return f"<Invoice(id={self.id}, tipo={self.tipo_factura}, numero='{self.numero_factura}', owner='{self.owner}', total={self.total})>"
 
 
-# Esquemas Pydantic para API
+# ===== ESQUEMAS PYDANTIC PARA API =====
+
 class InvoiceBase(BaseModel):
-    """Esquema base para facturas."""
+    """Esquema base para facturas según estructura de Joni/Hernán."""
     filename: str = Field(..., description="Nombre del archivo de la factura")
-    categoria: str = Field(..., description="Categoría: ingreso, egreso, compensacion")
-    clase: str = Field(..., description="Clase de factura: A, B, C")
-    fecha_emision: Optional[datetime] = Field(None, description="Fecha de emisión")
-    fecha_ingreso: Optional[datetime] = Field(None, description="Fecha de ingreso al sistema")
-    cliente_proveedor: Optional[str] = Field(None, description="Cliente o proveedor")
-    detalle: Optional[str] = Field(None, description="Detalle de la factura")
+    tipo_factura: Optional[str] = Field(None, description="Tipo de factura: A, B, C")
     numero_factura: Optional[str] = Field(None, description="Número de factura")
-    monto_total: Optional[float] = Field(None, description="Monto total")
-    monto_iva: Optional[float] = Field(None, description="Monto de IVA")
-    estado_pago: str = Field(default="pendiente", description="Estado del pago")
-    owner: Optional[str] = Field(None, description="Propietario de la factura")
+    cuit: Optional[str] = Field(None, description="CUIT del emisor/receptor (formato XX-XXXXXXXX-X)")
+    razon_social: Optional[str] = Field(None, description="Razón social del cliente/proveedor")
+    
+    # Fechas
+    fecha_emision: Optional[date] = Field(None, description="Fecha de emisión")
+    fecha_vencimiento: Optional[date] = Field(None, description="Fecha de vencimiento")
+    
+    # Montos en formato argentino
+    subtotal: Optional[Decimal] = Field(None, description="Subtotal sin IVA")
+    iva_porcentaje: Optional[Decimal] = Field(Decimal('21.00'), description="Porcentaje de IVA (21% o 10.5%)")
+    iva_monto: Optional[Decimal] = Field(None, description="Monto de IVA")
+    otros_impuestos: Optional[Decimal] = Field(Decimal('0.00'), description="Otros impuestos")
+    total: Optional[Decimal] = Field(None, description="Total de la factura")
+    moneda: Optional[str] = Field('ARS', description="Moneda (ARS)")
+    
+    # Dirección y clasificación
     invoice_direction: str = Field(default="recibida", description="Dirección: 'emitida' o 'recibida'")
-    movimiento_cuenta: bool = Field(default=True, description="Si afecta el flujo de caja real")
-    otros_impuestos: float = Field(default=0.0, description="Otros impuestos")
-    metodo_pago: str = Field(default="transferencia", description="Método de pago")
-    es_compensacion_iva: bool = Field(default=False, description="Si es solo para compensar IVA")
+    owner: Optional[str] = Field(None, description="Socio responsable: Hernán, Joni, Maxi, Leo, Franco")
+    
+    # Lógica fiscal crítica
+    movimiento_cuenta: bool = Field(default=True, description="SI = afecta Balance General, NO = solo IVA")
+    es_compensacion_iva: bool = Field(default=False, description="Si es SOLO para compensar IVA")
+    
+    # Aprobación y pago
+    payment_status: Optional[str] = Field("pending_approval", description="Estado de pago")
+    metodo_pago: Optional[str] = Field("transferencia", description="Método de pago")
+    
+    # Partner
+    partner_id: Optional[int] = Field(None, description="ID del cliente/proveedor")
+
+    class Config:
+        json_encoders = {
+            Decimal: lambda v: float(v) if v is not None else None,
+            date: lambda v: v.isoformat() if v is not None else None
+        }
+
 
 class InvoiceCreate(InvoiceBase):
     """Esquema para crear facturas."""
     pass
 
+
 class InvoiceUpdate(BaseModel):
     """Esquema para actualizar facturas."""
-    categoria: Optional[str] = None
-    clase: Optional[str] = None
-    fecha_emision: Optional[datetime] = None
-    cliente_proveedor: Optional[str] = None
-    detalle: Optional[str] = None
+    tipo_factura: Optional[str] = None
     numero_factura: Optional[str] = None
-    monto_total: Optional[float] = None
-    monto_iva: Optional[float] = None
-    estado_pago: Optional[str] = None
-    owner: Optional[str] = None
+    cuit: Optional[str] = None
+    razon_social: Optional[str] = None
+    fecha_emision: Optional[date] = None
+    fecha_vencimiento: Optional[date] = None
+    subtotal: Optional[Decimal] = None
+    iva_porcentaje: Optional[Decimal] = None
+    iva_monto: Optional[Decimal] = None
+    otros_impuestos: Optional[Decimal] = None
+    total: Optional[Decimal] = None
     invoice_direction: Optional[str] = None
+    owner: Optional[str] = None
     movimiento_cuenta: Optional[bool] = None
-    otros_impuestos: Optional[float] = None
-    metodo_pago: Optional[str] = None
     es_compensacion_iva: Optional[bool] = None
+    payment_status: Optional[str] = None
+    metodo_pago: Optional[str] = None
+    partner_id: Optional[int] = None
 
-class InvoiceResponse(InvoiceBase):
-    """Esquema de respuesta para facturas."""
+    class Config:
+        json_encoders = {
+            Decimal: lambda v: float(v) if v is not None else None,
+            date: lambda v: v.isoformat() if v is not None else None
+        }
+
+
+class InvoiceResponse(BaseModel):
+    """Esquema de respuesta completo para facturas."""
     id: int
     user_id: int
+    filename: str
     status: str
+    
+    # Campos fiscales
+    tipo_factura: Optional[str] = None
+    numero_factura: Optional[str] = None
+    cuit: Optional[str] = None
+    razon_social: Optional[str] = None
+    
+    # Fechas
+    fecha_emision: Optional[date] = None
+    fecha_vencimiento: Optional[date] = None
     upload_date: datetime
+    
+    # Montos
+    subtotal: Optional[Decimal] = None
+    iva_porcentaje: Optional[Decimal] = None
+    iva_monto: Optional[Decimal] = None
+    otros_impuestos: Optional[Decimal] = None
+    total: Optional[Decimal] = None
+    moneda: Optional[str] = None
+    
+    # Dirección y clasificación
+    invoice_direction: str
+    owner: Optional[str] = None
+    
+    # Lógica fiscal
+    movimiento_cuenta: bool
+    es_compensacion_iva: bool
+    
+    # Aprobación
     payment_status: str
     approver_id: Optional[int] = None
     approved_at: Optional[datetime] = None
+    metodo_pago: Optional[str] = None
+    
+    # Datos adicionales
     blob_url: Optional[str] = None
     partner_id: Optional[int] = None
+    extracted_data: Optional[dict] = None
+    
+    # Soft delete
+    is_deleted: bool
+    deleted_at: Optional[datetime] = None
+    
+    # Auditoría
+    created_at: datetime
+    updated_at: datetime
     
     class Config:
         from_attributes = True
+        json_encoders = {
+            Decimal: lambda v: float(v) if v is not None else None,
+            date: lambda v: v.isoformat() if v is not None else None,
+            datetime: lambda v: v.isoformat() if v is not None else None
+        }

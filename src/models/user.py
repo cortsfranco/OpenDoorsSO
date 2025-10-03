@@ -10,17 +10,14 @@ from .base import Base
 
 class User(Base):
     """
-    Modelo de usuario del sistema.
+    Modelo de usuario del sistema Open Doors.
     
-    Campos:
-    - id: Identificador único (PK)
-    - email: Email del usuario (único)
-    - hashed_password: Contraseña hasheada
-    - full_name: Nombre completo del usuario
-    - role: Rol del usuario ('admin', 'user', etc.)
-    - is_active: Estado activo del usuario
-    - created_at: Fecha de creación
-    - updated_at: Fecha de última actualización
+    Sistema de roles según requerimientos de Franco (único superadmin):
+    - superadmin: Franco únicamente - Control TOTAL del sistema
+    - admin: Hernán, Joni - Edición y gestión completa, sin eliminar usuarios ni cambiar permisos
+    - accountant: Contador - Acceso a reportes financieros, sin editar facturas
+    - partner: Socios/clientes - Solo visualización de sus propias facturas
+    - viewer: Solo lectura general
     """
     
     __tablename__ = "users"
@@ -29,7 +26,12 @@ class User(Base):
     email = Column(String(255), unique=True, index=True, nullable=False)
     hashed_password = Column(String(255), nullable=False)
     full_name = Column(String(255), nullable=False)
-    role = Column(String(50), default="editor", nullable=False) # editor, approver, admin
+    
+    # SISTEMA DE ROLES JERÁRQUICO
+    # superadmin > admin > accountant > partner > viewer
+    role = Column(String(50), default="viewer", nullable=False)
+    # Valores: 'superadmin', 'admin', 'accountant', 'partner', 'viewer'
+    
     is_active = Column(Boolean, default=True, nullable=False)
     
     # Información personal

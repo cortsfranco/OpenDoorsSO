@@ -1,6 +1,35 @@
-modules = ["nodejs-20", "python-3.12", "web"]
+modules = ["nodejs-20", "web", "python-3.11"]
 [agent]
 expertMode = true
 
 [nix]
 channel = "stable-25_05"
+packages = ["postgresql"]
+
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Backend"
+
+[[workflows.workflow]]
+name = "Backend"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "uvicorn src.main:app --host 0.0.0.0 --port 5000 --reload"
+waitForPort = 5000
+
+[workflows.workflow.metadata]
+outputType = "webview"
+
+[[ports]]
+localPort = 5000
+externalPort = 80
