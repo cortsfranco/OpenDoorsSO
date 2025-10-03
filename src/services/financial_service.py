@@ -64,8 +64,8 @@ class FinancialService:
         result = await self.session.execute(query)
         row = result.first()
         
-        iva_ventas = float(row.iva_ventas or 0)
-        iva_compras = float(row.iva_compras or 0)
+        iva_ventas = float(row.iva_ventas or 0) if row else 0.0
+        iva_compras = float(row.iva_compras or 0) if row else 0.0
         balance_iva = iva_ventas - iva_compras
         
         return {
@@ -121,8 +121,8 @@ class FinancialService:
         result = await self.session.execute(query)
         row = result.first()
         
-        ingresos = float(row.ingresos or 0)
-        egresos = float(row.egresos or 0)
+        ingresos = float(row.ingresos or 0) if row else 0.0
+        egresos = float(row.egresos or 0) if row else 0.0
         balance = ingresos - egresos
         
         return {

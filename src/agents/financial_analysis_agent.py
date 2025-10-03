@@ -15,6 +15,7 @@ from sqlalchemy import select, func, and_, or_
 from src.core.config import settings
 from src.models.invoice import Invoice
 from src.models.user import User
+from src.services.financial_service import FinancialService
 
 logger = logging.getLogger(__name__)
 
@@ -35,6 +36,7 @@ class FinancialAnalysisAgent:
     
     def __init__(self, session: AsyncSession):
         self.session = session
+        self.financial_service = FinancialService(session)
         self.llm = AzureChatOpenAI(
             api_key=settings.AZURE_OPENAI_API_KEY,
             azure_endpoint=settings.AZURE_OPENAI_ENDPOINT,
@@ -61,55 +63,16 @@ class FinancialAnalysisAgent:
         CRÍTICO: Solo considera facturas tipo "A" para el cálculo de IVA.
         """
         try:
-            query = select(Invoice).where(
-                and_(
-                    Invoice.user_id == user_id,
-                    Invoice.status == "completed",
-                    Invoice.is_deleted == False
-                )
+            from datetime import datetime
+            
+            fecha_desde = datetime.fromisoformat(start_date).date() if start_date else None
+            fecha_hasta = datetime.fromisoformat(end_date).date() if end_date else None
+            
+            return await self.financial_service.get_balance_iva(
+                owner=str(owner_id) if owner_id else None,
+                fecha_desde=fecha_desde,
+                fecha_hasta=fecha_hasta
             )
-            
-            # Filtro por propietario si se especifica
-            if owner_id:
-                query = query.where(Invoice.owner == owner_id)
-            
-            if start_date:
-                query = query.where(Invoice.created_at >= start_date)
-            if end_date:
-                query = query.where(Invoice.created_at <= end_date)
-            
-            result = await self.session.execute(query)
-            invoices = result.scalars().all()
-            
-            iva_compras = 0.0  # IVA a favor (compras recibidas)
-            iva_ventas = 0.0   # IVA a pagar (ventas emitidas)
-            
-            for invoice in invoices:
-                if invoice.extracted_data:
-                    invoice_type = invoice.extracted_data.get('invoice_type', '').upper()
-                    iva_amount = float(invoice.extracted_data.get('iva', 0))
-                    
-                    # CRÍTICO: Solo facturas tipo "A" para cálculo de IVA
-                    if invoice_type == 'A':
-                        # Usar el campo invoice_direction para determinar si es crédito o débito fiscal
-                        if invoice.invoice_direction == 'recibida':
-                            # Facturas recibidas (compras) = Crédito fiscal (IVA a favor)
-                            iva_compras += abs(iva_amount)
-                        elif invoice.invoice_direction == 'emitida':
-                            # Facturas emitidas (ventas) = Débito fiscal (IVA a pagar)
-                            iva_ventas += abs(iva_amount)
-            
-            balance_iva = iva_compras - iva_ventas
-            
-            return {
-                "iva_compras": iva_compras,
-                "iva_ventas": iva_ventas,
-                "balance_iva": balance_iva,
-                "tipo_balance": "a_pagar" if balance_iva < 0 else "a_favor",
-                "periodo": f"{start_date} a {end_date}" if start_date and end_date else "total",
-                "owner_filter": owner_id,
-                "nota": "Solo considera facturas tipo A para cálculo de IVA"
-            }
             
         except Exception as e:
             logger.error(f"Error calculando balance IVA: {str(e)}")
@@ -122,53 +85,16 @@ class FinancialAnalysisAgent:
         CRÍTICO: Solo considera facturas donde movimiento_cuenta = True.
         """
         try:
-            query = select(Invoice).where(
-                and_(
-                    Invoice.user_id == user_id,
-                    Invoice.status == "completed",
-                    Invoice.is_deleted == False,
-                    Invoice.movimiento_cuenta == True  # CRÍTICO: Solo facturas con movimiento real
-                )
+            from datetime import datetime
+            
+            fecha_desde = datetime.fromisoformat(start_date).date() if start_date else None
+            fecha_hasta = datetime.fromisoformat(end_date).date() if end_date else None
+            
+            return await self.financial_service.get_balance_general(
+                owner=str(owner_id) if owner_id else None,
+                fecha_desde=fecha_desde,
+                fecha_hasta=fecha_hasta
             )
-            
-            # Filtro por propietario si se especifica
-            if owner_id:
-                query = query.where(Invoice.owner == owner_id)
-            
-            if start_date:
-                query = query.where(Invoice.created_at >= start_date)
-            if end_date:
-                query = query.where(Invoice.created_at <= end_date)
-            
-            result = await self.session.execute(query)
-            invoices = result.scalars().all()
-            
-            total_ingresos = 0.0
-            total_egresos = 0.0
-            
-            for invoice in invoices:
-                if invoice.extracted_data:
-                    total = float(invoice.extracted_data.get('total', 0))
-                    
-                    # Usar invoice_direction para determinar ingresos vs egresos
-                    if invoice.invoice_direction == 'emitida':
-                        # Facturas emitidas = Ingresos (cash flow positivo)
-                        total_ingresos += abs(total)
-                    elif invoice.invoice_direction == 'recibida':
-                        # Facturas recibidas = Egresos (cash flow negativo)
-                        total_egresos += abs(total)
-            
-            balance_general = total_ingresos - total_egresos
-            
-            return {
-                "total_ingresos": total_ingresos,
-                "total_egresos": total_egresos,
-                "balance_general": balance_general,
-                "tipo_balance": "positivo" if balance_general > 0 else "negativo",
-                "periodo": f"{start_date} a {end_date}" if start_date and end_date else "total",
-                "owner_filter": owner_id,
-                "nota": "Solo considera facturas con movimiento_cuenta = True"
-            }
             
         except Exception as e:
             logger.error(f"Error calculando balance general: {str(e)}")
