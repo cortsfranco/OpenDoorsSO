@@ -14,7 +14,8 @@ Si estás empezando desde cero, es lo más simple:
 1. Crea un directorio nuevo y limpio:
 ```bash
 mkdir open-doors-billing-new
-cd open-doors-billing-new
+cd 
+-new
 ```
 
 2. Inicializa git:
