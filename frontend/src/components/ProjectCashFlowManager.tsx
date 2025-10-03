@@ -60,7 +60,7 @@ const ProjectCashFlowManager: React.FC = () => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [transactions, setTransactions] = useState<ProjectTransaction[]>([]);
   const [cashFlowData, setCashFlowData] = useState<ProjectCashFlow[]>([]);
-  const [selectedProject, setSelectedProject] = useState<string>('');
+  const [selectedProject, setSelectedProject] = useState<string>('all');
   const [viewMode, setViewMode] = useState<'overview' | 'details'>('overview');
   const [loading, setLoading] = useState(true);
   const { success, error } = useNotifications();
@@ -250,7 +250,7 @@ const ProjectCashFlowManager: React.FC = () => {
               <SelectValue placeholder="Seleccionar proyecto" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Todos los proyectos</SelectItem>
+              <SelectItem value="all">Todos los proyectos</SelectItem>
               {projects.map(project => (
                 <SelectItem key={project.id} value={project.id}>
                   {project.name}
