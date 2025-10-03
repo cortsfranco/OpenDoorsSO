@@ -24,6 +24,26 @@
     --input: 214.3 31.8% 91.4%;
     --ring: 221.2 83.2% 53.3%;
     --radius: 0.5rem;
+    
+    /* Colores Fiscales Argentinos */
+    --fiscal-iva: 142 76% 36%;
+    --fiscal-iva-foreground: 0 0% 100%;
+    --fiscal-balance: 217 91% 60%;
+    --fiscal-balance-foreground: 0 0% 100%;
+    --fiscal-earnings: 45 93% 47%;
+    --fiscal-earnings-foreground: 0 0% 100%;
+    --fiscal-debt: 0 84% 60%;
+    --fiscal-debt-foreground: 0 0% 100%;
+    --fiscal-credit: 142 71% 45%;
+    --fiscal-credit-foreground: 0 0% 100%;
+    --fiscal-neutral: 215 16% 47%;
+    --fiscal-neutral-foreground: 0 0% 100%;
+    
+    /* Estados de Factura */
+    --invoice-pending: 45 93% 47%;
+    --invoice-approved: 142 76% 36%;
+    --invoice-rejected: 0 84% 60%;
+    --invoice-processing: 217 91% 60%;
   }
 
   .dark {

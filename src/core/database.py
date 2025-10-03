@@ -4,9 +4,33 @@ Configuración de la base de datos y sesiones SQLAlchemy.
 
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
 from typing import AsyncGenerator
+from urllib.parse import urlparse, parse_qs
 from src.core.config import settings
 from src.models.base import Base
 
+
+# Configurar connect_args con SSL seguro
+connect_args_config = {
+    "server_settings": {"jit": "off"},
+    "command_timeout": 60,
+    "timeout": 30
+}
+
+# Parsear URL para detectar configuración SSL explícita
+parsed_url = urlparse(settings.ASYNC_DATABASE_URL)
+query_params = parse_qs(parsed_url.query)
+
+# Solo forzar SSL si NO hay ningún parámetro SSL explícito en la URL
+has_ssl_config = (
+    "ssl" in query_params or
+    "sslmode" in query_params or
+    "ssl=" in settings.ASYNC_DATABASE_URL.lower() or
+    "sslmode=" in settings.ASYNC_DATABASE_URL.lower()
+)
+
+if not has_ssl_config:
+    # Usar ssl=True para habilitar SSL con verificación predeterminada
+    connect_args_config["ssl"] = True
 
 # Crear motor asíncrono de SQLAlchemy con pool de conexiones
 engine = create_async_engine(
@@ -17,16 +41,7 @@ engine = create_async_engine(
     max_overflow=20,
     pool_pre_ping=True,
     pool_recycle=3600,
-    connect_args={
-        "ssl": "require",
-        "server_settings": {"jit": "off"},
-        "command_timeout": 60,
-        "timeout": 30
-    } if "ssl=require" in settings.ASYNC_DATABASE_URL else {
-        "server_settings": {"jit": "off"},
-        "command_timeout": 60,
-        "timeout": 30
-    }
+    connect_args=connect_args_config
 )
 
 # Crear factory de sesiones asíncronas
