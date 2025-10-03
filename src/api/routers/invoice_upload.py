@@ -16,7 +16,7 @@ from src.core.security import get_current_user
 from src.core.config import settings
 from src.models.user import User
 from src.models.invoice import Invoice
-from src.agents.invoice_processing_agent import InvoiceProcessingAgent
+from src.agents.enhanced_invoice_processing_agent import EnhancedInvoiceProcessingAgent
 
 router = APIRouter()
 security = HTTPBearer()
@@ -27,7 +27,7 @@ class InvoiceUploadService:
     
     def __init__(self):
         self.azure_storage_client = None
-        self.invoice_agent = InvoiceProcessingAgent()
+        self.invoice_agent = EnhancedInvoiceProcessingAgent()
     
     def _get_azure_storage_client(self):
         """Obtiene el cliente de Azure Blob Storage."""
@@ -58,7 +58,8 @@ class InvoiceUploadService:
         try:
             # Validar tipo de archivo
             allowed_extensions = {'.pdf', '.png', '.jpg', '.jpeg', '.tiff', '.bmp', '.txt'}
-            file_extension = file.filename.lower().split('.')[-1] if '.' in file.filename else ''
+            filename = file.filename or ""
+            file_extension = filename.lower().split('.')[-1] if '.' in filename else ''
             
             if f'.{file_extension}' not in allowed_extensions:
                 raise HTTPException(
@@ -179,13 +180,12 @@ class InvoiceUploadService:
             await session.refresh(invoice)
             
             # Inicializar el agente con la sesión
-            agent = InvoiceProcessingAgent(session=session)
+            agent = EnhancedInvoiceProcessingAgent(session=session)
             
-            # Procesar la factura usando LangGraph
-            result = await agent.process_invoice_from_url(
+            # Procesar la factura con el agente mejorado
+            result = await agent.process_invoice(
                 blob_url=file_info["blob_url"],
                 user_id=user_id,
-                company_id=None,  # Por ahora no usamos company_id
                 invoice_id=invoice.id
             )
             
