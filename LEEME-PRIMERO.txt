@@ -1,0 +1,102 @@
+╔══════════════════════════════════════════════════════════════════╗
+║                                                                  ║
+║         🚀 OPEN DOORS - SISTEMA DE GESTIÓN EMPRESARIAL          ║
+║                                                                  ║
+╚══════════════════════════════════════════════════════════════════╝
+
+📋 INSTRUCCIONES RÁPIDAS
+════════════════════════════════════════════════════════════════════
+
+🖱️  INICIAR EL SISTEMA (Doble Click):
+
+   ▸ WINDOWS:
+     → Doble click en: INICIAR-OPENDOORS.bat
+   
+   ▸ LINUX / MAC:
+     → Doble click en: INICIAR-OPENDOORS.sh
+     (Si no funciona, click derecho → Ejecutar)
+
+   El script hará AUTOMÁTICAMENTE:
+   ✅ Matar procesos anteriores
+   ✅ Liberar puertos ocupados (5000 y 3000)
+   ✅ Instalar dependencias faltantes
+   ✅ Iniciar Backend (puerto 5000)
+   ✅ Iniciar Frontend (puerto 3000)
+   ✅ Abrir navegador automáticamente
+
+────────────────────────────────────────────────────────────────────
+
+🛑 DETENER EL SISTEMA (Doble Click):
+
+   ▸ WINDOWS:
+     → Doble click en: DETENER-OPENDOORS.bat
+   
+   ▸ LINUX / MAC:
+     → Doble click en: DETENER-OPENDOORS.sh
+
+────────────────────────────────────────────────────────────────────
+
+🌐 URLs DE ACCESO:
+
+   • Aplicación:     http://localhost:3000
+   • API Backend:    http://localhost:5000
+   • Documentación:  http://localhost:5000/docs
+
+────────────────────────────────────────────────────────────────────
+
+🔑 CREDENCIALES DE SUPERADMIN:
+
+   Email:    cortsfranco@hotmail.com
+   Password: Ncc1701E@
+
+────────────────────────────────────────────────────────────────────
+
+📁 ESTRUCTURA DE ARCHIVOS:
+
+   INICIAR-OPENDOORS.bat     → Script de inicio (Windows)
+   INICIAR-OPENDOORS.sh      → Script de inicio (Linux/Mac)
+   DETENER-OPENDOORS.bat     → Script de parada (Windows)
+   DETENER-OPENDOORS.sh      → Script de parada (Linux/Mac)
+   
+   COMO_EJECUTAR_LOCALMENTE.md  → Guía detallada
+   replit.md                    → Documentación del proyecto
+
+────────────────────────────────────────────────────────────────────
+
+❓ SOLUCIÓN DE PROBLEMAS:
+
+   ⚠️  Si el puerto 5000 o 3000 está ocupado:
+      → Los scripts los liberan automáticamente
+      → Si persiste, ejecuta DETENER y luego INICIAR nuevamente
+
+   ⚠️  Si ves "Python no instalado":
+      → Descarga: https://www.python.org/downloads/
+
+   ⚠️  Si ves "Node.js no instalado":
+      → Descarga: https://nodejs.org/
+
+   ⚠️  Si el navegador no abre automáticamente:
+      → Abre manualmente: http://localhost:3000
+
+   ⚠️  Si ves pantalla en blanco:
+      → Espera 10-15 segundos (carga inicial)
+      → F12 → Console para ver errores
+      → Verifica que el backend esté corriendo
+
+────────────────────────────────────────────────────────────────────
+
+📚 DOCUMENTACIÓN ADICIONAL:
+
+   • Ver: COMO_EJECUTAR_LOCALMENTE.md (guía completa)
+   • Ver: replit.md (arquitectura del proyecto)
+
+────────────────────────────────────────────────────────────────────
+
+✅ ¡TODO LISTO!
+
+   1. Ejecuta INICIAR-OPENDOORS (.bat en Windows, .sh en Linux/Mac)
+   2. Espera a que se abra el navegador
+   3. Inicia sesión con las credenciales de arriba
+   4. ¡Comienza a usar el sistema!
+
+════════════════════════════════════════════════════════════════════
