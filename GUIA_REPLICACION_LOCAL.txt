@@ -1,0 +1,970 @@
+================================================================================
+GUÍA DE REPLICACIÓN - SISTEMA DE FACTURACIÓN OPEN DOORS
+================================================================================
+Franco, aquí está el paso a paso completo para replicar todo en tu entorno local.
+
+================================================================================
+PARTE 1: CONFIGURACIÓN INICIAL DEL ENTORNO
+================================================================================
+
+1.1 REQUISITOS PREVIOS
+----------------------
+- Python 3.11+
+- PostgreSQL 14+
+- Node.js 18+ (para frontend futuro)
+- Docker (opcional para deployment)
+
+1.2 ESTRUCTURA DE DIRECTORIOS
+------------------------------
+Crear la siguiente estructura:
+
+/workspace
+├── src/
+│   ├── __init__.py
+│   ├── main.py
+│   ├── models/
+│   │   ├── __init__.py
+│   │   ├── base.py
+│   │   ├── user.py
+│   │   ├── invoice.py
+│   │   └── partner.py
+│   ├── api/
+│   │   └── routers/
+│   │       ├── __init__.py
+│   │       ├── auth.py
+│   │       ├── invoices.py
+│   │       ├── financial_reports.py
+│   │       └── approval.py
+│   ├── services/
+│   │   ├── __init__.py
+│   │   ├── financial_calculator.py
+│   │   └── currency_validator.py
+│   ├── core/
+│   │   ├── __init__.py
+│   │   ├── config.py
+│   │   ├── database.py
+│   │   └── permissions.py
+│   └── agents/
+│       ├── __init__.py
+│       └── invoice_processing_agent.py
+├── requirements.txt
+├── .env
+└── alembic/
+    └── (archivos de migración)
+
+1.3 INSTALACIÓN DE DEPENDENCIAS
+--------------------------------
+Ejecutar en terminal:
+
+```bash
+# Crear entorno virtual
+python -m venv venv
+source venv/bin/activate  # En Windows: venv\Scripts\activate
+
+# Instalar dependencias
+pip install fastapi==0.115.5
+pip install uvicorn[standard]==0.32.1
+pip install sqlmodel==0.0.22
+pip install psycopg==3.2.10
+pip install psycopg-binary==3.2.10
+pip install alembic==1.14.0
+pip install python-jose[cryptography]==3.3.0
+pip install passlib[bcrypt]==1.7.4
+pip install python-multipart==0.0.20
+pip install langchain==0.3.13
+pip install langchain-openai==0.2.14
+pip install langgraph==0.2.55
+pip install langgraph-checkpoint-postgres==2.0.10
+pip install azure-ai-formrecognizer==3.3.3
+pip install azure-storage-blob==12.23.1
+pip install python-dotenv==1.0.1
+```
+
+1.4 CONFIGURAR VARIABLES DE ENTORNO (.env)
+-------------------------------------------
+Crear archivo .env en la raíz del proyecto:
+
+```
+# Base de datos PostgreSQL
+DATABASE_URL=postgresql+asyncpg://usuario:password@localhost:5432/opendoors_billing
+PGHOST=localhost
+PGPORT=5432
+PGUSER=usuario
+PGPASSWORD=password
+PGDATABASE=opendoors_billing
+
+# Configuración de la aplicación
+SECRET_KEY=tu-clave-secreta-super-segura-cambiar-en-produccion
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=30
+
+# Azure AI Services (para procesamiento de facturas)
+AZURE_FORM_RECOGNIZER_ENDPOINT=https://tu-recurso.cognitiveservices.azure.com/
+AZURE_FORM_RECOGNIZER_KEY=tu-key-aqui
+
+# Azure Blob Storage (para almacenamiento de PDFs)
+AZURE_STORAGE_CONNECTION_STRING=tu-connection-string-aqui
+AZURE_STORAGE_CONTAINER_NAME=invoices
+
+# OpenAI (opcional para agentes LangChain)
+OPENAI_API_KEY=tu-openai-key-aqui
+```
+
+================================================================================
+PARTE 2: MODELOS DE BASE DE DATOS (LO QUE YA IMPLEMENTÉ)
+================================================================================
+
+2.1 MODELO BASE (src/models/base.py)
+-------------------------------------
+```python
+from sqlmodel import SQLModel
+from datetime import datetime
+
+class TimestampMixin(SQLModel):
+    """Mixin para agregar timestamps automáticos"""
+    created_at: datetime = None
+    updated_at: datetime = None
+```
+
+2.2 MODELO DE USUARIO (src/models/user.py)
+-------------------------------------------
+```python
+from typing import Optional
+from datetime import datetime
+from sqlmodel import SQLModel, Field
+from enum import Enum
+
+class UserRole(str, Enum):
+    SUPERADMIN = "superadmin"  # Solo Franco
+    ADMIN = "admin"            # Hernán, Joni
+    ACCOUNTANT = "accountant"  # Contador
+    APPROVER = "approver"      # Puede aprobar facturas
+    EDITOR = "editor"          # Puede editar
+    PARTNER = "partner"        # Socios/clientes
+    VIEWER = "viewer"          # Solo lectura
+
+class User(SQLModel, table=True):
+    __tablename__ = "users"
+    
+    id: Optional[int] = Field(default=None, primary_key=True)
+    email: str = Field(unique=True, index=True)
+    hashed_password: str
+    full_name: str
+    role: UserRole = Field(default=UserRole.VIEWER)
+    is_active: bool = Field(default=True)
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+```
+
+2.3 MODELO DE FACTURA - COMPLETO CON LÓGICA FISCAL ARGENTINA (src/models/invoice.py)
+-------------------------------------------------------------------------------------
+```python
+from typing import Optional
+from datetime import date, datetime
+from sqlmodel import SQLModel, Field
+from enum import Enum
+from decimal import Decimal
+
+class TipoFactura(str, Enum):
+    """Tipos de factura según normativa argentina"""
+    A = "A"  # Factura A - CON IVA discriminado (para Balance IVA)
+    B = "B"  # Factura B - IVA incluido
+    C = "C"  # Factura C - Sin IVA
+    X = "X"  # Comprobante X - Otros
+
+class MovimientoCuenta(str, Enum):
+    """Indica si la factura afecta el flujo de caja real"""
+    SI = "SI"    # Afecta Balance General (cash flow real)
+    NO = "NO"    # No afecta Balance General
+
+class MetodoPago(str, Enum):
+    EFECTIVO = "efectivo"
+    TRANSFERENCIA = "transferencia"
+    CHEQUE = "cheque"
+    TARJETA = "tarjeta"
+    OTRO = "otro"
+
+class Partner(str, Enum):
+    """Socios de Open Doors"""
+    FRANCO = "Franco"
+    JONI = "Joni"
+    HERNAN = "Hernán"
+    MAXI = "Maxi"
+    LEO = "Leo"
+
+class Invoice(SQLModel, table=True):
+    __tablename__ = "invoices"
+    
+    # Identificación
+    id: Optional[int] = Field(default=None, primary_key=True)
+    numero_factura: str = Field(index=True)
+    tipo_factura: TipoFactura  # A, B, C, X
+    
+    # Información fiscal
+    cuit: Optional[str] = None  # CUIT del emisor/receptor
+    razon_social: Optional[str] = None
+    
+    # Fechas
+    fecha_emision: date
+    fecha_vencimiento: Optional[date] = None
+    
+    # Montos en formato argentino ($1.234,56)
+    subtotal: Decimal = Field(default=Decimal("0.00"), max_digits=15, decimal_places=2)
+    monto_iva: Decimal = Field(default=Decimal("0.00"), max_digits=15, decimal_places=2)
+    otros_impuestos: Decimal = Field(default=Decimal("0.00"), max_digits=15, decimal_places=2)
+    total: Decimal = Field(max_digits=15, decimal_places=2)
+    
+    # Lógica de negocio según Joni
+    movimiento_cuenta: MovimientoCuenta = Field(default=MovimientoCuenta.SI)
+    es_compensacion_iva: bool = Field(default=False)  # Para casos especiales
+    
+    # Multi-partner tracking
+    socio_responsable: Optional[Partner] = None
+    
+    # Pago
+    metodo_pago: Optional[MetodoPago] = None
+    esta_pagada: bool = Field(default=False)
+    fecha_pago: Optional[date] = None
+    
+    # Metadata
+    descripcion: Optional[str] = None
+    observaciones: Optional[str] = None
+    archivo_pdf_url: Optional[str] = None
+    
+    # Soft delete y aprobación
+    deleted_at: Optional[datetime] = None
+    aprobada: bool = Field(default=False)
+    aprobada_por: Optional[int] = Field(default=None, foreign_key="users.id")
+    fecha_aprobacion: Optional[datetime] = None
+    
+    # Timestamps
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    created_by: Optional[int] = Field(default=None, foreign_key="users.id")
+```
+
+2.4 MODELO DE SOCIO (src/models/partner.py)
+--------------------------------------------
+```python
+from typing import Optional
+from datetime import datetime
+from sqlmodel import SQLModel, Field
+
+class PartnerProfile(SQLModel, table=True):
+    __tablename__ = "partners"
+    
+    id: Optional[int] = Field(default=None, primary_key=True)
+    nombre: str = Field(unique=True)  # Franco, Joni, Hernán, Maxi, Leo
+    email: Optional[str] = None
+    telefono: Optional[str] = None
+    porcentaje_participacion: float = Field(default=0.0)
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+```
+
+================================================================================
+PARTE 3: SERVICIOS DE LÓGICA DE NEGOCIO (LO QUE YA IMPLEMENTÉ)
+================================================================================
+
+3.1 CALCULADORA FINANCIERA - LÓGICA FISCAL ARGENTINA (src/services/financial_calculator.py)
+-------------------------------------------------------------------------------------------
+```python
+from decimal import Decimal
+from typing import List, Dict, Optional
+from datetime import date
+from src.models.invoice import Invoice, TipoFactura, MovimientoCuenta
+
+class FinancialCalculator:
+    """
+    Calculadora centralizada para lógica fiscal argentina según especificaciones de Joni.
+    
+    REGLAS DE NEGOCIO:
+    1. Balance IVA = SOLO facturas tipo A (IVA emitido - IVA recibido)
+    2. Balance General = SOLO facturas con movimiento_cuenta=SI (flujo de caja real)
+    3. Formato moneda: $1.234,56 (punto miles, coma decimales)
+    """
+    
+    @staticmethod
+    def calcular_balance_iva(
+        facturas_emitidas: List[Invoice],
+        facturas_recibidas: List[Invoice]
+    ) -> Dict[str, Decimal]:
+        """
+        Calcula Balance IVA según normativa argentina.
+        SOLO considera facturas tipo A (con IVA discriminado).
+        """
+        # IVA emitido (facturas de venta tipo A)
+        iva_emitido = sum(
+            f.monto_iva 
+            for f in facturas_emitidas 
+            if f.tipo_factura == TipoFactura.A and not f.es_compensacion_iva
+        )
+        
+        # IVA recibido (facturas de compra tipo A)
+        iva_recibido = sum(
+            f.monto_iva 
+            for f in facturas_recibidas 
+            if f.tipo_factura == TipoFactura.A and not f.es_compensacion_iva
+        )
+        
+        # Balance = IVA emitido - IVA recibido
+        balance = iva_emitido - iva_recibido
+        
+        return {
+            "iva_emitido": iva_emitido,
+            "iva_recibido": iva_recibido,
+            "balance_iva": balance,
+            "estado": "A PAGAR" if balance > 0 else "A FAVOR"
+        }
+    
+    @staticmethod
+    def calcular_balance_general(
+        facturas: List[Invoice],
+        fecha_desde: Optional[date] = None,
+        fecha_hasta: Optional[date] = None
+    ) -> Dict[str, Decimal]:
+        """
+        Calcula Balance General (flujo de caja).
+        SOLO considera facturas con movimiento_cuenta=SI.
+        """
+        # Filtrar por fechas si se especifican
+        facturas_filtradas = facturas
+        if fecha_desde:
+            facturas_filtradas = [f for f in facturas_filtradas if f.fecha_emision >= fecha_desde]
+        if fecha_hasta:
+            facturas_filtradas = [f for f in facturas_filtradas if f.fecha_emision <= fecha_hasta]
+        
+        # SOLO facturas con movimiento_cuenta=SI
+        facturas_con_movimiento = [
+            f for f in facturas_filtradas 
+            if f.movimiento_cuenta == MovimientoCuenta.SI
+        ]
+        
+        # Sumar totales
+        total_ingresos = sum(f.total for f in facturas_con_movimiento if f.total > 0)
+        total_egresos = sum(abs(f.total) for f in facturas_con_movimiento if f.total < 0)
+        
+        return {
+            "ingresos": total_ingresos,
+            "egresos": total_egresos,
+            "balance": total_ingresos - total_egresos
+        }
+    
+    @staticmethod
+    def calcular_balance_por_socio(
+        facturas: List[Invoice],
+        socio: str
+    ) -> Dict[str, Decimal]:
+        """
+        Calcula balance específico de un socio.
+        """
+        facturas_socio = [f for f in facturas if f.socio_responsable == socio]
+        
+        total = sum(f.total for f in facturas_socio)
+        cantidad = len(facturas_socio)
+        
+        return {
+            "socio": socio,
+            "total": total,
+            "cantidad_facturas": cantidad,
+            "promedio": total / cantidad if cantidad > 0 else Decimal("0.00")
+        }
+    
+    @staticmethod
+    def validar_coherencia_montos(invoice: Invoice) -> Dict[str, any]:
+        """
+        Valida que subtotal + IVA + otros = total
+        """
+        calculado = invoice.subtotal + invoice.monto_iva + invoice.otros_impuestos
+        diferencia = abs(invoice.total - calculado)
+        
+        # Tolerancia de 0.01 por redondeos
+        es_coherente = diferencia <= Decimal("0.01")
+        
+        return {
+            "es_coherente": es_coherente,
+            "total_declarado": invoice.total,
+            "total_calculado": calculado,
+            "diferencia": diferencia
+        }
+```
+
+3.2 VALIDADOR DE FORMATO ARGENTINO (src/services/currency_validator.py)
+-----------------------------------------------------------------------
+```python
+import re
+from decimal import Decimal
+from typing import Tuple, Optional
+
+class CurrencyValidator:
+    """
+    Validador y auto-corrector de formato de moneda argentina.
+    Formato esperado: $1.234,56 (punto para miles, coma para decimales)
+    """
+    
+    # Patrón formato argentino: $1.234,56
+    PATTERN_ARG = r'^\$?\s*(\d{1,3}(?:\.\d{3})*),(\d{2})$'
+    
+    # Patrón formato inglés: $1,234.56 (para detectar y corregir)
+    PATTERN_ENG = r'^\$?\s*(\d{1,3}(?:,\d{3})*)\.(\d{2})$'
+    
+    @staticmethod
+    def validar_formato_argentino(valor: str) -> Tuple[bool, Optional[str]]:
+        """
+        Valida si un string está en formato argentino.
+        Retorna (es_valido, mensaje_error)
+        """
+        valor = valor.strip()
+        
+        # Intentar match con formato argentino
+        if re.match(CurrencyValidator.PATTERN_ARG, valor):
+            return (True, None)
+        
+        # Si no coincide, dar mensaje de error
+        return (False, f"Formato incorrecto. Use formato argentino: $1.234,56")
+    
+    @staticmethod
+    def auto_corregir(valor: str) -> Tuple[Decimal, str]:
+        """
+        Detecta automáticamente el formato y convierte a Decimal.
+        Retorna (valor_decimal, formato_detectado)
+        """
+        valor = valor.strip().replace('$', '').replace(' ', '')
+        
+        # Detectar formato argentino: 1.234,56
+        if re.match(r'^\d{1,3}(?:\.\d{3})*,\d{2}$', valor):
+            # Remover puntos de miles y reemplazar coma por punto
+            valor_limpio = valor.replace('.', '').replace(',', '.')
+            return (Decimal(valor_limpio), "argentino")
+        
+        # Detectar formato inglés: 1,234.56
+        elif re.match(r'^\d{1,3}(?:,\d{3})*\.\d{2}$', valor):
+            # Remover comas de miles
+            valor_limpio = valor.replace(',', '')
+            return (Decimal(valor_limpio), "inglés_corregido")
+        
+        # Número simple sin separadores
+        else:
+            try:
+                return (Decimal(valor), "simple")
+            except:
+                raise ValueError(f"No se pudo parsear el valor: {valor}")
+    
+    @staticmethod
+    def formatear_argentino(valor: Decimal) -> str:
+        """
+        Convierte un Decimal a formato argentino $1.234,56
+        """
+        # Convertir a string con 2 decimales
+        valor_str = f"{valor:.2f}"
+        
+        # Separar parte entera y decimal
+        partes = valor_str.split('.')
+        parte_entera = partes[0]
+        parte_decimal = partes[1]
+        
+        # Agregar puntos de miles
+        parte_entera_formateada = ""
+        for i, digito in enumerate(reversed(parte_entera)):
+            if i > 0 and i % 3 == 0:
+                parte_entera_formateada = "." + parte_entera_formateada
+            parte_entera_formateada = digito + parte_entera_formateada
+        
+        return f"${parte_entera_formateada},{parte_decimal}"
+```
+
+================================================================================
+PARTE 4: SISTEMA DE PERMISOS (LO QUE YA IMPLEMENTÉ)
+================================================================================
+
+4.1 CONFIGURACIÓN DE PERMISOS (src/core/permissions.py)
+--------------------------------------------------------
+```python
+from enum import Enum
+from typing import List, Optional
+from fastapi import HTTPException, Depends
+from sqlmodel import Session
+from src.models.user import User, UserRole
+from src.core.database import get_session
+
+# Jerarquía de roles (mayor número = más privilegios)
+ROLE_HIERARCHY = {
+    'superadmin': 100,  # Solo Franco
+    'admin': 50,        # Hernán, Joni
+    'accountant': 40,
+    'approver': 30,
+    'editor': 20,
+    'partner': 2,
+    'viewer': 1
+}
+
+# Email del ÚNICO superadmin
+SUPERADMIN_EMAIL = "cortsfranco@hotmail.com"
+
+class PermissionError(Exception):
+    """Excepción personalizada para errores de permisos."""
+    pass
+
+class Permission(str, Enum):
+    """Permisos específicos del sistema"""
+    # Facturas
+    INVOICE_VIEW = "invoice:view"
+    INVOICE_CREATE = "invoice:create"
+    INVOICE_EDIT = "invoice:edit"
+    INVOICE_DELETE = "invoice:delete"
+    INVOICE_APPROVE = "invoice:approve"
+    
+    # Reportes financieros
+    FINANCIAL_VIEW = "financial:view"
+    FINANCIAL_EXPORT = "financial:export"
+    
+    # Usuarios
+    USER_VIEW = "user:view"
+    USER_CREATE = "user:create"
+    USER_EDIT = "user:edit"
+    USER_DELETE = "user:delete"
+    
+    # Sistema
+    SYSTEM_SETTINGS = "system:settings"
+    SYSTEM_BACKUP = "system:backup"
+
+# Mapeo de roles a permisos
+ROLE_PERMISSIONS = {
+    UserRole.SUPERADMIN: [
+        # Franco puede TODO
+        Permission.INVOICE_VIEW,
+        Permission.INVOICE_CREATE,
+        Permission.INVOICE_EDIT,
+        Permission.INVOICE_DELETE,
+        Permission.INVOICE_APPROVE,
+        Permission.FINANCIAL_VIEW,
+        Permission.FINANCIAL_EXPORT,
+        Permission.USER_VIEW,
+        Permission.USER_CREATE,
+        Permission.USER_EDIT,
+        Permission.USER_DELETE,
+        Permission.SYSTEM_SETTINGS,
+        Permission.SYSTEM_BACKUP,
+    ],
+    UserRole.ADMIN: [
+        # Hernán, Joni pueden casi todo menos gestión de usuarios
+        Permission.INVOICE_VIEW,
+        Permission.INVOICE_CREATE,
+        Permission.INVOICE_EDIT,
+        Permission.INVOICE_DELETE,
+        Permission.INVOICE_APPROVE,
+        Permission.FINANCIAL_VIEW,
+        Permission.FINANCIAL_EXPORT,
+        Permission.USER_VIEW,
+    ],
+    UserRole.ACCOUNTANT: [
+        # Contador puede ver y crear, aprobar
+        Permission.INVOICE_VIEW,
+        Permission.INVOICE_CREATE,
+        Permission.INVOICE_APPROVE,
+        Permission.FINANCIAL_VIEW,
+        Permission.FINANCIAL_EXPORT,
+    ],
+    UserRole.APPROVER: [
+        Permission.INVOICE_VIEW,
+        Permission.INVOICE_APPROVE,
+        Permission.FINANCIAL_VIEW,
+    ],
+    UserRole.EDITOR: [
+        Permission.INVOICE_VIEW,
+        Permission.INVOICE_CREATE,
+        Permission.INVOICE_EDIT,
+        Permission.FINANCIAL_VIEW,
+    ],
+    UserRole.PARTNER: [
+        # Socios solo ven sus propias facturas
+        Permission.INVOICE_VIEW,
+        Permission.FINANCIAL_VIEW,
+    ],
+    UserRole.VIEWER: [
+        Permission.INVOICE_VIEW,
+        Permission.FINANCIAL_VIEW,
+    ],
+}
+
+def has_permission(user: User, permission: Permission) -> bool:
+    """Verifica si un usuario tiene un permiso específico"""
+    if user.email == SUPERADMIN_EMAIL:
+        return True  # Superadmin siempre tiene todos los permisos
+    
+    user_permissions = ROLE_PERMISSIONS.get(user.role, [])
+    return permission in user_permissions
+
+def require_permission(permission: Permission):
+    """Decorator para proteger endpoints con permisos específicos"""
+    def decorator(func):
+        async def wrapper(*args, current_user: User = Depends(get_current_user), **kwargs):
+            if not has_permission(current_user, permission):
+                raise HTTPException(
+                    status_code=403,
+                    detail=f"No tienes permiso para: {permission.value}"
+                )
+            return await func(*args, current_user=current_user, **kwargs)
+        return wrapper
+    return decorator
+
+def require_role(min_role: UserRole):
+    """Decorator para requerir un rol mínimo"""
+    def decorator(func):
+        async def wrapper(*args, current_user: User = Depends(get_current_user), **kwargs):
+            if ROLE_HIERARCHY.get(current_user.role.value, 0) < ROLE_HIERARCHY.get(min_role.value, 0):
+                raise HTTPException(
+                    status_code=403,
+                    detail=f"Requiere rol mínimo: {min_role.value}"
+                )
+            return await func(*args, current_user=current_user, **kwargs)
+        return wrapper
+    return decorator
+```
+
+================================================================================
+PARTE 5: ENDPOINTS FINANCIEROS (LO QUE YA IMPLEMENTÉ)
+================================================================================
+
+5.1 ENDPOINTS DE REPORTES FINANCIEROS (src/api/routers/financial_reports.py)
+-----------------------------------------------------------------------------
+```python
+from fastapi import APIRouter, Depends, Query
+from sqlmodel import Session, select
+from typing import Optional
+from datetime import date
+from src.core.database import get_session
+from src.core.permissions import require_permission, Permission
+from src.models.user import User
+from src.models.invoice import Invoice
+from src.services.financial_calculator import FinancialCalculator
+
+router = APIRouter(prefix="/financial", tags=["Financial Reports"])
+
+@router.get("/balance-iva")
+async def get_balance_iva(
+    fecha_desde: Optional[date] = Query(None),
+    fecha_hasta: Optional[date] = Query(None),
+    session: Session = Depends(get_session),
+    current_user: User = Depends(require_permission(Permission.FINANCIAL_VIEW))
+):
+    """
+    Calcula Balance IVA según lógica de Joni.
+    SOLO facturas tipo A (con IVA discriminado).
+    """
+    # Obtener facturas emitidas (total > 0)
+    query_emitidas = select(Invoice).where(Invoice.total > 0, Invoice.deleted_at == None)
+    if fecha_desde:
+        query_emitidas = query_emitidas.where(Invoice.fecha_emision >= fecha_desde)
+    if fecha_hasta:
+        query_emitidas = query_emitidas.where(Invoice.fecha_emision <= fecha_hasta)
+    
+    facturas_emitidas = session.exec(query_emitidas).all()
+    
+    # Obtener facturas recibidas (total < 0)
+    query_recibidas = select(Invoice).where(Invoice.total < 0, Invoice.deleted_at == None)
+    if fecha_desde:
+        query_recibidas = query_recibidas.where(Invoice.fecha_emision >= fecha_desde)
+    if fecha_hasta:
+        query_recibidas = query_recibidas.where(Invoice.fecha_emision <= fecha_hasta)
+    
+    facturas_recibidas = session.exec(query_recibidas).all()
+    
+    # Calcular con la lógica de Joni
+    balance = FinancialCalculator.calcular_balance_iva(
+        facturas_emitidas=facturas_emitidas,
+        facturas_recibidas=facturas_recibidas
+    )
+    
+    return balance
+
+@router.get("/balance-general")
+async def get_balance_general(
+    fecha_desde: Optional[date] = Query(None),
+    fecha_hasta: Optional[date] = Query(None),
+    session: Session = Depends(get_session),
+    current_user: User = Depends(require_permission(Permission.FINANCIAL_VIEW))
+):
+    """
+    Calcula Balance General (flujo de caja).
+    SOLO facturas con movimiento_cuenta=SI.
+    """
+    query = select(Invoice).where(Invoice.deleted_at == None)
+    facturas = session.exec(query).all()
+    
+    balance = FinancialCalculator.calcular_balance_general(
+        facturas=facturas,
+        fecha_desde=fecha_desde,
+        fecha_hasta=fecha_hasta
+    )
+    
+    return balance
+
+@router.get("/balance-por-socio")
+async def get_balance_por_socio(
+    socio: str = Query(...),
+    session: Session = Depends(get_session),
+    current_user: User = Depends(require_permission(Permission.FINANCIAL_VIEW))
+):
+    """
+    Balance específico de un socio.
+    """
+    query = select(Invoice).where(Invoice.deleted_at == None)
+    facturas = session.exec(query).all()
+    
+    balance = FinancialCalculator.calcular_balance_por_socio(
+        facturas=facturas,
+        socio=socio
+    )
+    
+    return balance
+```
+
+================================================================================
+PARTE 6: CONFIGURACIÓN DE BASE DE DATOS
+================================================================================
+
+6.1 CREAR BASE DE DATOS POSTGRESQL
+-----------------------------------
+```bash
+# Conectar a PostgreSQL
+psql -U postgres
+
+# Crear base de datos
+CREATE DATABASE opendoors_billing;
+
+# Crear usuario
+CREATE USER opendoors_user WITH PASSWORD 'tu-password-segura';
+
+# Dar permisos
+GRANT ALL PRIVILEGES ON DATABASE opendoors_billing TO opendoors_user;
+
+# Salir
+\q
+```
+
+6.2 INICIALIZAR TABLAS
+-----------------------
+```bash
+# Desde la raíz del proyecto
+python -c "import asyncio; from src.core.database import init_db; asyncio.run(init_db())"
+```
+
+6.3 CREAR USUARIO SUPERADMIN (FRANCO)
+--------------------------------------
+```bash
+# Script para crear usuario superadmin
+python -c "
+import asyncio
+from sqlmodel import Session, select
+from src.core.database import engine, get_session
+from src.models.user import User, UserRole
+from passlib.context import CryptContext
+
+pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
+
+async def create_superadmin():
+    async with engine.begin() as conn:
+        from src.models import user, invoice, partner
+        await conn.run_sync(SQLModel.metadata.create_all)
+    
+    session = next(get_session())
+    
+    # Verificar si ya existe
+    existing = session.exec(select(User).where(User.email == 'cortsfranco@hotmail.com')).first()
+    if existing:
+        print('Superadmin ya existe')
+        return
+    
+    # Crear superadmin
+    superadmin = User(
+        email='cortsfranco@hotmail.com',
+        hashed_password=pwd_context.hash('Ncc1701E@'),
+        full_name='Franco Corts',
+        role=UserRole.SUPERADMIN,
+        is_active=True
+    )
+    
+    session.add(superadmin)
+    session.commit()
+    print('Superadmin creado exitosamente')
+
+asyncio.run(create_superadmin())
+"
+```
+
+================================================================================
+PARTE 7: INICIAR EL SERVIDOR
+================================================================================
+
+7.1 DESARROLLO (CON RECARGA AUTOMÁTICA)
+----------------------------------------
+```bash
+uvicorn src.main:app --host 0.0.0.0 --port 5000 --reload
+```
+
+7.2 PRODUCCIÓN
+--------------
+```bash
+# Con Gunicorn para mayor rendimiento
+gunicorn src.main:app -w 4 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:5000
+```
+
+7.3 DOCKER (OPCIONAL)
+---------------------
+Crear Dockerfile:
+
+```dockerfile
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Instalar dependencias del sistema
+RUN apt-get update && apt-get install -y \
+    postgresql-client \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copiar requirements
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copiar código
+COPY . .
+
+# Exponer puerto
+EXPOSE 5000
+
+# Comando de inicio
+CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "5000"]
+```
+
+Crear docker-compose.yml:
+
+```yaml
+version: '3.8'
+
+services:
+  db:
+    image: postgres:14
+    environment:
+      POSTGRES_DB: opendoors_billing
+      POSTGRES_USER: opendoors_user
+      POSTGRES_PASSWORD: tu-password-segura
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  backend:
+    build: .
+    ports:
+      - "5000:5000"
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: postgresql+asyncpg://opendoors_user:tu-password-segura@db:5432/opendoors_billing
+    volumes:
+      - ./src:/app/src
+
+volumes:
+  postgres_data:
+```
+
+Iniciar con Docker:
+```bash
+docker-compose up -d
+```
+
+================================================================================
+PARTE 8: VERIFICACIÓN Y TESTING
+================================================================================
+
+8.1 VERIFICAR QUE EL SERVIDOR ESTÁ CORRIENDO
+---------------------------------------------
+```bash
+curl http://localhost:5000/
+```
+
+8.2 PROBAR LOGIN CON CREDENCIALES DE SUPERADMIN
+------------------------------------------------
+```bash
+curl -X POST http://localhost:5000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "cortsfranco@hotmail.com",
+    "password": "Ncc1701E@"
+  }'
+```
+
+8.3 PROBAR ENDPOINTS FINANCIEROS
+---------------------------------
+```bash
+# Obtener token primero (del paso anterior)
+TOKEN="tu-token-aqui"
+
+# Balance IVA
+curl http://localhost:5000/api/financial/balance-iva \
+  -H "Authorization: Bearer $TOKEN"
+
+# Balance General
+curl http://localhost:5000/api/financial/balance-general \
+  -H "Authorization: Bearer $TOKEN"
+
+# Balance por socio
+curl "http://localhost:5000/api/financial/balance-por-socio?socio=Franco" \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+================================================================================
+PARTE 9: PRÓXIMOS PASOS (PENDIENTES)
+================================================================================
+
+9.1 TAREAS PENDIENTES EN ORDEN DE PRIORIDAD:
+---------------------------------------------
+1. Completar endpoints de gestión (approval, partners, soft delete)
+2. Mejorar agente de Azure AI con reintentos y mejor extracción
+3. Crear frontend con React/Next.js
+4. Implementar gráficas analíticas
+5. Testing exhaustivo de cálculos fiscales
+6. Deployment a producción
+
+9.2 COMANDOS ÚTILES PARA DESARROLLO:
+-------------------------------------
+```bash
+# Ver logs de PostgreSQL
+docker-compose logs -f db
+
+# Ejecutar migraciones
+alembic upgrade head
+
+# Crear nueva migración
+alembic revision --autogenerate -m "descripción"
+
+# Ver estado de migraciones
+alembic current
+
+# Rollback de migración
+alembic downgrade -1
+```
+
+================================================================================
+NOTAS FINALES
+================================================================================
+
+CREDENCIALES SUPERADMIN:
+Email: cortsfranco@hotmail.com
+Password: Ncc1701E@
+
+LÓGICA FISCAL CLAVE:
+- Balance IVA: SOLO facturas tipo A
+- Balance General: SOLO facturas con movimiento_cuenta=SI
+- Formato moneda: $1.234,56 (argentino)
+
+ESTRUCTURA MULTI-PARTNER:
+- Franco, Joni, Hernán, Maxi, Leo
+- Tracking individual por socio
+- Permisos jerárquicos
+
+¡Todo listo para replicar en tu entorno local, Franco!
+
+================================================================================
