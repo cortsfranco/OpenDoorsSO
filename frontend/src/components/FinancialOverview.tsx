@@ -80,6 +80,12 @@ const FinancialOverview: React.FC = () => {
       const ivaBalanceData = await apiService.getBalanceIVA(selectedOwner, dateRange?.from?.toISOString().split('T')[0], dateRange?.to?.toISOString().split('T')[0]);
       const generalBalanceData = await apiService.getBalanceGeneral(selectedOwner, dateRange?.from?.toISOString().split('T')[0], dateRange?.to?.toISOString().split('T')[0]);
       
+      // Obtener balances reales por socio
+      const balancesPorSocioData = await apiService.getBalancePorSocio(
+        dateRange?.from?.toISOString().split('T')[0], 
+        dateRange?.to?.toISOString().split('T')[0]
+      );
+      
       // Generar datos mensuales basados en los datos reales
       const realData = {
         total_income: generalBalanceData.ingresos_totales || 0,
@@ -90,30 +96,16 @@ const FinancialOverview: React.FC = () => {
       
       const monthlyData = generateMonthlyData(realData);
       
-      // Datos de ejemplo para balances por socio (hasta implementar endpoint específico)
-      const balancesPorSocio = [
-        {
-          socio: "Franco",
-          balance_iva: (ivaBalanceData.balance_iva || 0) / 3,
-          balance_general: (generalBalanceData.balance_general || 0) / 3,
-          total_ingresos: (generalBalanceData.ingresos_totales || 0) / 3,
-          total_egresos: (generalBalanceData.egresos_totales || 0) / 3
-        },
-        {
-          socio: "Joni",
-          balance_iva: (ivaBalanceData.balance_iva || 0) / 3,
-          balance_general: (generalBalanceData.balance_general || 0) / 3,
-          total_ingresos: (generalBalanceData.ingresos_totales || 0) / 3,
-          total_egresos: (generalBalanceData.egresos_totales || 0) / 3
-        },
-        {
-          socio: "Hernán",
-          balance_iva: (ivaBalanceData.balance_iva || 0) / 3,
-          balance_general: (generalBalanceData.balance_general || 0) / 3,
-          total_ingresos: (generalBalanceData.ingresos_totales || 0) / 3,
-          total_egresos: (generalBalanceData.egresos_totales || 0) / 3
-        }
-      ];
+      // Convertir datos de balances por socio al formato esperado por el frontend
+      const balancesPorSocio = Object.entries(balancesPorSocioData)
+        .filter(([key]) => key !== 'periodo')
+        .map(([socio, data]: [string, any]) => ({
+          socio,
+          balance_iva: data.balance_iva?.balance_iva || 0,
+          balance_general: data.balance_general?.balance_general || 0,
+          total_ingresos: data.balance_general?.ingresos_totales || 0,
+          total_egresos: data.balance_general?.egresos_totales || 0
+        }));
       
       setSummary({
         total_income: realData.total_income,

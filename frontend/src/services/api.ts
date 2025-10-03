@@ -206,6 +206,14 @@ class ApiService {
     return response.data;
   }
 
+  async getBalancePorSocio(fechaDesde?: string, fechaHasta?: string) {
+    const params = new URLSearchParams();
+    if (fechaDesde) params.append('fecha_desde', fechaDesde);
+    if (fechaHasta) params.append('fecha_hasta', fechaHasta);
+    const response = await this.api.get(`/v1/financial/balance-por-socio?${params.toString()}`);
+    return response.data;
+  }
+
           // Métodos de papelera (soft delete)
           async deleteInvoice(invoiceId: number) {
             const response = await this.api.delete(`/invoices/${invoiceId}`);
