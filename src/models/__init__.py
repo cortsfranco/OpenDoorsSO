@@ -7,4 +7,9 @@ from .user import User
 from .invoice import Invoice
 from .partner import Partner
 
-__all__ = ["Base", "User", "Invoice", "Partner"]
+__all__ = [
+    "Base", 
+    "User", 
+    "Invoice", 
+    "Partner"
+]
