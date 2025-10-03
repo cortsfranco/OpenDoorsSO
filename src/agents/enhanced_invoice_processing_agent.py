@@ -15,7 +15,6 @@ from azure.storage.blob import BlobServiceClient
 from openai import AsyncOpenAI
 
 from src.core.config import settings
-from src.services.validation_service import ArgentineValidationService
 
 logger = logging.getLogger(__name__)
 
@@ -25,7 +24,6 @@ class EnhancedInvoiceProcessingAgent:
     
     def __init__(self, session=None):
         self.session = session
-        self.validation_service = ArgentineValidationService()
         
         # Inicialización lazy de clientes Azure (solo si hay credenciales)
         self.doc_client = None
@@ -282,104 +280,3 @@ class EnhancedInvoiceProcessingAgent:
                 "error_message": str(e),
                 "extracted_data": extracted_data if 'extracted_data' in locals() else {}
             }
-    
-    async def process_with_exhaustive_validation(self, invoice_data: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Procesar factura con validaciones exhaustivas de CUIT, CAE y tipo de factura.
-        """
-        try:
-            logger.info("Iniciando procesamiento con validaciones exhaustivas")
-            
-            # 1. Validar datos básicos
-            validation_results = self.validation_service.validate_complete_invoice(invoice_data)
-            
-            # 2. Determinar campos automáticamente
-            enhanced_data = self._enhance_invoice_data(invoice_data)
-            
-            # 3. Aplicar correcciones automáticas
-            corrected_data = self._apply_automatic_corrections(enhanced_data, validation_results)
-            
-            # 4. Generar reporte de validación
-            validation_summary = self.validation_service.get_validation_summary(validation_results)
-            
-            # 5. Determinar estado final
-            status = "completed" if validation_summary['is_valid'] else "needs_review"
-            
-            return {
-                "status": status,
-                "extracted_data": corrected_data,
-                "validation_results": validation_results,
-                "validation_summary": validation_summary,
-                "processing_notes": self._generate_processing_notes(validation_results, corrected_data)
-            }
-            
-        except Exception as e:
-            logger.error(f"Error en procesamiento con validaciones: {str(e)}")
-            return {
-                "status": "error",
-                "error_message": str(e),
-                "extracted_data": invoice_data
-            }
-    
-    def _enhance_invoice_data(self, data: Dict[str, Any]) -> Dict[str, Any]:
-        """Mejorar datos de la factura con determinaciones automáticas."""
-        enhanced = data.copy()
-        
-        # Determinar dirección de la factura
-        enhanced['invoice_direction'] = self.validation_service.determine_invoice_direction(data)
-        
-        # Determinar movimiento de cuenta
-        enhanced['movimiento_cuenta'] = self.validation_service.determine_movimiento_cuenta(data)
-        
-        # Determinar si es compensación IVA
-        enhanced['es_compensacion_iva'] = self._determine_compensacion_iva(data)
-        
-        # Determinar tipo de contabilidad
-        enhanced['tipo_contabilidad'] = 'fiscal'  # Por defecto
-        
-        return enhanced
-    
-    def _determine_compensacion_iva(self, data: Dict[str, Any]) -> bool:
-        """Determinar si la factura es para compensación IVA."""
-        if data.get('invoice_direction') == 'recibida':
-            if data.get('monto_iva', 0) > 0:
-                return True
-        return False
-    
-    def _apply_automatic_corrections(self, data: Dict[str, Any], validation_results: Dict[str, Any]) -> Dict[str, Any]:
-        """Aplicar correcciones automáticas basadas en validaciones."""
-        corrected = data.copy()
-        
-        for field, result in validation_results.items():
-            if not result.is_valid:
-                if field == 'cuit' and data.get('cuit'):
-                    # Limpiar formato de CUIT
-                    clean_cuit = re.sub(r'[^\d]', '', data['cuit'])
-                    if len(clean_cuit) == 11:
-                        corrected['cuit'] = f"{clean_cuit[:2]}-{clean_cuit[2:10]}-{clean_cuit[10]}"
-                
-                elif field == 'amounts':
-                    # Corregir cálculos de montos
-                    subtotal = data.get('subtotal', 0)
-                    iva = data.get('monto_iva', 0)
-                    corrected['monto_total'] = subtotal + iva
-        
-        return corrected
-    
-    def _generate_processing_notes(self, validation_results: Dict[str, Any], final_data: Dict[str, Any]) -> str:
-        """Generar notas de procesamiento."""
-        notes = []
-        
-        # Agregar notas de validación
-        for field, result in validation_results.items():
-            if not result.is_valid:
-                notes.append(f"Campo {field}: {result.error_message}")
-            if result.warning_message:
-                notes.append(f"Advertencia {field}: {result.warning_message}")
-        
-        # Agregar determinaciones automáticas
-        notes.append(f"Dirección determinada: {final_data.get('invoice_direction')}")
-        notes.append(f"Movimiento de cuenta: {'Sí' if final_data.get('movimiento_cuenta') else 'No'}")
-        notes.append(f"Compensación IVA: {'Sí' if final_data.get('es_compensacion_iva') else 'No'}")
-        
-        return "; ".join(notes)

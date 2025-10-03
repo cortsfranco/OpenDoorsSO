@@ -2,9 +2,8 @@
  * Layout principal de la aplicación con navegación lateral y barra superior.
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { useLocation, useNavigate } from 'react-router-dom';
 import LoginPage from '../pages/LoginPage';
 import FinancialOverview from './FinancialOverview';
 import InvoiceHistoryTable from './InvoiceHistoryTable';
@@ -21,9 +20,7 @@ import UserManagementPage from '../pages/UserManagementPage';
 import AITrainingPage from '../pages/AITrainingPage';
 import ExcelImportPage from '../pages/ExcelImportPage';
 import ProjectCashFlowPage from '../pages/ProjectCashFlowPage';
-import { DualAccountingReportsPage } from '../pages/DualAccountingReportsPage';
 import AIAssistant from './AIAssistant';
-import { HierarchicalSidebar, useHierarchicalSidebar } from './navigation/HierarchicalSidebar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { 
@@ -60,8 +57,7 @@ type ViewType =
   | 'user-settings'
   | 'ai-training'
   | 'excel-import'
-  | 'project-cashflow'
-  | 'dual-accounting';
+  | 'project-cashflow';
 
 // Configuración del menú de navegación
 const menuItems = [
@@ -74,7 +70,6 @@ const menuItems = [
   { id: 'approval-queue', label: 'Cola de Aprobación', icon: Clock },
   { id: 'clients', label: 'Clientes/Proveedores', icon: Users },
   { id: 'reports', label: 'Reportes', icon: BarChart3 },
-  { id: 'dual-accounting', label: 'Doble Contabilidad', icon: BarChart3 },
   { id: 'analytics', label: 'Analytics Ejecutivos', icon: BarChart3 },
   { id: 'project-cashflow', label: 'Cash Flow Proyectos', icon: TrendingUp },
   { id: 'activity-log', label: 'Registro de Actividades', icon: Activity },
@@ -86,23 +81,8 @@ const menuItems = [
 
 const MainLayout: React.FC = () => {
   const { user, logout, isAuthenticated } = useAuth();
-  const { collapsed, toggleCollapse } = useHierarchicalSidebar();
+  const [activeView, setActiveView] = useState<ViewType>('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const location = useLocation();
-  const navigate = useNavigate();
-
-  // Obtener la vista activa desde la URL
-  const getActiveViewFromPath = (pathname: string): string => {
-    const path = pathname.replace('/', '') || 'dashboard';
-    return path;
-  };
-
-  const activeView = getActiveViewFromPath(location.pathname);
-
-  // Función para cambiar de vista usando React Router
-  const handleViewChange = (view: string) => {
-    navigate(`/${view}`);
-  };
 
   // Si no está autenticado, mostrar la página de login
   if (!isAuthenticated) {
@@ -128,8 +108,6 @@ const MainLayout: React.FC = () => {
         return <ClientsSuppliersPage />;
       case 'reports':
         return <ReportsPage />;
-      case 'dual-accounting':
-        return <DualAccountingReportsPage />;
       case 'analytics':
         return <ExecutiveAnalyticsPage />;
       case 'activity-log':
@@ -161,20 +139,79 @@ const MainLayout: React.FC = () => {
         />
       )}
 
-      {/* Sidebar Jerárquico */}
-      <HierarchicalSidebar
-        activeView={activeView}
-        onViewChange={(view) => {
-          handleViewChange(view);
-          setSidebarOpen(false); // Cerrar sidebar en móvil después de seleccionar
-        }}
-        collapsed={collapsed}
-        onToggleCollapse={toggleCollapse}
-        className={`
-          fixed lg:relative lg:translate-x-0 z-50 transition-transform duration-300 ease-in-out
-          ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
-        `}
-      />
+      {/* Sidebar */}
+      <div className={`
+        fixed lg:relative lg:translate-x-0 z-50 h-full w-64 bg-white shadow-xl flex flex-col transition-transform duration-300 ease-in-out
+        ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+      `}>
+        {/* Header del sidebar */}
+        <div className="p-6 border-b border-gray-100 flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+              <span className="text-white font-bold text-sm">OD</span>
+            </div>
+            <div>
+              <h1 className="text-lg font-bold text-gray-900">Open Doors</h1>
+              <p className="text-xs text-gray-500">Sistema de Gestión</p>
+            </div>
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="lg:hidden text-gray-500 hover:text-gray-700"
+            onClick={() => setSidebarOpen(false)}
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
+
+        {/* Menú de navegación */}
+        <nav className="flex-1 p-4 space-y-1 overflow-y-auto custom-scrollbar">
+          {menuItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = activeView === item.id;
+            
+            return (
+              <Button
+                key={item.id}
+                variant="ghost"
+                className={`
+                  w-full justify-start transition-all duration-200 rounded-lg px-3 py-2.5
+                  ${isActive 
+                    ? 'bg-blue-600 text-white shadow-sm border-l-4 border-blue-700' 
+                    : 'text-gray-600 hover:bg-blue-50 hover:text-blue-700'
+                  }
+                `}
+                onClick={() => {
+                  setActiveView(item.id as ViewType);
+                  setSidebarOpen(false); // Cerrar sidebar en móvil
+                }}
+              >
+                <Icon className={`mr-3 h-4 w-4 ${isActive ? 'text-white' : 'text-gray-500'}`} />
+                <span className="truncate font-medium">{item.label}</span>
+                {item.id === 'review-queue' && (
+                  <div className="ml-auto w-2 h-2 bg-red-500 rounded-full"></div>
+                )}
+              </Button>
+            );
+          })}
+        </nav>
+
+        {/* Asistente de IA en sidebar */}
+        <div className="p-4 border-t border-gray-200">
+          <Card className="card-theme-purple">
+            <CardContent className="p-4">
+              <div className="flex items-center space-x-3">
+                <Brain className="h-6 w-6 text-purple-600" />
+                <div>
+                  <h3 className="font-semibold text-sm text-gray-900">Asistente IA</h3>
+                  <p className="text-xs text-gray-500">Disponible</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
 
       {/* Área de contenido principal */}
       <div className="flex-1 flex flex-col min-w-0">

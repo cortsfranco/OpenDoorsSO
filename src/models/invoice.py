@@ -49,7 +49,6 @@ class Invoice(Base):
     
     # Campos críticos de lógica financiera
     movimiento_cuenta = Column(Boolean, default=True, nullable=False)  # CRÍTICO: Si afecta flujo de caja
-    tipo_contabilidad = Column(String(20), default="fiscal", nullable=False)  # 'real', 'fiscal', 'ambas'
     otros_impuestos = Column(Float, default=0.0, nullable=False)  # Otros impuestos además del IVA
     metodo_pago = Column(String(50), default="transferencia", nullable=False)  # contado, transferencia, tarjeta_credito
     es_compensacion_iva = Column(Boolean, default=False, nullable=False)  # Si es solo para compensar IVA
@@ -88,7 +87,6 @@ class InvoiceBase(BaseModel):
     owner: Optional[str] = Field(None, description="Propietario de la factura")
     invoice_direction: str = Field(default="recibida", description="Dirección: 'emitida' o 'recibida'")
     movimiento_cuenta: bool = Field(default=True, description="Si afecta el flujo de caja real")
-    tipo_contabilidad: str = Field(default="fiscal", description="Tipo: 'real', 'fiscal', 'ambas'")
     otros_impuestos: float = Field(default=0.0, description="Otros impuestos")
     metodo_pago: str = Field(default="transferencia", description="Método de pago")
     es_compensacion_iva: bool = Field(default=False, description="Si es solo para compensar IVA")

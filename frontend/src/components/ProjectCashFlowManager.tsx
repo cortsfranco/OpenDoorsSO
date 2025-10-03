@@ -21,8 +21,6 @@ import {
   PieChart
 } from 'lucide-react';
 import { useNotifications } from '@/hooks/useNotifications';
-import { useRealTimeEdit } from '@/hooks/useRealTimeEdit';
-import { EditableCell } from '@/components/EditableCell';
 
 interface Project {
   id: string;
@@ -67,40 +65,91 @@ const ProjectCashFlowManager: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const { success, error } = useNotifications();
 
-  // Hook para edición en tiempo real
-  const { updateField, deleteItem } = useRealTimeEdit({
-    onUpdate: async (id, field, value) => {
-      // Aquí se implementaría la actualización en el backend
-      console.log(`Updating project ${id}, field: ${field}, value: ${value}`);
-      // Actualizar estado local
-      if (field.startsWith('project.')) {
-        const projectField = field.replace('project.', '');
-        setProjects(prev => prev.map(project => 
-          project.id === id 
-            ? { ...project, [projectField]: value }
-            : project
-        ));
-      } else if (field.startsWith('transaction.')) {
-        const transactionField = field.replace('transaction.', '');
-        setTransactions(prev => prev.map(transaction => 
-          transaction.id === id 
-            ? { ...transaction, [transactionField]: value }
-            : transaction
-        ));
-      }
+  // Datos de ejemplo
+  const mockProjects: Project[] = [
+    {
+      id: 'proj_1',
+      name: 'Desarrollo App Móvil',
+      description: 'Aplicación móvil para gestión de inventarios',
+      client: 'Empresa ABC S.A.',
+      start_date: '2025-01-01',
+      end_date: '2025-06-30',
+      status: 'active',
+      budget: 500000,
+      owner: 'Franco Cortés',
+      created_at: '2025-01-01'
     },
-    onDelete: async (id) => {
-      // Aquí se implementaría la eliminación en el backend
-      console.log(`Deleting item ${id}`);
-      // Actualizar estado local
-      setProjects(prev => prev.filter(project => project.id !== id));
-      setTransactions(prev => prev.filter(transaction => transaction.id !== id));
+    {
+      id: 'proj_2',
+      name: 'Sistema de Facturación',
+      description: 'Implementación de sistema de facturación electrónica',
+      client: 'Comercial XYZ Ltda.',
+      start_date: '2024-11-15',
+      status: 'active',
+      budget: 300000,
+      owner: 'Joni Tagua',
+      created_at: '2024-11-15'
+    },
+    {
+      id: 'proj_3',
+      name: 'Consultoría IT',
+      description: 'Consultoría en transformación digital',
+      client: 'Industrias DEF S.R.L.',
+      start_date: '2024-09-01',
+      end_date: '2024-12-31',
+      status: 'completed',
+      budget: 200000,
+      owner: 'Hernán Pagani',
+      created_at: '2024-09-01'
     }
-  });
+  ];
 
-  // Los datos vendrán del backend
-  const mockProjects: Project[] = [];
-  const mockTransactions: ProjectTransaction[] = [];
+  const mockTransactions: ProjectTransaction[] = [
+    {
+      id: 'txn_1',
+      project_id: 'proj_1',
+      invoice_id: 1001,
+      type: 'income',
+      amount: 125000,
+      description: 'Pago inicial desarrollo app móvil',
+      date: '2025-01-15',
+      category: 'Desarrollo',
+      owner: 'Franco Cortés'
+    },
+    {
+      id: 'txn_2',
+      project_id: 'proj_1',
+      invoice_id: 1002,
+      type: 'expense',
+      amount: 15000,
+      description: 'Licencias de software',
+      date: '2025-01-20',
+      category: 'Software',
+      owner: 'Franco Cortés'
+    },
+    {
+      id: 'txn_3',
+      project_id: 'proj_2',
+      invoice_id: 2001,
+      type: 'income',
+      amount: 75000,
+      description: 'Primera fase sistema facturación',
+      date: '2025-01-10',
+      category: 'Implementación',
+      owner: 'Joni Tagua'
+    },
+    {
+      id: 'txn_4',
+      project_id: 'proj_3',
+      invoice_id: 3001,
+      type: 'income',
+      amount: 200000,
+      description: 'Consultoría IT completada',
+      date: '2024-12-30',
+      category: 'Consultoría',
+      owner: 'Hernán Pagani'
+    }
+  ];
 
   useEffect(() => {
     // Simular carga de datos
@@ -201,7 +250,7 @@ const ProjectCashFlowManager: React.FC = () => {
               <SelectValue placeholder="Seleccionar proyecto" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Todos los proyectos</SelectItem>
+              <SelectItem value="">Todos los proyectos</SelectItem>
               {projects.map(project => (
                 <SelectItem key={project.id} value={project.id}>
                   {project.name}
@@ -211,14 +260,6 @@ const ProjectCashFlowManager: React.FC = () => {
           </Select>
           
           <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              className="btn-animated"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Nuevo Proyecto
-            </Button>
             <Button
               variant={viewMode === 'overview' ? 'default' : 'outline'}
               onClick={() => setViewMode('overview')}
@@ -318,13 +359,12 @@ const ProjectCashFlowManager: React.FC = () => {
                 <TableHead className="text-white font-semibold">Gastos</TableHead>
                 <TableHead className="text-white font-semibold">Cash Flow</TableHead>
                 <TableHead className="text-white font-semibold">Utilización</TableHead>
-                <TableHead className="text-white font-semibold">Detalle</TableHead>
                 <TableHead className="text-white font-semibold">Acciones</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {projects
-                .filter(project => selectedProject === "all" || !selectedProject || project.id === selectedProject)
+                .filter(project => !selectedProject || project.id === selectedProject)
                 .map(project => {
                   const cashFlow = cashFlowData.find(cf => cf.project_id === project.id);
                   if (!cashFlow) return null;
@@ -333,41 +373,23 @@ const ProjectCashFlowManager: React.FC = () => {
                     <TableRow key={project.id} className="hover:bg-muted/50">
                       <TableCell>
                         <div>
-                          <EditableCell
-                            value={project.name}
-                            onSave={(value) => updateField(project.id, 'project.name', value)}
-                            placeholder="Nombre del proyecto"
-                            className="font-semibold"
-                          />
-                          <EditableCell
-                            value={project.description}
-                            onSave={(value) => updateField(project.id, 'project.description', value)}
-                            placeholder="Descripción del proyecto"
-                            className="text-sm text-gray-600 truncate max-w-xs"
-                          />
+                          <p className="font-semibold">{project.name}</p>
+                          <p className="text-sm text-gray-600 truncate max-w-xs">
+                            {project.description}
+                          </p>
                         </div>
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
                           <User className="w-4 h-4 text-gray-400" />
-                          <EditableCell
-                            value={project.client}
-                            onSave={(value) => updateField(project.id, 'project.client', value)}
-                            placeholder="Cliente"
-                            className="text-sm"
-                          />
+                          <span className="text-sm">{project.client}</span>
                         </div>
                       </TableCell>
                       <TableCell>
                         {getStatusBadge(project.status)}
                       </TableCell>
                       <TableCell className="font-medium">
-                        <EditableCell
-                          value={project.budget}
-                          onSave={(value) => updateField(project.id, 'project.budget', value)}
-                          type="number"
-                          placeholder="0"
-                        />
+                        {formatCurrency(project.budget)}
                       </TableCell>
                       <TableCell className="font-medium text-green-600">
                         {formatCurrency(cashFlow.total_income)}
@@ -393,30 +415,12 @@ const ProjectCashFlowManager: React.FC = () => {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <EditableCell
-                          value=""
-                          onSave={(value) => updateField(project.id, 'project.detail', value)}
-                          placeholder="Agregar detalle..."
-                          className="text-sm"
-                        />
-                      </TableCell>
-                      <TableCell>
                         <div className="flex gap-2">
-                          <Button 
-                            size="sm" 
-                            variant="outline" 
-                            className="btn-animated"
-                            onClick={() => setSelectedProject(project.id)}
-                          >
+                          <Button size="sm" variant="outline" className="btn-animated">
                             <Eye className="w-4 h-4" />
                           </Button>
-                          <Button 
-                            size="sm" 
-                            variant="outline" 
-                            className="btn-animated text-red-600 hover:text-red-700"
-                            onClick={() => deleteItem(project.id)}
-                          >
-                            <Trash2 className="w-4 h-4" />
+                          <Button size="sm" variant="outline" className="btn-animated">
+                            <Edit className="w-4 h-4" />
                           </Button>
                         </div>
                       </TableCell>
@@ -452,7 +456,7 @@ const ProjectCashFlowManager: React.FC = () => {
               </TableHeader>
               <TableBody>
                 {transactions
-                  .filter(tx => selectedProject !== "all" && tx.project_id === selectedProject)
+                  .filter(tx => tx.project_id === selectedProject)
                   .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
                   .map(transaction => (
                     <TableRow key={transaction.id}>

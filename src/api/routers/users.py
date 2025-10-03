@@ -89,24 +89,17 @@ async def get_users(
     current_user: User = Depends(get_current_user)
 ):
     """Obtener lista de usuarios con paginación."""
-    if current_user.role != "admin":
+    if current_user.role not in ["admin"]:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="No tienes permisos para acceder a esta información"
         )
     
-    from sqlalchemy import select, func
-    
-    # Obtener usuarios con paginación
+    user_service = UserService(db)
     skip = (page - 1) * limit
-    users_query = select(User).offset(skip).limit(limit)
-    users_result = await db.execute(users_query)
-    users = users_result.scalars().all()
     
-    # Contar total de usuarios
-    count_query = select(func.count(User.id))
-    count_result = await db.execute(count_query)
-    total_users = count_result.scalar()
+    users = user_service.get_all_users(skip=skip, limit=limit)
+    total_users = db.query(User).count()
     
     return UserListResponse(
         users=users,
@@ -157,48 +150,24 @@ async def create_user(
     current_user: User = Depends(get_current_user)
 ):
     """Crear nuevo usuario."""
-    if current_user.role != "admin":
+    if current_user.role not in ["admin"]:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="No tienes permisos para crear usuarios"
         )
     
-    # Verificar si el email ya existe
-    existing_user_query = select(User).where(User.email == user_data.email)
-    existing_user_result = await db.execute(existing_user_query)
-    existing_user = existing_user_result.scalar_one_or_none()
+    user_service = UserService(db)
     
-    if existing_user:
+    try:
+        user = user_service.create_user(user_data.dict())
+        return user
+    except HTTPException:
+        raise
+    except Exception as e:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="El email ya está registrado"
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error al crear usuario: {str(e)}"
         )
-    
-    # Hash de la contraseña
-    from ...core.security import get_password_hash
-    hashed_password = get_password_hash(user_data.password)
-    
-    # Crear usuario
-    user = User(
-        email=user_data.email,
-        hashed_password=hashed_password,
-        full_name=user_data.full_name,
-        role=user_data.role,
-        phone=user_data.phone,
-        address=user_data.address,
-        birth_date=user_data.birth_date,
-        position=user_data.position,
-        department=user_data.department,
-        hire_date=user_data.hire_date,
-        salary=user_data.salary,
-        preferences=user_data.preferences or {}
-    )
-    
-    db.add(user)
-    await db.commit()
-    await db.refresh(user)
-    
-    return user
 
 
 @router.put("/{user_id}", response_model=UserResponse)
@@ -243,7 +212,7 @@ async def delete_user(
     current_user: User = Depends(get_current_user)
 ):
     """Eliminar usuario (soft delete)."""
-    if current_user.role != "admin":
+    if current_user.role not in ["admin"]:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="No tienes permisos para eliminar usuarios"
@@ -282,7 +251,7 @@ async def restore_user(
     current_user: User = Depends(get_current_user)
 ):
     """Restaurar usuario eliminado."""
-    if current_user.role != "admin":
+    if current_user.role not in ["admin"]:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="No tienes permisos para restaurar usuarios"

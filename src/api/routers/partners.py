@@ -88,82 +88,35 @@ async def get_partners(
     Obtiene todos los socios con filtros opcionales.
     """
     try:
-        # TODO: Implementar con base de datos cuando la tabla esté lista
-        # query = select(Partner)
-        # 
-        # # Aplicar filtros
-        # filters = []
-        # 
-        # if search:
-        #     filters.append(
-        #         or_(
-        #             Partner.name.ilike(f"%{search}%"),
-        #             Partner.email.ilike(f"%{search}%"),
-        #             Partner.cuit.ilike(f"%{search}%")
-        #         )
-        #     )
-        # 
-        # if business_type:
-        #     filters.append(Partner.business_type == business_type)
-        #     
-        # if is_active is not None:
-        #     filters.append(Partner.is_active == is_active)
-        # 
-        # if filters:
-        #     query = query.where(and_(*filters))
-        # 
-        # query = query.order_by(Partner.name)
-        # 
-        # result = await session.execute(query)
-        # partners = result.scalars().all()
-        # 
-        # return partners
+        query = select(Partner)
         
-        # Datos de ejemplo mientras se resuelve la tabla
-        mock_partners = [
-            PartnerResponse(
-                id=1,
-                name="Proveedor ABC S.A.",
-                email="contacto@proveedorabc.com",
-                phone="+54 11 1234-5678",
-                cuit="20-12345678-9",
-                address="Av. Corrientes 1234",
-                city="Buenos Aires",
-                province="CABA",
-                postal_code="1043",
-                contact_person="Juan Pérez",
-                business_type="Servicios",
-                tax_category="Responsable Inscripto",
-                payment_terms="30 días",
-                notes="Proveedor principal de servicios",
-                fiscal_data={"monotributo": False, "responsable_inscripto": True},
-                is_active=True,
-                created_at=datetime.utcnow(),
-                updated_at=datetime.utcnow()
-            ),
-            PartnerResponse(
-                id=2,
-                name="Cliente XYZ Ltda.",
-                email="facturacion@clientexyz.com",
-                phone="+54 11 8765-4321",
-                cuit="30-87654321-0",
-                address="Av. Santa Fe 5678",
-                city="Buenos Aires",
-                province="CABA",
-                postal_code="1060",
-                contact_person="María González",
-                business_type="Comercio",
-                tax_category="Responsable Inscripto",
-                payment_terms="15 días",
-                notes="Cliente corporativo importante",
-                fiscal_data={"monotributo": False, "responsable_inscripto": True},
-                is_active=True,
-                created_at=datetime.utcnow(),
-                updated_at=datetime.utcnow()
+        # Aplicar filtros
+        filters = []
+        
+        if search:
+            filters.append(
+                or_(
+                    Partner.name.ilike(f"%{search}%"),
+                    Partner.email.ilike(f"%{search}%"),
+                    Partner.cuit.ilike(f"%{search}%")
+                )
             )
-        ]
         
-        return mock_partners
+        if business_type:
+            filters.append(Partner.business_type == business_type)
+            
+        if is_active is not None:
+            filters.append(Partner.is_active == is_active)
+        
+        if filters:
+            query = query.where(and_(*filters))
+        
+        query = query.order_by(Partner.name)
+        
+        result = await session.execute(query)
+        partners = result.scalars().all()
+        
+        return partners
         
     except Exception as e:
         raise HTTPException(

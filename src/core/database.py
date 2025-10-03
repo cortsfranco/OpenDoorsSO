@@ -3,6 +3,7 @@ Configuración de la base de datos y sesiones SQLAlchemy.
 """
 
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
+from sqlmodel import SQLModel
 from src.core.config import settings
 
 
@@ -37,9 +38,8 @@ async def init_db():
     Inicializa la base de datos creando todas las tablas.
     """
     async with engine.begin() as conn:
-        # Importar todos los modelos aquí para que SQLAlchemy los registre
-        from src.models import user, invoice, partner, fiscal_settings  # noqa
-        from src.models.base import Base
+        # Importar todos los modelos aquí para que SQLModel los registre
+        from src.models import user, invoice, partner  # noqa
         
         # Crear todas las tablas
-        await conn.run_sync(Base.metadata.create_all)
+        await conn.run_sync(SQLModel.metadata.create_all)

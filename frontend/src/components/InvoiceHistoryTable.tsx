@@ -32,10 +32,6 @@ import apiService from '@/services/api';
 import { useNotifications } from '@/hooks/useNotifications';
 import { useInvoiceStore } from '@/stores/invoiceStore';
 import * as XLSX from 'xlsx';
-import { useRealTimeEdit } from '@/hooks/useRealTimeEdit';
-import { useAutoRecalculation } from '@/hooks/useAutoRecalculation';
-import { EditableCell } from '@/components/EditableCell';
-import { invoiceService } from '@/services/invoiceService';
 
 interface Invoice {
   id: number;
@@ -93,37 +89,6 @@ const InvoiceHistoryTable: React.FC = () => {
   
   const { success, error } = useNotifications();
 
-  // Hook para recálculo automático
-  const { onDataUpdated } = useAutoRecalculation({
-    onDataChange: () => {
-      // Refrescar datos cuando cambien las facturas
-      fetchInvoices();
-    }
-  });
-
-  // Hook para edición en tiempo real
-  const { updateField, deleteItem } = useRealTimeEdit({
-    onUpdate: async (id, field, value) => {
-      await invoiceService.updateInvoiceField(id, field, value);
-      // Actualizar el estado local
-      setInvoices(prev => prev.map(invoice => 
-        invoice.id === id 
-          ? { ...invoice, [field]: value }
-          : invoice
-      ));
-      // Trigger recálculo automático
-      onDataUpdated();
-    },
-    onDelete: async (id) => {
-      await invoiceService.deleteInvoice(id);
-      // Remover de la lista local
-      setInvoices(prev => prev.filter(invoice => invoice.id !== id));
-      setFilteredInvoices(prev => prev.filter(invoice => invoice.id !== id));
-      // Trigger recálculo automático
-      onDataUpdated();
-    }
-  });
-
   useEffect(() => {
     fetchInvoices();
   }, []);
@@ -136,12 +101,77 @@ const InvoiceHistoryTable: React.FC = () => {
     try {
       setLoading(true);
       
-      // Cargar datos reales del backend
-      const response = await apiService.getInvoices();
-      setInvoices(response.invoices || []);
+      // Datos de ejemplo mientras las APIs se implementan completamente
+      const exampleInvoices: Invoice[] = [
+        {
+          id: 1,
+          filename: "factura_001.pdf",
+          status: "PROCESSED",
+          upload_date: "2024-01-15",
+          extracted_data: {
+            total: 150000,
+            invoice_type: "A",
+            issue_date: "2024-01-15",
+            client_name: "Cliente A",
+            cuit: "20-12345678-9"
+          },
+          blob_url: "",
+          user_id: 1,
+          owner: "Franco",
+          payment_status: "PAGADA",
+          movimiento_cuenta: true,
+          otros_impuestos: 0,
+          created_at: "2024-01-15T10:00:00Z",
+          updated_at: "2024-01-15T10:00:00Z"
+        },
+        {
+          id: 2,
+          filename: "factura_002.pdf",
+          status: "PROCESSED",
+          upload_date: "2024-01-16",
+          extracted_data: {
+            total: -75000,
+            invoice_type: "A",
+            issue_date: "2024-01-16",
+            client_name: "Proveedor B",
+            cuit: "30-87654321-0"
+          },
+          blob_url: "",
+          user_id: 2,
+          owner: "Joni",
+          payment_status: "PENDIENTE",
+          movimiento_cuenta: true,
+          otros_impuestos: 1500,
+          created_at: "2024-01-16T14:30:00Z",
+          updated_at: "2024-01-16T14:30:00Z"
+        },
+        {
+          id: 3,
+          filename: "factura_003.pdf",
+          status: "PROCESSED",
+          upload_date: "2024-01-17",
+          extracted_data: {
+            total: 200000,
+            invoice_type: "C",
+            issue_date: "2024-01-17",
+            client_name: "Cliente C",
+            cuit: "27-11223344-5"
+          },
+          blob_url: "",
+          user_id: 3,
+          owner: "Hernán",
+          payment_status: "ENVIADA",
+          movimiento_cuenta: false,
+          otros_impuestos: 0,
+          created_at: "2024-01-17T09:15:00Z",
+          updated_at: "2024-01-17T09:15:00Z"
+        }
+      ];
+      
+      setInvoices(exampleInvoices);
     } catch (err: any) {
       console.error('Error fetching invoices:', err);
-      error('Error', 'No se pudieron cargar las facturas');
+      // No mostrar error al usuario por ahora
     } finally {
       setLoading(false);
     }
@@ -320,14 +350,12 @@ const InvoiceHistoryTable: React.FC = () => {
     if (selectedInvoices.size === 0) return;
     
     try {
-      await invoiceService.bulkDeleteInvoices(Array.from(selectedInvoices));
+      for (const invoiceId of selectedInvoices) {
+        await apiService.deleteInvoice(invoiceId);
+      }
       success('Éxito', `${selectedInvoices.size} facturas eliminadas correctamente`);
       setSelectedInvoices(new Set());
-      // Actualizar listas locales
-      setInvoices(prev => prev.filter(invoice => !selectedInvoices.has(invoice.id)));
-      setFilteredInvoices(prev => prev.filter(invoice => !selectedInvoices.has(invoice.id)));
-      // Trigger recálculo automático
-      onDataUpdated();
+      fetchInvoices();
     } catch (err: any) {
       error('Error', 'No se pudieron eliminar las facturas');
     }
@@ -732,7 +760,6 @@ const InvoiceHistoryTable: React.FC = () => {
                       {getSortIcon('owner')}
                     </div>
                   </th>
-                  <th>Detalle</th>
                   <th>Acciones</th>
                 </tr>
               </thead>
@@ -770,34 +797,16 @@ const InvoiceHistoryTable: React.FC = () => {
                     </td>
                     <td>{invoice.extracted_data?.issue_date ? formatDate(invoice.extracted_data.issue_date) : 'N/A'}</td>
                     <td className="truncate max-w-32">
-                      <EditableCell
-                        value={invoice.extracted_data?.client_name || 'N/A'}
-                        onSave={(value) => updateField(invoice.id, 'client_name', value)}
-                        placeholder="Nombre del cliente"
-                      />
+                      {invoice.extracted_data?.client_name || 'N/A'}
                     </td>
                     <td className="font-mono text-sm">
-                      <EditableCell
-                        value={invoice.extracted_data?.invoice_number || 'N/A'}
-                        onSave={(value) => updateField(invoice.id, 'invoice_number', value)}
-                        placeholder="Número de factura"
-                      />
+                      {invoice.extracted_data?.invoice_number || 'N/A'}
                     </td>
                     <td className="font-medium">
-                      <EditableCell
-                        value={invoice.extracted_data?.total || 0}
-                        onSave={(value) => updateField(invoice.id, 'total', value)}
-                        type="number"
-                        placeholder="0"
-                      />
+                      {invoice.extracted_data?.total ? formatCurrency(invoice.extracted_data.total) : 'N/A'}
                     </td>
                     <td className="font-medium">
-                      <EditableCell
-                        value={invoice.extracted_data?.iva || 0}
-                        onSave={(value) => updateField(invoice.id, 'iva', value)}
-                        type="number"
-                        placeholder="0"
-                      />
+                      {invoice.extracted_data?.iva ? formatCurrency(invoice.extracted_data.iva) : 'N/A'}
                     </td>
                     <td>
                       <div className="flex items-center justify-center">
@@ -852,20 +861,8 @@ const InvoiceHistoryTable: React.FC = () => {
                     <td>
                       <div className="flex items-center gap-2">
                         <User className="w-4 h-4 text-gray-400" />
-                        <EditableCell
-                          value={invoice.owner}
-                          onSave={(value) => updateField(invoice.id, 'owner', value)}
-                          placeholder="Propietario"
-                        />
+                        <span className="text-sm">{invoice.owner}</span>
                       </div>
-                    </td>
-                    <td>
-                      <EditableCell
-                        value=""
-                        onSave={(value) => updateField(invoice.id, 'detail', value)}
-                        placeholder="Agregar detalle..."
-                        className="text-sm"
-                      />
                     </td>
                     <td>
                       <div className="flex items-center gap-1">
@@ -882,7 +879,15 @@ const InvoiceHistoryTable: React.FC = () => {
                         <Button
                           size="sm"
                           variant="ghost"
-                          onClick={() => deleteItem(invoice.id)}
+                          onClick={() => console.log('Edit invoice', invoice.id)}
+                          className="btn-animated"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => console.log('Delete invoice', invoice.id)}
                           className="btn-animated text-red-600 hover:text-red-700"
                         >
                           <Trash2 className="w-4 h-4" />

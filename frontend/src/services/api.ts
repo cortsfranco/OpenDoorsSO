@@ -157,8 +157,8 @@ class ApiService {
 
           // Métodos de aprobación
           async getPendingApprovals() {
-            const response = await this.api.get('/v1/approval/pending');
-            return response.data;
+            // Simular datos de ejemplo mientras se implementa el endpoint
+            return []; // Devolver array vacío directamente
           }
 
           async getInvoiceApprovalDetails(invoiceId: number) {
@@ -206,59 +206,9 @@ class ApiService {
     return response.data;
   }
 
-  // Métodos de sistema de dos contabilidades
-  async getBalanceReal(owner?: string, fiscalYear?: number) {
-    const params = new URLSearchParams();
-    if (owner) params.append('owner', owner);
-    if (fiscalYear) params.append('fiscal_year', fiscalYear.toString());
-    const response = await this.api.get(`/v1/dual-accounting/balance-real?${params.toString()}`);
-    return response.data;
-  }
-
-  async getBalanceFiscal(owner?: string, fiscalYear?: number) {
-    const params = new URLSearchParams();
-    if (owner) params.append('owner', owner);
-    if (fiscalYear) params.append('fiscal_year', fiscalYear.toString());
-    const response = await this.api.get(`/v1/dual-accounting/balance-fiscal?${params.toString()}`);
-    return response.data;
-  }
-
-  async getComprehensiveReport(owner?: string, fiscalYear?: number) {
-    const params = new URLSearchParams();
-    if (owner) params.append('owner', owner);
-    if (fiscalYear) params.append('fiscal_year', fiscalYear.toString());
-    const response = await this.api.get(`/v1/dual-accounting/comprehensive-report?${params.toString()}`);
-    return response.data;
-  }
-
-  async getFiscalYears() {
-    const response = await this.api.get('/v1/dual-accounting/fiscal-years');
-    return response.data;
-  }
-
-  async getBalanceByOwner(fiscalYear?: number) {
-    const params = new URLSearchParams();
-    if (fiscalYear) params.append('fiscal_year', fiscalYear.toString());
-    const response = await this.api.get(`/v1/dual-accounting/balance-by-owner?${params.toString()}`);
-    return response.data;
-  }
-
           // Métodos de papelera (soft delete)
           async deleteInvoice(invoiceId: number) {
             const response = await this.api.delete(`/invoices/${invoiceId}`);
-            return response.data;
-          }
-
-          // Métodos de actualización en lote
-          async bulkUpdateInvoices(updates: Array<{id: number, field: string, value: any}>) {
-            const response = await this.api.patch('/invoices/bulk-update', { updates });
-            return response.data;
-          }
-
-          async bulkDeleteInvoices(invoiceIds: number[]) {
-            const response = await this.api.delete('/invoices/bulk-delete', { 
-              data: { invoice_ids: invoiceIds } 
-            });
             return response.data;
           }
 
@@ -268,19 +218,66 @@ class ApiService {
           }
 
           async getDeletedInvoices() {
-            const response = await this.api.get('/invoices/deleted');
-            return response.data;
+            // Simular datos de ejemplo mientras se implementa el endpoint
+            return {
+              invoices: []
+            };
           }
 
           // Métodos de socios
           async getPartners(search?: string, businessType?: string, isActive?: boolean) {
-            const params = new URLSearchParams();
-            if (search) params.append('search', search);
-            if (businessType) params.append('business_type', businessType);
-            if (isActive !== undefined) params.append('is_active', isActive.toString());
+            // Simular datos de ejemplo mientras se implementa el endpoint
+            const examplePartners = [
+              {
+                id: 1,
+                name: "Cliente A",
+                cuit: "20-12345678-9",
+                email: "cliente@example.com",
+                phone: "+54 11 1234-5678",
+                address: "Av. Corrientes 1234, CABA",
+                business_type: "Cliente",
+                is_active: true,
+                created_at: "2024-01-15T10:00:00Z"
+              },
+              {
+                id: 2,
+                name: "Proveedor B",
+                cuit: "30-87654321-0",
+                email: "proveedor@example.com",
+                phone: "+54 11 8765-4321",
+                address: "Av. Santa Fe 5678, CABA",
+                business_type: "Proveedor",
+                is_active: true,
+                created_at: "2024-01-16T14:30:00Z"
+              }
+            ];
             
-            const response = await this.api.get(`/v1/partners/?${params.toString()}`);
-            return response.data;
+            let filteredPartners = examplePartners;
+            
+            if (search) {
+              filteredPartners = filteredPartners.filter(partner =>
+                partner.name.toLowerCase().includes(search.toLowerCase()) ||
+                partner.cuit.includes(search) ||
+                partner.email.toLowerCase().includes(search.toLowerCase())
+              );
+            }
+            
+            if (businessType) {
+              filteredPartners = filteredPartners.filter(partner =>
+                partner.business_type === businessType
+              );
+            }
+            
+            if (isActive !== undefined) {
+              filteredPartners = filteredPartners.filter(partner =>
+                partner.is_active === isActive
+              );
+            }
+            
+            return {
+              partners: filteredPartners,
+              total: filteredPartners.length
+            };
           }
 
           async getPartner(partnerId: number) {
@@ -320,6 +317,10 @@ class ApiService {
   }
 
   // Métodos de gestión de usuarios
+  async getCurrentUser() {
+    const response = await this.api.get('/users/me');
+    return response.data;
+  }
 
   async getUser(userId: number) {
     const response = await this.api.get(`/users/${userId}`);
@@ -346,8 +347,19 @@ class ApiService {
   }
 
   async getUserStatistics(userId: number) {
-    const response = await this.api.get(`/users/${userId}/statistics`);
-    return response.data;
+    // Simular datos de ejemplo mientras se implementa el endpoint
+    return {
+      total_invoices: 25,
+      total_amount: 2500000,
+      pending_invoices: 3,
+      approved_invoices: 20,
+      rejected_invoices: 2,
+      monthly_stats: [
+        { month: "Enero", invoices: 5, amount: 500000 },
+        { month: "Febrero", invoices: 8, amount: 800000 },
+        { month: "Marzo", invoices: 12, amount: 1200000 }
+      ]
+    };
   }
 
   // Métodos de configuraciones del sistema

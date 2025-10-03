@@ -9,7 +9,7 @@ from contextlib import asynccontextmanager
 
 from src.core.config import settings
 from src.core.database import engine
-from src.api.routers import auth, users, companies, invoices, clients, invoice_upload, analysis, approval, partners, system_settings, financial_reports, dual_accounting_reports
+from src.api.routers import auth, users, companies, invoices, clients, invoice_upload, analysis, approval, partners, system_settings, financial_reports
 from src.core.database import init_db
 
 
@@ -36,14 +36,9 @@ app = FastAPI(
 # Configurar CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",
-        "http://localhost:5173", 
-        "http://127.0.0.1:3000",
-        "http://127.0.0.1:5173"
-    ],
+    allow_origins=["*"],  # Permite todos los orígenes en desarrollo
     allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allow_methods=["*"],
     allow_headers=["*"],
 )
 
@@ -59,7 +54,6 @@ app.include_router(approval.router, prefix="/api/v1/approval", tags=["aprobació
 app.include_router(partners.router, prefix="/api/v1/partners", tags=["socios y proveedores"])
 app.include_router(system_settings.router, prefix="/api/v1/system", tags=["configuraciones del sistema"])
 app.include_router(financial_reports.router, prefix="/api/v1", tags=["reportes financieros"])
-app.include_router(dual_accounting_reports.router, prefix="/api/v1/dual-accounting", tags=["sistema de dos contabilidades"])
 
 
 @app.get("/")

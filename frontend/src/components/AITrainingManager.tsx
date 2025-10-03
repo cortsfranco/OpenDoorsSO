@@ -55,19 +55,52 @@ const AITrainingManager: React.FC = () => {
   const [customInstructions, setCustomInstructions] = useState('');
   const { success, error, warning } = useNotifications();
 
+  // Datos de ejemplo para los datasets de entrenamiento
+  const mockDatasets: TrainingDataset[] = [
+    {
+      id: 'invoice_format_standard',
+      name: 'Formatos Estándar de Facturas',
+      type: 'invoice_format',
+      description: 'Facturas A, B, C en formatos estándar argentinos',
+      sample_count: 1250,
+      accuracy: 94.5,
+      status: 'trained',
+      last_trained: '2025-01-15'
+    },
+    {
+      id: 'disordered_documents',
+      name: 'Documentos Desordenados',
+      type: 'disordered_doc',
+      description: 'Facturas con datos desorganizados o mal estructurados',
+      sample_count: 850,
+      accuracy: 87.2,
+      status: 'trained',
+      last_trained: '2025-01-10'
+    },
+    {
+      id: 'multi_invoice_pdfs',
+      name: 'PDFs Multi-Factura',
+      type: 'multi_invoice_pdf',
+      description: 'PDFs que contienen múltiples facturas en un solo documento',
+      sample_count: 420,
+      accuracy: 91.8,
+      status: 'trained',
+      last_trained: '2025-01-12'
+    },
+    {
+      id: 'custom_formats',
+      name: 'Formatos Personalizados',
+      type: 'invoice_format',
+      description: 'Formatos específicos de clientes/proveedores únicos',
+      sample_count: 180,
+      accuracy: 0,
+      status: 'pending',
+      last_trained: 'Nunca'
+    }
+  ];
+
   useEffect(() => {
-    // Cargar datasets reales del backend
-    const fetchDatasets = async () => {
-      try {
-        // TODO: Implementar endpoint para obtener datasets
-        setDatasets([]);
-      } catch (err) {
-        console.error('Error fetching datasets:', err);
-        error('Error', 'No se pudieron cargar los datasets');
-      }
-    };
-    
-    fetchDatasets();
+    setDatasets(mockDatasets);
   }, []);
 
   const getStatusBadge = (status: string) => {

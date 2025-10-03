@@ -152,15 +152,7 @@ const ActivityLogPage: React.FC = () => {
         }
       ];
       
-      // Cargar logs reales del backend
-      try {
-        const response = await apiService.getActivityLogs();
-        setLogs(response.logs || []);
-      } catch (err) {
-        console.error('Error fetching activity logs:', err);
-        error('Error', 'No se pudieron cargar los logs de actividad');
-        setLogs([]);
-      }
+      setLogs(mockLogs);
     } catch (err: any) {
       error('Error', 'No se pudieron cargar los registros de actividad.');
       console.error('Error fetching activity logs:', err);
