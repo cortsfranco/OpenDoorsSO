@@ -51,7 +51,7 @@ export function Dashboard() {
   }
 
   return (
-    <div className="dashboard-container" style={{ padding: 'var(--spacing-xl)' }}>
+    <div className="dashboard-container">
       {/* Header */}
       <div style={{ marginBottom: 'var(--spacing-2xl)' }}>
         <h1>Dashboard Financiero</h1>
