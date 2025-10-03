@@ -2,7 +2,7 @@
 Aplicación FastAPI simplificada para Open Doors Billing
 """
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Form
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 
@@ -48,7 +48,7 @@ async def health():
 
 # Endpoints básicos de autenticación
 @app.post("/api/auth/login")
-async def login(username: str, password: str):
+async def login(username: str = Form(...), password: str = Form(...)):
     """Login básico para testing"""
     if username == "cortsfranco@hotmail.com" and password == "Ncc1701E@":
         return {

@@ -23,7 +23,8 @@ export function Login() {
       await login(email, password)
       toast.success('¡Login exitoso!')
     } catch (error: any) {
-      toast.error(error.response?.data?.detail || 'Error en el login')
+      const errorMessage = error.message || error.response?.data?.detail || 'Error en el login'
+      toast.error(errorMessage)
     } finally {
       setIsLoading(false)
     }

@@ -45,9 +45,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const response = await authAPI.login(email, password)
       setUser(response.user)
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error en login:', error)
-      throw error
+      // Manejar errores de forma más robusta
+      const errorMessage = error.response?.data?.error || error.response?.data?.detail || 'Error en el login'
+      throw new Error(errorMessage)
     }
   }
 
