@@ -9,7 +9,7 @@ echo   ⏹️  OPEN DOORS - DETENIENDO SISTEMA
 echo ═══════════════════════════════════════════════════════════
 echo.
 
-echo [1/3] 🛑 Deteniendo Backend (Puerto 5000)...
+echo [1/4] 🛑 Deteniendo Backend (Puerto 5000)...
 
 :: Matar procesos de Python (uvicorn)
 taskkill /F /IM python.exe /FI "WINDOWTITLE eq *Backend*" 2>nul
@@ -23,11 +23,12 @@ for /f "tokens=5" %%a in ('netstat -aon ^| findstr :5000 ^| findstr LISTENING') 
 echo    ✅ Backend detenido
 echo.
 
-echo [2/3] 🛑 Deteniendo Frontend (Puerto 3000)...
+echo [2/4] 🛑 Deteniendo Frontend (Puerto 3000)...
 
 :: Matar procesos de Node (vite)
 taskkill /F /IM node.exe /FI "WINDOWTITLE eq *Frontend*" 2>nul
 taskkill /F /IM node.exe /FI "WINDOWTITLE eq *vite*" 2>nul
+taskkill /F /IM node.exe 2>nul
 
 :: Liberar puerto 3000
 for /f "tokens=5" %%a in ('netstat -aon ^| findstr :3000 ^| findstr LISTENING') do (
@@ -37,7 +38,18 @@ for /f "tokens=5" %%a in ('netstat -aon ^| findstr :3000 ^| findstr LISTENING') 
 echo    ✅ Frontend detenido
 echo.
 
-echo [3/3] 🧹 Limpieza final...
+echo [3/4] 🐳 Deteniendo Docker (PostgreSQL)...
+
+docker --version >nul 2>&1
+if errorlevel 1 (
+    echo    → Docker no está instalado, omitiendo...
+) else (
+    docker-compose down 2>nul
+    echo    ✅ Docker detenido
+)
+echo.
+
+echo [4/4] 🧹 Limpieza final...
 timeout /t 1 /nobreak > nul
 echo    ✅ Limpieza completada
 echo.

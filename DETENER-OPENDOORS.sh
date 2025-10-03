@@ -1,8 +1,9 @@
 #!/bin/bash
-# Script para detener Open Doors completamente
+# Script para detener Open Doors completamente (incluyendo Docker)
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
+CYAN='\033[0;36m'
 NC='\033[0m'
 
 echo ""
@@ -11,7 +12,7 @@ echo -e "${RED}  ⏹️  OPEN DOORS - DETENIENDO SISTEMA${NC}"
 echo -e "${RED}═══════════════════════════════════════════════════════════${NC}"
 echo ""
 
-echo -e "${GREEN}[1/3]${NC} 🛑 Deteniendo Backend (Puerto 5000)..."
+echo -e "${GREEN}[1/4]${NC} 🛑 Deteniendo Backend (Puerto 5000)..."
 
 # Leer PID del backend si existe
 if [ -f .backend.pid ]; then
@@ -33,7 +34,7 @@ fi
 echo "   ✅ Backend detenido"
 echo ""
 
-echo -e "${GREEN}[2/3]${NC} 🛑 Deteniendo Frontend (Puerto 3000)..."
+echo -e "${GREEN}[2/4]${NC} 🛑 Deteniendo Frontend (Puerto 3000)..."
 
 # Leer PID del frontend si existe
 if [ -f .frontend.pid ]; then
@@ -42,9 +43,10 @@ if [ -f .frontend.pid ]; then
     rm .frontend.pid
 fi
 
-# Matar cualquier proceso vite/npm
+# Matar cualquier proceso vite/npm/node
 pkill -f "vite" 2>/dev/null
 pkill -f "npm run dev" 2>/dev/null
+pkill -f "node" 2>/dev/null
 
 # Liberar puerto 3000
 PORT_PID=$(lsof -ti:3000 2>/dev/null || true)
@@ -56,7 +58,18 @@ fi
 echo "   ✅ Frontend detenido"
 echo ""
 
-echo -e "${GREEN}[3/3]${NC} 🧹 Limpieza final..."
+echo -e "${GREEN}[3/4]${NC} 🐳 Deteniendo Docker (PostgreSQL)..."
+
+# Verificar si Docker está disponible
+if command -v docker &> /dev/null; then
+    docker-compose down 2>/dev/null || echo "   → No hay contenedores Docker corriendo"
+    echo "   ✅ Docker detenido"
+else
+    echo "   → Docker no está instalado, omitiendo..."
+fi
+echo ""
+
+echo -e "${GREEN}[4/4]${NC} 🧹 Limpieza final..."
 sleep 1
 echo "   ✅ Limpieza completada"
 echo ""

@@ -13,7 +13,7 @@ color 0A
 :: ═══════════════════════════════════════════════════════════
 :: PASO 1: LIMPIAR PROCESOS ANTERIORES
 :: ═══════════════════════════════════════════════════════════
-echo [1/6] 🧹 Limpiando procesos anteriores...
+echo [1/8] 🧹 Limpiando procesos anteriores...
 
 :: Matar procesos de Python (uvicorn)
 taskkill /F /IM python.exe /FI "WINDOWTITLE eq *uvicorn*" 2>nul
@@ -21,6 +21,7 @@ taskkill /F /IM python.exe /FI "WINDOWTITLE eq *fastapi*" 2>nul
 
 :: Matar procesos de Node (vite)
 taskkill /F /IM node.exe /FI "WINDOWTITLE eq *vite*" 2>nul
+taskkill /F /IM node.exe 2>nul
 
 :: Esperar un momento
 timeout /t 2 /nobreak > nul
@@ -31,7 +32,7 @@ echo.
 :: ═══════════════════════════════════════════════════════════
 :: PASO 2: LIBERAR PUERTOS
 :: ═══════════════════════════════════════════════════════════
-echo [2/6] 🔓 Liberando puertos 5000 y 3000...
+echo [2/8] 🔓 Liberando puertos 5000, 3000 y 5432...
 
 :: Liberar puerto 5000 (Backend)
 for /f "tokens=5" %%a in ('netstat -aon ^| findstr :5000 ^| findstr LISTENING') do (
@@ -43,14 +44,62 @@ for /f "tokens=5" %%a in ('netstat -aon ^| findstr :3000 ^| findstr LISTENING') 
     taskkill /F /PID %%a 2>nul
 )
 
+:: Liberar puerto 5432 (PostgreSQL)
+for /f "tokens=5" %%a in ('netstat -aon ^| findstr :5432 ^| findstr LISTENING') do (
+    taskkill /F /PID %%a 2>nul
+)
+
 timeout /t 1 /nobreak > nul
 echo    ✅ Puertos liberados
 echo.
 
 :: ═══════════════════════════════════════════════════════════
-:: PASO 3: VERIFICAR PYTHON
+:: PASO 3: VERIFICAR DOCKER
 :: ═══════════════════════════════════════════════════════════
-echo [3/6] 🐍 Verificando Python...
+echo [3/8] 🐳 Verificando Docker...
+
+docker --version >nul 2>&1
+if errorlevel 1 (
+    echo    ⚠️  Docker no está instalado o no está corriendo
+    echo    💡 El sistema puede funcionar con base de datos remota (Neon)
+    echo    📥 Si quieres usar Docker local: https://www.docker.com/
+    set USE_DOCKER=0
+) else (
+    echo    ✅ Docker encontrado
+    set USE_DOCKER=1
+)
+echo.
+
+:: ═══════════════════════════════════════════════════════════
+:: PASO 4: REINICIAR BASE DE DATOS DOCKER (SI ESTÁ DISPONIBLE)
+:: ═══════════════════════════════════════════════════════════
+if "%USE_DOCKER%"=="1" (
+    echo [4/8] 🗄️  Reiniciando base de datos PostgreSQL con Docker...
+    
+    echo    → Deteniendo contenedores anteriores...
+    docker-compose down 2>nul
+    
+    timeout /t 2 /nobreak > nul
+    
+    echo    → Iniciando PostgreSQL...
+    docker-compose up -d
+    
+    echo    → Esperando 5 segundos para que la base de datos se inicie...
+    timeout /t 5 /nobreak > nul
+    
+    echo    ✅ Base de datos PostgreSQL iniciada
+    echo.
+) else (
+    echo [4/8] 🗄️  Base de datos...
+    echo    → Usando base de datos remota (Neon/Replit)
+    echo    ✅ Configuración lista
+    echo.
+)
+
+:: ═══════════════════════════════════════════════════════════
+:: PASO 5: VERIFICAR PYTHON
+:: ═══════════════════════════════════════════════════════════
+echo [5/8] 🐍 Verificando Python...
 
 python --version >nul 2>&1
 if errorlevel 1 (
@@ -64,9 +113,9 @@ echo    ✅ Python encontrado
 echo.
 
 :: ═══════════════════════════════════════════════════════════
-:: PASO 4: VERIFICAR NODE.JS
+:: PASO 6: VERIFICAR NODE.JS
 :: ═══════════════════════════════════════════════════════════
-echo [4/6] 📦 Verificando Node.js...
+echo [6/8] 📦 Verificando Node.js...
 
 node --version >nul 2>&1
 if errorlevel 1 (
@@ -80,9 +129,9 @@ echo    ✅ Node.js encontrado
 echo.
 
 :: ═══════════════════════════════════════════════════════════
-:: PASO 5: INSTALAR DEPENDENCIAS
+:: PASO 7: INSTALAR DEPENDENCIAS
 :: ═══════════════════════════════════════════════════════════
-echo [5/6] 📚 Instalando dependencias...
+echo [7/8] 📚 Instalando dependencias...
 
 :: Instalar dependencias de Python (silencioso)
 echo    → Instalando dependencias de Python...
@@ -103,9 +152,9 @@ echo    ✅ Dependencias listas
 echo.
 
 :: ═══════════════════════════════════════════════════════════
-:: PASO 6: INICIAR SERVICIOS
+:: PASO 8: INICIAR SERVICIOS EN SIMULTÁNEO
 :: ═══════════════════════════════════════════════════════════
-echo [6/6] 🚀 Iniciando servicios...
+echo [8/8] 🚀 Iniciando servicios en simultáneo...
 echo.
 
 :: Crear carpeta de logs si no existe
@@ -115,14 +164,15 @@ if not exist "logs" mkdir logs
 echo    → Iniciando Backend (Puerto 5000)...
 start "Open Doors - Backend (Puerto 5000)" cmd /k "color 0B && echo ═══════════════════════════════════════ && echo   BACKEND - FastAPI (Puerto 5000) && echo ═══════════════════════════════════════ && echo. && uvicorn src.main:app --host 0.0.0.0 --port 5000 --reload"
 
-:: Esperar 3 segundos para que el backend inicie
-timeout /t 3 /nobreak > nul
+:: Esperar 2 segundos antes de iniciar el frontend
+timeout /t 2 /nobreak > nul
 
 :: Iniciar Frontend en una nueva ventana
 echo    → Iniciando Frontend (Puerto 3000)...
 start "Open Doors - Frontend (Puerto 3000)" cmd /k "color 0E && echo ═══════════════════════════════════════ && echo   FRONTEND - React + Vite (Puerto 3000) && echo ═══════════════════════════════════════ && echo. && cd frontend && npm run dev"
 
-:: Esperar 5 segundos para que el frontend inicie
+:: Esperar 5 segundos para que todo inicie
+echo    → Esperando 5 segundos para sincronización...
 timeout /t 5 /nobreak > nul
 
 :: ═══════════════════════════════════════════════════════════
@@ -134,6 +184,11 @@ echo.
 echo ═══════════════════════════════════════════════════════════
 echo   ✅ SISTEMA INICIADO CORRECTAMENTE
 echo ═══════════════════════════════════════════════════════════
+echo.
+if "%USE_DOCKER%"=="1" (
+    echo   🐳 Docker:
+    echo      • PostgreSQL:  Running en puerto 5432
+)
 echo.
 echo   📍 URLs Disponibles:
 echo      • Frontend:  http://localhost:3000
