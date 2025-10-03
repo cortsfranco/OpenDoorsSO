@@ -1,0 +1,19 @@
+a opcion a.
+y quiero que me digas si vas a poder todo esto: analizar/solucionar/mejorar/realizar es cada item de esta lista:
+-duplicaciones ineficientes de codigo o base de datos
+-endpoints
+-interfaz fea y sin coherencia entre todas las secciones
+-botones que no funcionan
+-datos que no se guardan
+-calculos que no se generen o procesen
+-edicion y control total de los datos para administradores (y yo el unico superadmin)
+-gestion de usuarios
+-gestion de las facturas que deberian estar siendo procesadas con la ia de azure por eso estan las credenciales en el .env (aunque en mi entorno de desarrollo local veo al lado del archivo .env un circulo con una diagonal dentro ).
+-necesito que todas las tablas se vean con el mismo diseño, colores, capacidad de filtro de busqueda, ordenamiento, seleccion, edicion de sus datos.
+-necesito que haya mas graficas analiticas disponibles
+-corroborar que se esten realizando correctamente los calculos con los formatos de moneda argentino $1.234,56 y que si las comas y puntos estan cambiasdas se identifique en las facturas y se arregle para poder procesar y operar con esos datos.
+-darle orden a las secciones del menu.
+-estilizar de manera similar todo el sistema.
+-mejorar las cards y si se le puede agregar algo visualmente o a la hora de hacer calculos que recomiendes para este tipo de sistema hacerlo.
+
+haz todo siguiendo siempre la finalidad de joni y hernan y los patrones de diseño que adjunto en el pdf "The New Generative AI with...", la forma de usar azure basada en el archivo de texto adjunto "Curso Inteligencia ...", las trasncripciones con joni y hernan siendo "7 Hernán open doors presentacion de software financi" la que nos detalla la escalabilidad y necesidad total del sistema, teniendo en cuenta que esta,mos desarrollando el pilar 1, facturacion, y ese es el que debe quedar perfecto en este desarrollo. adjuntando tambien el libro de excel con los datos de la empresa y que joni en las trasncripciones detalla en profundidad
