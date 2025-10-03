@@ -317,11 +317,6 @@ class ApiService {
   }
 
   // Métodos de gestión de usuarios
-  async getCurrentUser() {
-    const response = await this.api.get('/users/me');
-    return response.data;
-  }
-
   async getUser(userId: number) {
     const response = await this.api.get(`/users/${userId}`);
     return response.data;
