@@ -6,9 +6,18 @@ Sistema completo de facturación con lógica fiscal argentina (Balance IVA vs Ba
 
 ## Estado Actual del Proyecto (03 Oct 2025)
 
-### 🔧 Configuración Reciente (Última actualización)
+### 🔧 Configuración Reciente (Última actualización: 03 Oct 2025 - 21:07)
 
-**✅ Problemas Resueltos:**
+**✅ Problemas Resueltos en esta sesión:**
+- ✅ Error crítico de Select.Item con value vacío arreglado
+- ✅ Dashboard actualizado con datos reales de Balance por Socio
+- ✅ Endpoint `/api/v1/financial/balance-por-socio` integrado correctamente
+- ✅ Procesamiento de facturas A/B/C con parámetros fiscales (movimiento_cuenta, es_compensacion_iva)
+- ✅ Menú reorganizado en 5 secciones lógicas
+- ✅ Componente DataTable reutilizable creado
+- ✅ Balance IVA centralizado en FinancialService
+
+**✅ Problemas Resueltos anteriormente:**
 - ✅ Conflictos de Git resueltos en múltiples archivos
 - ✅ Conexión a base de datos PostgreSQL (Neon) configurada correctamente
 - ✅ SSL/TLS configurado para asyncpg
@@ -16,9 +25,9 @@ Sistema completo de facturación con lógica fiscal argentina (Balance IVA vs Ba
 - ✅ API del frontend apuntando correctamente al backend (puerto 5000)
 - ✅ Variables de entorno configuradas
 
-**🚀 Sistema Listo para Desarrollo Local:**
+**🚀 Sistema Funcionando:**
 - Backend: http://localhost:5000 (FastAPI + PostgreSQL)
-- Frontend: http://localhost:3000 (React + Vite)
+- Frontend: http://localhost:5000 (React + Vite)
 - Documentación API: http://localhost:5000/docs
 
 ## Estado Actual del Proyecto (03 Oct 2025)
