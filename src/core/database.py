@@ -8,12 +8,25 @@ from src.core.config import settings
 from src.models.base import Base
 
 
-# Crear motor asíncrono de SQLAlchemy
+# Crear motor asíncrono de SQLAlchemy con pool de conexiones
 engine = create_async_engine(
     settings.ASYNC_DATABASE_URL,
     echo=settings.DEBUG,
     future=True,
-    connect_args={"ssl": "require"} if "ssl=require" in settings.ASYNC_DATABASE_URL else {}
+    pool_size=10,
+    max_overflow=20,
+    pool_pre_ping=True,
+    pool_recycle=3600,
+    connect_args={
+        "ssl": "require",
+        "server_settings": {"jit": "off"},
+        "command_timeout": 60,
+        "timeout": 30
+    } if "ssl=require" in settings.ASYNC_DATABASE_URL else {
+        "server_settings": {"jit": "off"},
+        "command_timeout": 60,
+        "timeout": 30
+    }
 )
 
 # Crear factory de sesiones asíncronas
