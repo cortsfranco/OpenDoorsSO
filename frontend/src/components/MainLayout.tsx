@@ -46,7 +46,6 @@ type ViewType =
   | 'upload' 
   | 'history' 
   | 'sales-vs-purchases' 
-  | 'review-queue' 
   | 'approval-queue'
   | 'clients' 
   | 'reports' 
@@ -59,24 +58,48 @@ type ViewType =
   | 'excel-import'
   | 'project-cashflow';
 
-// Configuración del menú de navegación
-const menuItems = [
-  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { id: 'upload', label: 'Cargar Facturas', icon: Upload },
-  { id: 'excel-import', label: 'Importar Excel', icon: Upload },
-  { id: 'history', label: 'Historial Facturas', icon: FileText },
-  { id: 'sales-vs-purchases', label: 'Ventas vs Compras', icon: TrendingUp },
-  { id: 'review-queue', label: 'Cola de Revisión', icon: Clock },
-  { id: 'approval-queue', label: 'Cola de Aprobación', icon: Clock },
-  { id: 'clients', label: 'Clientes/Proveedores', icon: Users },
-  { id: 'reports', label: 'Reportes', icon: BarChart3 },
-  { id: 'analytics', label: 'Analytics Ejecutivos', icon: BarChart3 },
-  { id: 'project-cashflow', label: 'Cash Flow Proyectos', icon: TrendingUp },
-  { id: 'activity-log', label: 'Registro de Actividades', icon: Activity },
-  { id: 'user-management', label: 'Gestión de Usuarios', icon: Users },
-  { id: 'ai-training', label: 'Entrenamiento IA', icon: Brain },
-  { id: 'user-settings', label: 'Mi Perfil', icon: User },
-  { id: 'trash', label: 'Papelera de Reciclaje', icon: Trash2 },
+// Configuración del menú de navegación organizada por secciones
+const menuSections = [
+  {
+    title: 'FACTURACIÓN',
+    items: [
+      { id: 'upload', label: 'Cargar Facturas', icon: Upload },
+      { id: 'excel-import', label: 'Importar Excel', icon: Upload },
+      { id: 'history', label: 'Historial Facturas', icon: FileText },
+      { id: 'approval-queue', label: 'Cola de Aprobación', icon: Clock },
+    ]
+  },
+  {
+    title: 'ANÁLISIS FINANCIERO',
+    items: [
+      { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+      { id: 'sales-vs-purchases', label: 'Ventas vs Compras', icon: TrendingUp },
+      { id: 'analytics', label: 'Analytics Ejecutivos', icon: BarChart3 },
+      { id: 'project-cashflow', label: 'Cash Flow Proyectos', icon: TrendingUp },
+      { id: 'reports', label: 'Reportes', icon: BarChart3 },
+    ]
+  },
+  {
+    title: 'GESTIÓN',
+    items: [
+      { id: 'clients', label: 'Clientes/Proveedores', icon: Users },
+      { id: 'user-management', label: 'Gestión de Usuarios', icon: Users },
+    ]
+  },
+  {
+    title: 'HERRAMIENTAS',
+    items: [
+      { id: 'ai-training', label: 'Entrenamiento IA', icon: Brain },
+      { id: 'activity-log', label: 'Registro de Actividades', icon: Activity },
+    ]
+  },
+  {
+    title: 'SISTEMA',
+    items: [
+      { id: 'user-settings', label: 'Mi Perfil', icon: User },
+      { id: 'trash', label: 'Papelera de Reciclaje', icon: Trash2 },
+    ]
+  }
 ];
 
 const MainLayout: React.FC = () => {
@@ -100,8 +123,6 @@ const MainLayout: React.FC = () => {
         return <InvoiceHistoryTable />;
       case 'sales-vs-purchases':
         return <SalesVsPurchasesPage />;
-      case 'review-queue':
-        return <div className="main-container"><h2 className="text-2xl font-bold">Cola de Revisión</h2><p>En desarrollo...</p></div>;
       case 'approval-queue':
         return <ApprovalQueuePage />;
       case 'clients':
@@ -166,35 +187,44 @@ const MainLayout: React.FC = () => {
         </div>
 
         {/* Menú de navegación */}
-        <nav className="flex-1 p-4 space-y-1 overflow-y-auto custom-scrollbar">
-          {menuItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = activeView === item.id;
-            
-            return (
-              <Button
-                key={item.id}
-                variant="ghost"
-                className={`
-                  w-full justify-start transition-all duration-200 rounded-lg px-3 py-2.5
-                  ${isActive 
-                    ? 'bg-blue-600 text-white shadow-sm border-l-4 border-blue-700' 
-                    : 'text-gray-600 hover:bg-blue-50 hover:text-blue-700'
-                  }
-                `}
-                onClick={() => {
-                  setActiveView(item.id as ViewType);
-                  setSidebarOpen(false); // Cerrar sidebar en móvil
-                }}
-              >
-                <Icon className={`mr-3 h-4 w-4 ${isActive ? 'text-white' : 'text-gray-500'}`} />
-                <span className="truncate font-medium">{item.label}</span>
-                {item.id === 'review-queue' && (
-                  <div className="ml-auto w-2 h-2 bg-red-500 rounded-full"></div>
-                )}
-              </Button>
-            );
-          })}
+        <nav className="flex-1 p-4 space-y-4 overflow-y-auto custom-scrollbar">
+          {menuSections.map((section) => (
+            <div key={section.title}>
+              <h3 className="px-3 mb-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                {section.title}
+              </h3>
+              <div className="space-y-1">
+                {section.items.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = activeView === item.id;
+                  
+                  return (
+                    <Button
+                      key={item.id}
+                      variant="ghost"
+                      className={`
+                        w-full justify-start transition-all duration-200 rounded-lg px-3 py-2.5
+                        ${isActive 
+                          ? 'bg-blue-600 text-white shadow-sm border-l-4 border-blue-700' 
+                          : 'text-gray-600 hover:bg-blue-50 hover:text-blue-700'
+                        }
+                      `}
+                      onClick={() => {
+                        setActiveView(item.id as ViewType);
+                        setSidebarOpen(false); // Cerrar sidebar en móvil
+                      }}
+                    >
+                      <Icon className={`mr-3 h-4 w-4 ${isActive ? 'text-white' : 'text-gray-500'}`} />
+                      <span className="truncate font-medium">{item.label}</span>
+                      {item.id === 'approval-queue' && (
+                        <div className="ml-auto w-2 h-2 bg-red-500 rounded-full"></div>
+                      )}
+                    </Button>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
         </nav>
 
         {/* Asistente de IA en sidebar */}
@@ -231,7 +261,7 @@ const MainLayout: React.FC = () => {
               
               <div>
                 <h2 className="text-xl sm:text-2xl font-bold text-gray-900 capitalize">
-                  {menuItems.find(item => item.id === activeView)?.label}
+                  {menuSections.flatMap(s => s.items).find(item => item.id === activeView)?.label}
                 </h2>
                 <p className="text-sm text-gray-500 hidden sm:block">
                   {new Date().toLocaleDateString('es-ES', { 
