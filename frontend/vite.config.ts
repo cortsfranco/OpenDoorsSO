@@ -54,11 +54,16 @@ export default defineConfig({
   },
   server: {
     host: '0.0.0.0',
-    port: 3000,
+    port: 5000,
     strictPort: false,
+    allowedHosts: [
+      '.replit.dev',
+      '.repl.co',
+      'localhost',
+    ],
     proxy: {
       '/api': {
-        target: process.env.VITE_API_URL || 'http://localhost:5000',
+        target: process.env.VITE_API_URL || 'http://localhost:8000',
         changeOrigin: true,
         secure: false,
       },
