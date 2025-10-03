@@ -137,14 +137,27 @@ class InvoiceUploadService:
                 detail=f"Error inesperado al subir archivo: {str(e)}"
             )
     
-    async def process_invoice_with_ai(self, file_info: Dict[str, Any], user_id: int, owner: str, session: AsyncSession) -> Dict[str, Any]:
+    async def process_invoice_with_ai(
+        self, 
+        file_info: Dict[str, Any], 
+        user_id: int, 
+        owner: str, 
+        session: AsyncSession,
+        invoice_direction: str = "recibida",
+        movimiento_cuenta: bool = True,
+        es_compensacion_iva: bool = False
+    ) -> Dict[str, Any]:
         """
         Procesa una factura usando el agente de IA.
         
         Args:
             file_info: Información del archivo subido
             user_id: ID del usuario
+            owner: Socio responsable
             session: Sesión de base de datos
+            invoice_direction: Dirección (emitida/recibida)
+            movimiento_cuenta: Si afecta flujo de caja real
+            es_compensacion_iva: Si es solo compensación de IVA
             
         Returns:
             Resultado del procesamiento de IA
@@ -156,7 +169,10 @@ class InvoiceUploadService:
                 filename=file_info["filename"],
                 status="pending",
                 blob_url=file_info["blob_url"],
-                owner=owner
+                owner=owner,
+                invoice_direction=invoice_direction,
+                movimiento_cuenta=movimiento_cuenta,
+                es_compensacion_iva=es_compensacion_iva
             )
             session.add(invoice)
             await session.commit()
@@ -199,6 +215,9 @@ upload_service = InvoiceUploadService()
 async def upload_invoice(
     file: UploadFile = File(...),
     owner: str = Form("Hernán Pagani"),
+    invoice_direction: str = Form("recibida"),
+    movimiento_cuenta: bool = Form(True),
+    es_compensacion_iva: bool = Form(False),
     current_user: User = Depends(get_current_user),
     session: AsyncSession = Depends(get_session)
 ):
@@ -214,6 +233,10 @@ async def upload_invoice(
     
     Args:
         file: Archivo de factura a procesar
+        owner: Socio responsable (Hernán, Joni, Maxi, Leo, Franco)
+        invoice_direction: Dirección (emitida/recibida)
+        movimiento_cuenta: SI = movimiento real de dinero, NO = compensación IVA
+        es_compensacion_iva: True = factura solo para compensar IVA
         current_user: Usuario autenticado
         session: Sesión de base de datos
         
@@ -245,7 +268,15 @@ async def upload_invoice(
         upload_result = await upload_service.upload_file_to_azure(file, current_user.id)
         
         # 2. Procesar con agente de IA
-        processing_result = await upload_service.process_invoice_with_ai(upload_result, current_user.id, owner, session)
+        processing_result = await upload_service.process_invoice_with_ai(
+            upload_result, 
+            current_user.id, 
+            owner, 
+            session,
+            invoice_direction=invoice_direction,
+            movimiento_cuenta=movimiento_cuenta,
+            es_compensacion_iva=es_compensacion_iva
+        )
         
         # 3. Retornar resultado completo
         return {
