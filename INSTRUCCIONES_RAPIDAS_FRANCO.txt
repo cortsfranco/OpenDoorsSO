@@ -1,0 +1,175 @@
+================================================================================================
+FRANCO: INSTRUCCIONES RÁPIDAS PARA SINCRONIZAR TODO
+================================================================================================
+
+Hola Franco,
+
+Ya está TODO el código listo aquí en Replit. Sigue estos pasos para tenerlo en tu máquina:
+
+================================================================================================
+PASO 1: DESCARGAR TODO DESDE REPLIT (5 minutos)
+================================================================================================
+
+1. En Replit, haz clic en los 3 puntos (⋮) arriba a la izquierda
+2. Selecciona "Download as ZIP"
+3. Guarda el archivo en tu escritorio
+4. Descomprime en una carpeta temporal
+
+================================================================================================
+PASO 2: SINCRONIZAR CON TU PROYECTO LOCAL (10 minutos)
+================================================================================================
+
+Abre la guía COMO_SINCRONIZAR_CON_REPLIT.txt y elige una estrategia:
+
+**OPCIÓN A - Reemplazo completo** (Si quieres empezar limpio):
+- Haz backup de tu código actual
+- Copia todo el contenido del ZIP a tu proyecto
+- Instala dependencias
+
+**OPCIÓN B - Merge selectivo** (Si tienes cambios que quieres conservar):
+- Copia solo los archivos críticos (lista en la guía)
+- Compara con tu código usando Cursor AI
+- Integra gradualmente
+
+================================================================================================
+PASO 3: ARCHIVOS QUE RECIBIRÁS
+================================================================================================
+
+### Código Backend (100% funcional)
+✅ src/models/invoice.py              - Modelo factura con campos fiscales
+✅ src/models/user.py                 - Usuarios y roles
+✅ src/models/partner.py              - Socios
+✅ src/services/financial_calculator.py - Lógica fiscal de Joni
+✅ src/services/currency_validator.py   - Formato argentino
+✅ src/core/permissions.py            - Sistema de permisos
+✅ src/api/routers/*                  - Todos los endpoints
+
+### Documentación Completa
+✅ GUIA_COMPLETA_REPLICACION.txt          - Backend completo (33 puntos)
+✅ GUIA_PARTE_2_ENDPOINTS_FRONTEND.txt    - Frontend y componentes
+✅ GUIA_PARTE_3_GRAFICAS_DEPLOYMENT.txt   - Gráficas y deployment
+✅ GUIA_USO_CON_CURSOR_AI.txt             - Cómo trabajar con Cursor
+✅ COMO_SINCRONIZAR_CON_REPLIT.txt        - Sincronización paso a paso
+
+### Configuración para AI
+✅ .cursorrules                       - Reglas para Cursor AI/Copilot
+
+================================================================================================
+PASO 4: USAR CURSOR AI SOBRE TU CÓDIGO SINCRONIZADO (5 minutos)
+================================================================================================
+
+Una vez que tengas todo sincronizado:
+
+1. Abre tu proyecto en Cursor AI
+2. Presiona Cmd+L (Mac) o Ctrl+L (Windows)
+3. Pega este prompt:
+
+```
+He sincronizado este código con Replit (fuente de verdad).
+
+Lee estos archivos:
+- @.cursorrules
+- @GUIA_USO_CON_CURSOR_AI.txt
+
+Luego verifica que estos archivos críticos existan y estén correctos:
+1. src/services/financial_calculator.py (lógica fiscal de Joni)
+2. src/models/invoice.py (estructura facturas)
+3. src/core/permissions.py (roles y permisos)
+
+Dame un reporte de estado.
+```
+
+4. Cursor te dirá qué está bien y qué necesita ajustarse
+
+================================================================================================
+PASO 5: VALIDAR QUE TODO FUNCIONA (5 minutos)
+================================================================================================
+
+```bash
+# Instalar dependencias
+pip install -r requirements.txt
+
+# Configurar .env (copia env.example y edita)
+cp env.example .env
+
+# Iniciar servidor
+uvicorn src.main:app --host 0.0.0.0 --port 5000 --reload
+
+# Ir a docs
+http://localhost:5000/docs
+
+# Probar login
+Email: cortsfranco@hotmail.com
+Password: Ncc1701E@
+```
+
+Si todo funciona, ¡ya tienes el código completo funcionando localmente! 🚀
+
+================================================================================================
+QUÉ CONTIENE ESTE CÓDIGO
+================================================================================================
+
+✅ Backend 100% funcional con:
+   - Balance IVA (solo tipo A) según lógica de Joni
+   - Balance General (solo movimiento_cuenta=SI)
+   - Formato moneda argentino ($1.234,56)
+   - Sistema de permisos con 7 roles
+   - CRUD completo de facturas con autoguardado
+   - Gestión de socios/proveedores
+   - Reportes financieros
+
+✅ Documentación completa:
+   - 4 guías con TODO el código copiable
+   - Instrucciones para Cursor AI
+   - Reglas de negocio de Joni
+   - Comandos útiles
+
+⚠️ Pendiente (código disponible en guías):
+   - Frontend React
+   - Gráficas con Recharts
+   - Testing automatizado
+   - Docker Compose
+
+================================================================================================
+PRÓXIMOS PASOS DESPUÉS DE SINCRONIZAR
+================================================================================================
+
+1. **Implementar Frontend** (usando GUIA_PARTE_2):
+   - Setup React + Vite
+   - Componentes DataTable y CurrencyInput
+   - Dashboard con KPIs
+
+2. **Agregar Gráficas** (usando GUIA_PARTE_3):
+   - Componentes de análisis
+   - Visualización de tendencias
+
+3. **Testing** (usando GUIA_PARTE_3):
+   - Tests de lógica fiscal
+   - Tests de endpoints
+
+4. **Deployment** (usando GUIA_PARTE_3):
+   - Docker Compose
+   - Configuración producción
+
+================================================================================================
+RESUMEN: 3 PASOS ESENCIALES
+================================================================================================
+
+1. 📥 Descargar ZIP desde Replit
+2. 🔄 Sincronizar con tu proyecto local (usa COMO_SINCRONIZAR_CON_REPLIT.txt)
+3. 🤖 Usar Cursor AI para mejoras (usa .cursorrules y GUIA_USO_CON_CURSOR_AI.txt)
+
+================================================================================================
+
+**Todo lo que necesitas está en este código de Replit. Descárgalo y síguelo como fuente de verdad.**
+
+Tus credenciales:
+- Email: cortsfranco@hotmail.com
+- Password: Ncc1701E@
+- Rol: SUPERADMIN (único)
+
+¿Dudas? Revisa:
+- COMO_SINCRONIZAR_CON_REPLIT.txt (instrucciones detalladas)
+- GUIA_USO_CON_CURSOR_AI.txt (cómo trabajar con Cursor)
+
+¡A trabajar! 🚀

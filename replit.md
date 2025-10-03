@@ -37,7 +37,7 @@ Sistema completo de facturación con lógica fiscal argentina (Balance IVA vs Ba
 
 ### 📚 Documentación de Replicación Creada
 
-Se crearon 3 guías completas con código copiable para replicación en entorno local:
+Se crearon 4 guías completas con código copiable para replicación en entorno local:
 
 1. **GUIA_COMPLETA_REPLICACION.txt** (Parte 1):
    - Setup inicial completo
@@ -57,6 +57,28 @@ Se crearon 3 guías completas con código copiable para replicación en entorno 
    - Páginas completas del frontend
    - Testing con pytest
    - Docker Compose para producción
+
+4. **GUIA_USO_CON_CURSOR_AI.txt** (Parte 4):
+   - Cómo trabajar con Cursor AI usando las guías
+   - Estrategias de trabajo con código existente
+   - Prompts específicos para cada módulo
+   - Resolución de conflictos
+
+### 🔧 Archivos de Configuración para Sincronización
+
+1. **.cursorrules**: Reglas para AI assistants (Cursor AI, GitHub Copilot, etc.)
+   - Arquitectura completa del proyecto
+   - Reglas fiscales críticas de Joni
+   - Convenciones de código
+   - Sistema de permisos
+   - Comandos útiles
+
+2. **COMO_SINCRONIZAR_CON_REPLIT.txt**: Instrucciones paso a paso
+   - Descargar código desde Replit
+   - Estrategias de sincronización (completa vs selectiva)
+   - Archivos críticos prioritarios
+   - Validación post-sincronización
+   - Solución de problemas comunes
 
 ### ⚠️ Pendiente de Implementación en Replit
 

@@ -1,0 +1,428 @@
+================================================================================================
+GUÍA: CÓMO SINCRONIZAR TU CÓDIGO LOCAL CON ESTE CÓDIGO DE REPLIT
+================================================================================================
+Franco, este archivo te explica paso a paso cómo descargar TODO el código de Replit
+y sincronizarlo con tu proyecto local en C:\Users\FRANCO\Desktop\OpenDoors SO
+
+================================================================================================
+PARTE 1: DESCARGAR TODO EL CÓDIGO DESDE REPLIT
+================================================================================================
+
+### OPCIÓN A: Descargar ZIP completo (MÁS FÁCIL) ✅
+
+1. En Replit, haz clic en los 3 puntos (⋮) arriba a la izquierda
+2. Selecciona "Download as ZIP"
+3. Guarda el archivo (ej: open-doors-billing.zip)
+4. Descomprime en una carpeta temporal, ej: C:\Users\FRANCO\Desktop\replit-backup
+
+### OPCIÓN B: Clonar con Git (SI TIENES GIT) 
+
+Si tu Replit está conectado a GitHub/Git:
+
+```bash
+# En tu máquina local
+cd C:\Users\FRANCO\Desktop
+git clone [URL_DEL_REPO_REPLIT] replit-backup
+```
+
+================================================================================================
+PARTE 2: ESTRATEGIA DE SINCRONIZACIÓN
+================================================================================================
+
+Tienes 2 opciones según tu situación:
+
+### ESTRATEGIA 1: Reemplazar Completo (Si tu código local está desactualizado)
+
+**Cuándo usar**: Si tu código local tiene muchas diferencias y confías 100% en Replit.
+
+```bash
+# 1. HACER BACKUP de tu código local primero
+cd C:\Users\FRANCO\Desktop
+mkdir backup-$(date +%Y%m%d)
+cp -r "OpenDoors SO" backup-$(date +%Y%m%d)/
+
+# 2. Eliminar contenido (excepto .git si existe)
+cd "OpenDoors SO"
+# Elimina todo EXCEPTO .git/ si tienes control de versiones
+
+# 3. Copiar todo desde Replit
+cp -r C:\Users\FRANCO\Desktop\replit-backup/* .
+
+# 4. Instalar dependencias
+pip install -r requirements.txt
+
+# 5. Configurar .env
+cp env.example .env
+# Edita .env con tus credenciales
+```
+
+### ESTRATEGIA 2: Merge Selectivo (Si tienes cambios locales que quieres conservar)
+
+**Cuándo usar**: Si tu código local tiene modificaciones custom que quieres mantener.
+
+**PASO 1: Identificar diferencias**
+
+```bash
+# Comparar estructuras
+cd "OpenDoors SO"
+ls -la src/
+
+cd C:\Users\FRANCO\Desktop\replit-backup
+ls -la src/
+
+# Anotar qué archivos son diferentes
+```
+
+**PASO 2: Copiar archivos nuevos/mejorados desde Replit**
+
+```bash
+# Backend - Archivos core que DEBEN actualizarse
+cp replit-backup/src/services/financial_calculator.py "OpenDoors SO/src/services/"
+cp replit-backup/src/services/currency_validator.py "OpenDoors SO/src/services/"
+cp replit-backup/src/models/invoice.py "OpenDoors SO/src/models/"
+cp replit-backup/src/models/user.py "OpenDoors SO/src/models/"
+cp replit-backup/src/models/partner.py "OpenDoors SO/src/models/"
+cp replit-backup/src/core/permissions.py "OpenDoors SO/src/core/"
+
+# Endpoints
+cp replit-backup/src/api/routers/financial_reports.py "OpenDoors SO/src/api/routers/"
+cp replit-backup/src/api/routers/invoices.py "OpenDoors SO/src/api/routers/"
+cp replit-backup/src/api/routers/partners.py "OpenDoors SO/src/api/routers/"
+
+# Configuración
+cp replit-backup/src/main.py "OpenDoors SO/src/"
+cp replit-backup/requirements.txt "OpenDoors SO/"
+```
+
+**PASO 3: Copiar guías y configuración**
+
+```bash
+cp replit-backup/GUIA_*.txt "OpenDoors SO/"
+cp replit-backup/.cursorrules "OpenDoors SO/"
+cp replit-backup/COMO_SINCRONIZAR_CON_REPLIT.txt "OpenDoors SO/"
+```
+
+================================================================================================
+PARTE 3: ARCHIVOS CRÍTICOS QUE DEBES ACTUALIZAR
+================================================================================================
+
+Estos archivos contienen la lógica fiscal de Joni y DEBEN ser exactos:
+
+### PRIORIDAD MÁXIMA 🔴
+
+```
+✅ src/services/financial_calculator.py    # Lógica Balance IVA y General
+✅ src/services/currency_validator.py      # Formato argentino
+✅ src/models/invoice.py                   # Estructura fiscal
+✅ src/core/permissions.py                 # Sistema de roles
+```
+
+### ALTA PRIORIDAD 🟡
+
+```
+✅ src/api/routers/financial_reports.py   # Endpoints Balance IVA/General
+✅ src/api/routers/invoices.py             # CRUD facturas
+✅ src/api/routers/partners.py             # Gestión socios
+✅ src/models/user.py                      # Usuarios y roles
+✅ src/models/partner.py                   # Socios
+```
+
+### PRIORIDAD NORMAL 🟢
+
+```
+✅ src/main.py                             # App principal
+✅ src/core/config.py                      # Configuración
+✅ src/core/database.py                    # DB setup
+✅ src/core/security.py                    # JWT
+✅ requirements.txt                        # Dependencias
+```
+
+### DOCUMENTACIÓN 📚
+
+```
+✅ GUIA_COMPLETA_REPLICACION.txt
+✅ GUIA_PARTE_2_ENDPOINTS_FRONTEND.txt
+✅ GUIA_PARTE_3_GRAFICAS_DEPLOYMENT.txt
+✅ GUIA_USO_CON_CURSOR_AI.txt
+✅ .cursorrules
+```
+
+================================================================================================
+PARTE 4: VALIDAR QUE TODO FUNCIONA
+================================================================================================
+
+Después de sincronizar, ejecuta estas verificaciones:
+
+### 1. Verificar estructura
+
+```bash
+cd "OpenDoors SO"
+ls -la src/services/
+# Debes ver:
+# - financial_calculator.py
+# - currency_validator.py
+
+ls -la src/models/
+# Debes ver:
+# - invoice.py
+# - user.py
+# - partner.py
+```
+
+### 2. Instalar dependencias
+
+```bash
+# Crear entorno virtual (si no existe)
+python -m venv venv
+source venv/bin/activate  # En Windows: venv\Scripts\activate
+
+# Instalar
+pip install -r requirements.txt
+```
+
+### 3. Configurar base de datos
+
+```bash
+# Edita .env con tus credenciales PostgreSQL
+DATABASE_URL=postgresql://user:password@localhost:5432/opendoors_billing
+
+# Si usas Alembic para migraciones
+alembic upgrade head
+```
+
+### 4. Probar que inicia
+
+```bash
+uvicorn src.main:app --host 0.0.0.0 --port 5000 --reload
+```
+
+Si inicia sin errores, ve a: http://localhost:5000/docs
+
+### 5. Validar lógica fiscal (CRÍTICO)
+
+```python
+# En una consola Python
+from src.services.financial_calculator import FinancialCalculator
+from src.models.invoice import TipoFactura
+
+calc = FinancialCalculator()
+
+# Test: Balance IVA debe ser solo tipo A
+# [Crear facturas de prueba y validar]
+```
+
+### 6. Login de prueba
+
+```bash
+curl -X POST http://localhost:5000/api/auth/login \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "username=cortsfranco@hotmail.com&password=Ncc1701E@"
+
+# Debes recibir un token JWT
+```
+
+================================================================================================
+PARTE 5: USAR CURSOR AI SOBRE EL CÓDIGO SINCRONIZADO
+================================================================================================
+
+Una vez sincronizado, Cursor AI puede ayudarte con mejoras:
+
+### Prompt inicial para Cursor:
+
+```
+El código en este proyecto está sincronizado con Replit (fuente de verdad).
+
+Analiza la estructura actual y compárala con:
+- @.cursorrules
+- @GUIA_COMPLETA_REPLICACION.txt
+
+Verifica que estos archivos críticos existan y estén correctos:
+1. src/services/financial_calculator.py
+2. src/services/currency_validator.py
+3. src/models/invoice.py
+4. src/core/permissions.py
+
+Dame un reporte de estado.
+```
+
+### Prompt para validar lógica fiscal:
+
+```
+Revisa src/services/financial_calculator.py y verifica:
+
+1. ¿El método calcular_balance_iva() filtra SOLO facturas tipo A?
+2. ¿El método calcular_balance_general() filtra SOLO movimiento_cuenta=SI?
+3. ¿Existe validar_coherencia_montos()?
+
+Muéstrame el código de cada método y confirma que cumple las reglas de Joni.
+```
+
+### Prompt para implementar frontend:
+
+```
+Ahora implementemos el frontend siguiendo:
+- @GUIA_PARTE_2_ENDPOINTS_FRONTEND.txt
+- @GUIA_PARTE_3_GRAFICAS_DEPLOYMENT.txt
+
+Empecemos con:
+1. Setup React + Vite (sección 12.1)
+2. Instalar dependencias (sección 12.2)
+
+Hazlo paso por paso.
+```
+
+================================================================================================
+PARTE 6: MANTENIMIENTO CONTINUO
+================================================================================================
+
+### Sincronización periódica con Replit
+
+Si hago mejoras en Replit, puedes re-sincronizar:
+
+1. Descarga nuevo ZIP desde Replit
+2. Compara con tu código local usando Cursor:
+
+```
+Compara estos archivos de Replit actualizado con mis archivos locales:
+- [lista de archivos]
+
+Dame un diff y recomienda qué actualizar.
+```
+
+### Subir cambios locales a Replit (opcional)
+
+Si haces mejoras locales que quieres en Replit:
+
+```bash
+# Si Replit está conectado a Git
+git add .
+git commit -m "Mejoras desde entorno local"
+git push origin main
+
+# Replit auto-sincronizará
+```
+
+================================================================================================
+PARTE 7: CHECKLIST POST-SINCRONIZACIÓN
+================================================================================================
+
+Marca cada item al completarlo:
+
+### Backend
+□ financial_calculator.py copiado y funcional
+□ currency_validator.py copiado y funcional
+□ invoice.py con todos los campos fiscales
+□ permissions.py con sistema de roles
+□ Endpoints /api/v1/financial/* funcionan
+□ Login con Franco funciona (cortsfranco@hotmail.com)
+□ Base de datos conectada
+
+### Documentación
+□ 4 guías GUIA_*.txt en raíz
+□ .cursorrules configurado
+□ requirements.txt actualizado
+
+### Testing
+□ Servidor inicia sin errores
+□ /docs muestra todos los endpoints
+□ Balance IVA retorna solo tipo A
+□ Balance General retorna solo mov. cuenta SI
+□ Formato moneda valida $1.234,56
+
+### Entorno
+□ .env configurado con credenciales
+□ Virtual environment activo
+□ Dependencias instaladas
+□ PostgreSQL corriendo
+
+================================================================================================
+PARTE 8: SOLUCIÓN DE PROBLEMAS COMUNES
+================================================================================================
+
+### Problema: "ModuleNotFoundError: No module named 'fastapi'"
+
+```bash
+# Asegúrate que el virtual environment esté activo
+source venv/bin/activate  # Linux/Mac
+venv\Scripts\activate     # Windows
+
+# Reinstala dependencias
+pip install -r requirements.txt
+```
+
+### Problema: "Connection refused" al conectar PostgreSQL
+
+```bash
+# Verifica que PostgreSQL esté corriendo
+# Windows:
+services.msc  # Busca "PostgreSQL" y inicia
+
+# Verifica credenciales en .env
+DATABASE_URL=postgresql://USER:PASSWORD@localhost:5432/DB_NAME
+```
+
+### Problema: "401 Unauthorized" al hacer login
+
+```bash
+# Verifica que el usuario exista en la DB
+# Si es primera vez, crea el superadmin:
+
+python -c "
+from src.core.database import engine
+from src.models.user import User
+from src.core.security import get_password_hash
+from sqlmodel import Session
+
+with Session(engine) as session:
+    user = User(
+        email='cortsfranco@hotmail.com',
+        hashed_password=get_password_hash('Ncc1701E@'),
+        full_name='Franco Corts',
+        role='superadmin',
+        is_active=True
+    )
+    session.add(user)
+    session.commit()
+    print('Superadmin creado')
+"
+```
+
+### Problema: Balance IVA incluye facturas tipo B/C
+
+```bash
+# Tu código está desactualizado
+# Reemplaza src/services/financial_calculator.py desde Replit
+cp replit-backup/src/services/financial_calculator.py src/services/
+```
+
+### Problema: Cursor AI no encuentra las guías
+
+```bash
+# Verifica que estén en la raíz
+ls -la GUIA_*.txt
+
+# Si no están, copialas desde Replit
+cp replit-backup/GUIA_*.txt .
+```
+
+================================================================================================
+RESUMEN: FLUJO COMPLETO DE SINCRONIZACIÓN
+================================================================================================
+
+1. ✅ Descargar ZIP desde Replit
+2. ✅ Hacer backup de código local
+3. ✅ Decidir estrategia (reemplazo completo vs merge selectivo)
+4. ✅ Copiar archivos críticos primero (financial_calculator, invoice, etc.)
+5. ✅ Copiar guías y .cursorrules
+6. ✅ Instalar dependencias
+7. ✅ Configurar .env
+8. ✅ Probar que inicia
+9. ✅ Validar lógica fiscal
+10. ✅ Usar Cursor AI para mejoras adicionales
+
+================================================================================================
+
+Con estos pasos, tu código local estará 100% sincronizado con Replit y podrás 
+trabajar con Cursor AI usando las guías como referencia.
+
+¿Dudas? Revisa la sección de "Solución de problemas comunes" o pregúntame.

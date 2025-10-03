@@ -1,0 +1,373 @@
+# Open Doors Billing - AI Assistant Rules
+
+## IMPORTANTE: ESTE ES CÓDIGO DE REFERENCIA DESDE REPLIT
+
+Este código fue desarrollado en Replit y es la FUENTE DE VERDAD.
+Tu código local debe sincronizarse con este.
+
+## ARQUITECTURA COMPLETA
+
+```
+/
+├── src/                          # Backend Python/FastAPI
+│   ├── api/
+│   │   ├── routers/              # Endpoints REST
+│   │   │   ├── auth.py           # Autenticación JWT
+│   │   │   ├── invoices.py       # CRUD facturas + autoguardado
+│   │   │   ├── partners.py       # Gestión socios
+│   │   │   ├── financial_reports.py  # Balance IVA/General
+│   │   │   ├── analysis.py       # Análisis financiero
+│   │   │   └── approval.py       # Aprobaciones
+│   │   └── deps.py               # Dependencias inyección
+│   ├── core/
+│   │   ├── config.py             # Settings
+│   │   ├── database.py           # PostgreSQL setup
+│   │   ├── security.py           # JWT & bcrypt
+│   │   └── permissions.py        # Sistema de roles
+│   ├── models/
+│   │   ├── user.py               # Usuario + roles
+│   │   ├── invoice.py            # Factura fiscal argentina
+│   │   └── partner.py            # Socios/proveedores
+│   ├── services/
+│   │   ├── financial_calculator.py  # Lógica fiscal Joni
+│   │   └── currency_validator.py   # Validación $1.234,56
+│   └── main.py                   # FastAPI app
+├── alembic/                      # Migraciones DB (si existe)
+├── tests/                        # Tests pytest
+├── GUIA_*.txt                    # Documentación completa
+└── requirements.txt              # Dependencias
+```
+
+## REGLAS FISCALES CRÍTICAS (SEGÚN JONI - NO MODIFICAR)
+
+### Balance IVA
+```python
+# SOLO facturas tipo A (con IVA discriminado)
+# Excluir: es_compensacion_iva=True
+# Formula: IVA emitido - IVA recibido
+```
+
+### Balance General
+```python
+# SOLO facturas con movimiento_cuenta=SI
+# Representa flujo de caja real
+# Formula: Ingresos - Egresos (solo movimientos reales)
+```
+
+### Formato Moneda Argentina
+```python
+# SIEMPRE: $1.234,56
+# Punto para miles
+# Coma para decimales
+# Auto-corrección de formato inglés ($1,234.56 → $1.234,56)
+```
+
+### Tipos de Factura
+- **Tipo A**: Con IVA discriminado → Cuenta para Balance IVA ✅
+- **Tipo B**: IVA incluido → NO cuenta para Balance IVA ❌
+- **Tipo C**: Sin IVA → NO cuenta para Balance IVA ❌
+- **Tipo X**: Otros comprobantes → NO cuenta para Balance IVA ❌
+
+## SISTEMA DE PERMISOS JERÁRQUICO
+
+7 roles (de mayor a menor):
+1. **superadmin** - Control total (SOLO Franco: cortsfranco@hotmail.com)
+2. **admin** - Gestión completa (Hernán, Joni)
+3. **accountant** - Contabilidad y reportes
+4. **approver** - Aprobación de pagos
+5. **editor** - Edición de facturas
+6. **partner** - Vista de sus facturas
+7. **viewer** - Solo lectura
+
+**CRÍTICO**: NUNCA crear otro superadmin. Solo existe Franco.
+
+## MULTI-PARTNER TRACKING
+
+5 socios principales:
+- Franco (SUPERADMIN)
+- Joni
+- Hernán
+- Maxi
+- Leo
+
+Cada factura DEBE tener `socio_responsable` asignado.
+
+## CONVENCIONES DE CÓDIGO
+
+### Python/FastAPI Backend
+```python
+# Type hints OBLIGATORIOS
+def calcular_balance_iva(
+    self, 
+    facturas: List[Invoice],
+    excluir_compensaciones: bool = True
+) -> Decimal:
+    """Calcula Balance IVA según normativa argentina."""
+    pass
+
+# Async/await SIEMPRE en endpoints
+@router.get("/invoices/{invoice_id}")
+async def get_invoice(
+    invoice_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+) -> Invoice:
+    pass
+
+# SQLModel para modelos
+class Invoice(SQLModel, table=True):
+    __tablename__ = "invoices"
+    id: Optional[int] = Field(default=None, primary_key=True)
+    # ...
+
+# Servicios para lógica de negocio (NO en routers)
+# ✅ Correcto: router → service → model
+# ❌ Incorrecto: router → model directamente
+
+# Soft delete (nunca hard delete)
+invoice.deleted_at = datetime.utcnow()
+# NO: db.delete(invoice)
+
+# Validaciones con Pydantic
+class InvoiceCreate(BaseModel):
+    monto_total: Decimal = Field(gt=0)
+    fecha_emision: date
+```
+
+### TypeScript/React Frontend (cuando se implemente)
+```typescript
+// Functional components con hooks
+const Dashboard: React.FC = () => {
+  const { data } = useFinancialData();
+  return <div>...</div>;
+};
+
+// TanStack Query para datos
+const { data: invoices } = useQuery({
+  queryKey: ['invoices'],
+  queryFn: fetchInvoices
+});
+
+// CurrencyInput para montos
+<CurrencyInput
+  value={amount}
+  onChange={setAmount}
+  format="argentine"  // $1.234,56
+/>
+
+// Recharts para gráficas
+<LineChart data={data}>
+  <Line dataKey="balance_iva" stroke="#10b981" />
+</LineChart>
+```
+
+## ENDPOINTS API PRINCIPALES
+
+```
+POST   /api/auth/login                    # Login JWT
+GET    /api/auth/me                       # Usuario actual
+
+GET    /api/invoices                      # Listar facturas
+POST   /api/invoices                      # Crear factura
+GET    /api/invoices/{id}                 # Obtener factura
+PUT    /api/invoices/{id}                 # Actualizar factura
+DELETE /api/invoices/{id}                 # Soft delete
+POST   /api/invoices/{id}/restore         # Restaurar
+
+GET    /api/v1/partners                   # Listar socios
+POST   /api/v1/partners                   # Crear socio
+GET    /api/v1/partners/{id}              # Obtener socio
+
+GET    /api/v1/financial/balance-iva      # Balance IVA
+GET    /api/v1/financial/balance-general  # Balance General
+GET    /api/v1/financial/balance-por-socio # Por socio
+
+GET    /api/v1/analysis/trends            # Tendencias
+GET    /api/v1/analysis/comparisons       # Comparaciones
+
+POST   /api/v1/approval/approve/{id}      # Aprobar pago
+```
+
+## VALIDACIONES OBLIGATORIAS
+
+```python
+# Coherencia de montos (en cada factura)
+if invoice.tipo_factura == TipoFactura.A:
+    # Debe tener subtotal + IVA = total
+    assert subtotal + iva == monto_total
+
+# Formato de moneda
+assert CurrencyValidator.validar_formato(monto)  # $1.234,56
+
+# Permisos jerárquicos
+if action == "delete":
+    assert user.role in [Role.SUPERADMIN, Role.ADMIN]
+
+# Soft delete
+assert invoice.deleted_at is not None  # NO borrar físicamente
+```
+
+## NO HACER (PROHIBIDO) ❌
+
+1. ❌ NO usar mock data en producción
+2. ❌ NO hard delete (solo soft delete con deleted_at)
+3. ❌ NO modificar lógica fiscal sin validar con Joni
+4. ❌ NO crear usuarios superadmin adicionales
+5. ❌ NO usar localStorage para datos sensibles (solo sessionStorage para JWT temporal)
+6. ❌ NO ignorar validaciones de coherencia de montos
+7. ❌ NO mezclar formato inglés ($1,234.56) con argentino ($1.234,56)
+8. ❌ NO permitir facturas sin socio_responsable
+9. ❌ NO exponer secrets en código o logs
+10. ❌ NO saltarse el sistema de permisos
+
+## SÍ HACER (OBLIGATORIO) ✅
+
+1. ✅ Usar FinancialCalculator para toda lógica fiscal
+2. ✅ Validar coherencia de montos en cada factura
+3. ✅ Auto-save con debounce de 1 segundo (frontend)
+4. ✅ Type hints en todo el código Python
+5. ✅ Tests para lógica fiscal crítica
+6. ✅ Usar design system para estilos consistentes
+7. ✅ Logs estructurados con niveles apropiados
+8. ✅ Sanitizar inputs (SQL injection, XSS)
+9. ✅ Rate limiting en endpoints públicos
+10. ✅ CORS configurado correctamente
+
+## AZURE SERVICES INTEGRATION
+
+```python
+# Azure OpenAI (GPT-4o)
+AZURE_OPENAI_ENDPOINT = env.str("AZURE_OPENAI_ENDPOINT")
+AZURE_OPENAI_API_KEY = env.str("AZURE_OPENAI_API_KEY")
+AZURE_OPENAI_DEPLOYMENT_NAME = "gpt-4o"
+
+# Azure Document Intelligence
+AZURE_DOC_INTELLIGENCE_ENDPOINT = env.str("AZURE_DOC_INTELLIGENCE_ENDPOINT")
+AZURE_DOC_INTELLIGENCE_KEY = env.str("AZURE_DOC_INTELLIGENCE_KEY")
+
+# Azure Cognitive Search
+AZURE_SEARCH_ENDPOINT = env.str("AZURE_SEARCH_ENDPOINT")
+AZURE_SEARCH_ADMIN_KEY = env.str("AZURE_SEARCH_ADMIN_KEY")
+
+# Azure Blob Storage
+AZURE_STORAGE_ACCOUNT_NAME = env.str("AZURE_STORAGE_ACCOUNT_NAME")
+AZURE_STORAGE_ACCOUNT_KEY = env.str("AZURE_STORAGE_ACCOUNT_KEY")
+```
+
+## COMANDOS ÚTILES
+
+```bash
+# Backend development
+uvicorn src.main:app --host 0.0.0.0 --port 5000 --reload
+
+# Testing
+pytest tests/ -v
+pytest tests/test_financial_calculator.py -v
+
+# Database migrations (con Alembic)
+alembic revision --autogenerate -m "Add invoice fields"
+alembic upgrade head
+
+# Production (Docker)
+docker-compose up -d
+docker-compose logs -f backend
+
+# Verificar lógica fiscal
+python -m pytest tests/test_financial_calculator.py -v -k "balance_iva"
+```
+
+## CREDENCIALES DE DESARROLLO
+
+```
+Superadmin único:
+Email: cortsfrando@hotmail.com
+Password: Ncc1701E@
+Rol: SUPERADMIN
+```
+
+## TESTING CRÍTICO
+
+```python
+# Tests obligatorios antes de deploy
+def test_balance_iva_solo_tipo_a():
+    """Balance IVA debe incluir SOLO facturas tipo A."""
+    pass
+
+def test_balance_general_solo_movimiento_cuenta_si():
+    """Balance General debe incluir SOLO mov. cuenta SI."""
+    pass
+
+def test_validar_coherencia_montos():
+    """Validar subtotal + IVA = total."""
+    pass
+
+def test_no_crear_superadmin_adicional():
+    """Solo Franco puede ser superadmin."""
+    pass
+
+def test_soft_delete_no_hard():
+    """Facturas eliminadas deben tener deleted_at."""
+    pass
+```
+
+## REFERENCIAS RÁPIDAS
+
+Antes de modificar lógica fiscal, consultar:
+1. `src/services/financial_calculator.py` - Implementación actual
+2. `src/models/invoice.py` - Estructura de datos
+3. `GUIA_COMPLETA_REPLICACION.txt` - Documentación completa
+4. Transcripciones de Joni (para lógica de negocio)
+
+## DEPLOYMENT (PRODUCCIÓN)
+
+```yaml
+# docker-compose.yml
+services:
+  backend:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - SECRET_KEY=${SECRET_KEY}
+    depends_on:
+      - db
+  
+  db:
+    image: postgres:14
+    environment:
+      - POSTGRES_DB=opendoors_billing
+```
+
+## PRIORIDADES EN CONFLICTOS
+
+Si hay conflicto de prioridades:
+1. 🔒 Seguridad y permisos
+2. 💰 Lógica fiscal correcta (según Joni)
+3. 🇦🇷 Formato argentino de moneda
+4. ⚡ Performance y escalabilidad
+5. 🎨 UX/UI
+
+## ESTRUCTURA IDEAL DE COMMIT
+
+```bash
+git commit -m "feat(invoices): Agregar validación coherencia montos
+
+- Implementar validar_coherencia_montos() en FinancialCalculator
+- Validar subtotal + IVA = total para tipo A
+- Tests incluidos
+
+Refs: GUIA_COMPLETA_REPLICACION.txt sección 4.1"
+```
+
+## CONTACT & SUPPORT
+
+**Superadmin**: Franco Corts (cortsfranco@hotmail.com)
+**Arquitecto**: Hernán (escalabilidad)
+**Business Logic**: Joni (lógica fiscal)
+
+---
+
+**Última actualización**: 03 de octubre de 2025
+**Versión**: 1.0.0
+**Entorno**: Replit (Python 3.11 + FastAPI + PostgreSQL)
