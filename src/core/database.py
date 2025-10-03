@@ -3,6 +3,7 @@ Configuración de la base de datos y sesiones SQLAlchemy.
 """
 
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
+from typing import AsyncGenerator
 from src.core.config import settings
 from src.models.base import Base
 
@@ -23,7 +24,7 @@ AsyncSessionLocal = async_sessionmaker(
 )
 
 
-async def get_session() -> AsyncSession:
+async def get_session() -> AsyncGenerator[AsyncSession, None]:
     """
     Dependency para obtener una sesión de base de datos.
     """
