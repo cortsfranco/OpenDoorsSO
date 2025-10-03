@@ -1,0 +1,33 @@
+hola, soy fran, necesito tu ayuda. estoy desarrollando un sistema complejo y quiero continuar haciendolo de forma local. tengo el archivo .env si te sirve y estoy usando una base de datos en docker. mi idea es saber si puedes analizar el codigo y a partir de unas consultas puedes guiarme para solucionar conflictos que no puedo arreglar yo, pero que debo aplicar de forma local en mi entorno de desarrollo?
+
+este es mi .env:
+
+# Configuración de Base de Datos
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=opendoors123
+POSTGRES_SERVER=db
+POSTGRES_PORT=5432
+POSTGRES_DB=opendoors
+
+# Azure Storage - Credenciales reales
+AZURE_STORAGE_ACCOUNT_NAME=mfnopendoorssearchbyidt
+AZURE_STORAGE_ACCOUNT_KEY=ls1dWh3RV7z7FtFTsVjUmQGVWp6RBfrn4WnfBTloGWP0sUOIf4GA8QWDWEf6iDdj39KD7p60/nQs+AStmmgwBg==
+AZURE_STORAGE_CONTAINER_NAME=opendoors-invoices
+
+# Azure OpenAI - Credenciales reales
+AZURE_OPENAI_ENDPOINT=https://mfn-opendoors-openai.openai.azure.com/
+AZURE_OPENAI_API_KEY=Ab2T1zO11h8pvAhw4qKU7KdBEPe0kBYLSWkWKBcn45ZaHvB1gxOIJQQJ99BIACYeBjFXJ3w3AAABACOGtIj4
+AZURE_OPENAI_DEPLOYMENT_NAME=gpt-4o
+OPENAI_API_VERSION=2024-02-01
+
+# Azure Document Intelligence - Credenciales reales
+AZURE_DOC_INTELLIGENCE_ENDPOINT=https://mfn-opendoors-docintel.cognitiveservices.azure.com/
+AZURE_DOC_INTELLIGENCE_KEY=Bfly4Mb9ElydDPQNh2lEJo6vF2PYNPtgBOPE6WjcWgrhdlyB5nHhJQQJ99BIACYeBjFXJ3w3AAALACOGZJ2f
+
+# Azure Cognitive Search - Credenciales reales
+AZURE_SEARCH_ENDPOINT=https://mfnsearchv2.search.windows.net
+AZURE_SEARCH_ADMIN_KEY=gk3y5ExYXjx4XwN5p4e6JcnUzruRZgPaxZ2nqkQ0ULAzSeCy5DiN
+AZURE_SEARCH_INDEX_NAME=opendoors-invoices
+adjunto archivos de charlas trasncriptas con hernan y joni que son quienes me pidieron que haga este trabajo que es de altisimo nivel.
+
+veo ciertos errores en el diseño, desorden en algunos botones, diseño, coherencia, y quiero saber si podes generarme un informe complñeto de todo lo que hay que hacer para que el sistema funcione de forma optima, generandome un documento de texto con todas las indicaciones detalladas para que luego yo siga trabajando localmente en mni entorno de desarrollo, sin modificar nada que ya este configurado y que pueda darme problemas para ejecutarlo?
