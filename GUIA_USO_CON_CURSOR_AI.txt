@@ -1,0 +1,662 @@
+================================================================================================
+GUÍA: CÓMO USAR ESTAS INDICACIONES CON CURSOR AI EN TU ENTORNO LOCAL
+================================================================================================
+Franco, esta guía te explica cómo trabajar con Cursor AI (o cualquier AI assistant) 
+usando las 3 guías de replicación que te creé, especialmente si ya tienes archivos existentes.
+
+================================================================================================
+PARTE 1: ESTRATEGIA GENERAL - CÓMO HACER QUE TUS INDICACIONES PREVALEZCAN
+================================================================================================
+
+### OPCIÓN A: Proyecto Nuevo (RECOMENDADO) ✅
+Si estás empezando desde cero, es lo más simple:
+
+1. Crea un directorio nuevo y limpio:
+```bash
+mkdir open-doors-billing-new
+cd open-doors-billing-new
+```
+
+2. Inicializa git:
+```bash
+git init
+```
+
+3. Copia las 3 guías a la raíz del proyecto:
+```bash
+# Descarga desde Replit o copia manualmente
+cp GUIA_COMPLETA_REPLICACION.txt ./
+cp GUIA_PARTE_2_ENDPOINTS_FRONTEND.txt ./
+cp GUIA_PARTE_3_GRAFICAS_DEPLOYMENT.txt ./
+```
+
+4. Crea un archivo `.cursorrules` (Cursor AI lee este archivo automáticamente):
+```bash
+touch .cursorrules
+```
+
+5. Pega el contenido del PASO 2 más abajo en `.cursorrules`
+
+
+### OPCIÓN B: Proyecto Existente (Migración) ⚠️
+Si ya tienes código y quieres migrar a la nueva estructura:
+
+**PASO 1: Hacer backup completo**
+```bash
+# Desde tu proyecto existente
+cp -r /ruta/a/tu/proyecto /ruta/backup/proyecto-backup-$(date +%Y%m%d)
+```
+
+**PASO 2: Crear rama nueva para migración**
+```bash
+cd /ruta/a/tu/proyecto
+git checkout -b migration-replit-architecture
+```
+
+**PASO 3: Copiar las 3 guías al proyecto**
+```bash
+# Coloca las guías en la raíz
+cp GUIA_*.txt ./
+```
+
+**PASO 4: Crear archivo .cursorrules** (ver PASO 2 abajo)
+
+**PASO 5: Migración gradual por módulos**
+- NO intentes reemplazar todo de una vez
+- Migra módulo por módulo (modelos → servicios → routers → frontend)
+- Mantén tests funcionando en cada paso
+
+
+================================================================================================
+PARTE 2: ARCHIVO .cursorrules PARA CURSOR AI
+================================================================================================
+
+Crea un archivo `.cursorrules` en la raíz de tu proyecto con este contenido:
+
+```markdown
+# Open Doors Billing - Reglas para AI Assistant
+
+## ARQUITECTURA Y ESTRUCTURA OBLIGATORIA
+
+Este proyecto sigue la arquitectura definida en las guías de replicación.
+**LEE PRIMERO** estos archivos antes de hacer cualquier cambio:
+- GUIA_COMPLETA_REPLICACION.txt (backend completo)
+- GUIA_PARTE_2_ENDPOINTS_FRONTEND.txt (frontend y componentes)
+- GUIA_PARTE_3_GRAFICAS_DEPLOYMENT.txt (gráficas y deployment)
+
+## REGLAS CRÍTICAS DE NEGOCIO
+
+### Lógica Fiscal Argentina (según Joni - NO MODIFICAR)
+1. **Balance IVA**: SOLO facturas tipo A (con IVA discriminado)
+   - Formula: IVA emitido - IVA recibido
+   - Excluir facturas con `es_compensacion_iva=True`
+
+2. **Balance General**: SOLO facturas con `movimiento_cuenta=SI`
+   - Representa flujo de caja real
+   - Formula: Ingresos - Egresos
+
+3. **Formato Moneda**: SIEMPRE formato argentino $1.234,56
+   - Punto para miles
+   - Coma para decimales
+   - Auto-corrección de formato inglés
+
+### Tipos de Factura
+- Tipo A: Con IVA discriminado → Cuenta para Balance IVA
+- Tipo B: IVA incluido → NO cuenta para Balance IVA
+- Tipo C: Sin IVA → NO cuenta para Balance IVA
+- Tipo X: Otros comprobantes
+
+## ESTRUCTURA DE CÓDIGO
+
+### Backend (Python/FastAPI)
+```
+src/
+├── api/routers/        # Endpoints REST
+├── core/              # Config, DB, Security, Permissions
+├── models/            # SQLModel models
+├── services/          # Lógica de negocio
+├── agents/            # Agentes LangGraph
+└── utils/             # Utilidades
+```
+
+### Frontend (React/TypeScript)
+```
+frontend/src/
+├── components/        # Componentes reutilizables
+├── pages/            # Páginas completas
+├── hooks/            # Custom hooks
+├── services/         # API clients
+└── utils/            # Utilidades
+```
+
+## CONVENCIONES DE CÓDIGO
+
+### Python
+- SQLModel para modelos
+- Async/await SIEMPRE
+- Type hints OBLIGATORIOS
+- Usar servicios para lógica de negocio (NO en routers)
+- Soft delete (never hard delete)
+- Validaciones con Pydantic
+
+### TypeScript/React
+- Functional components con hooks
+- TanStack Query para datos
+- Recharts para gráficas
+- Tailwind CSS (usar design system)
+- Formato moneda SIEMPRE con CurrencyInput component
+
+## SISTEMA DE PERMISOS
+
+7 roles jerárquicos:
+1. superadmin (solo Franco: cortsfranco@hotmail.com)
+2. admin (Hernán, Joni)
+3. accountant
+4. approver
+5. editor
+6. partner
+7. viewer
+
+**NUNCA** crear otro superadmin. Solo Franco.
+
+## MULTI-PARTNER TRACKING
+
+5 socios:
+- Franco (SUPERADMIN)
+- Joni
+- Hernán
+- Maxi
+- Leo
+
+Cada factura DEBE tener `socio_responsable` asignado.
+
+## NO HACER (PROHIBIDO)
+
+❌ NO usar mock data
+❌ NO hard delete (solo soft delete)
+❌ NO modificar lógica fiscal sin consultar
+❌ NO crear usuarios superadmin adicionales
+❌ NO usar localStorage para datos sensibles
+❌ NO ignorar validaciones de coherencia de montos
+❌ NO mezclar formato inglés de moneda
+
+## SÍ HACER (OBLIGATORIO)
+
+✅ Leer las 3 guías completas antes de modificar código
+✅ Seguir la estructura de archivos definida
+✅ Usar servicios existentes (FinancialCalculator, CurrencyValidator)
+✅ Validar coherencia de montos en cada factura
+✅ Auto-save con debounce de 1 segundo
+✅ Usar design system para estilos
+✅ Tests para toda lógica fiscal
+
+## AZURE SERVICES
+
+Usar estos servicios (keys en .env):
+- Azure OpenAI (GPT-4o)
+- Azure Document Intelligence
+- Azure Cognitive Search
+- Azure Blob Storage
+
+## COMANDOS ÚTILES
+
+```bash
+# Backend
+uvicorn src.main:app --host 0.0.0.0 --port 5000 --reload
+
+# Testing
+pytest tests/ -v
+
+# Deploy
+docker-compose up -d
+```
+
+## CREDENCIALES
+
+Superadmin único:
+- Email: cortsfranco@hotmail.com
+- Password: Ncc1701E@
+- Rol: SUPERADMIN
+
+## REFERENCIAS OBLIGATORIAS
+
+Antes de hacer cambios importantes, consultar:
+1. src/services/financial_calculator.py (lógica fiscal)
+2. src/models/invoice.py (estructura de facturas)
+3. src/core/permissions.py (sistema de permisos)
+4. Las 3 guías de replicación
+
+## PRIORIDADES
+
+1. Seguridad y permisos
+2. Lógica fiscal correcta (según Joni)
+3. Formato argentino de moneda
+4. Performance y escalabilidad
+5. UX/UI
+```
+
+================================================================================================
+PARTE 3: FLUJO DE TRABAJO CON CURSOR AI
+================================================================================================
+
+### PASO 1: Configurar Cursor AI para leer el contexto
+
+Cuando abras Cursor AI, presiona `Cmd+L` (Mac) o `Ctrl+L` (Windows/Linux) para abrir el chat.
+
+**Primera instrucción a dar a Cursor:**
+```
+Lee los siguientes archivos para entender la arquitectura del proyecto:
+1. .cursorrules
+2. GUIA_COMPLETA_REPLICACION.txt
+3. GUIA_PARTE_2_ENDPOINTS_FRONTEND.txt
+4. GUIA_PARTE_3_GRAFICAS_DEPLOYMENT.txt
+
+Luego dame un resumen de la arquitectura y reglas de negocio críticas.
+```
+
+Cursor leerá todo y te dará un resumen. Esto establece el contexto.
+
+### PASO 2: Referencias en cada prompt
+
+**BUENA PRÁCTICA**: En cada prompt, referencia las guías:
+```
+Siguiendo la arquitectura definida en GUIA_COMPLETA_REPLICACION.txt,
+crea el modelo Invoice con todos los campos fiscales argentinos.
+```
+
+**MAL**: Solo decir "crea un modelo de factura" (Cursor no sabrá tu estructura específica)
+
+### PASO 3: Usar @-mentions de Cursor
+
+Cursor permite mencionar archivos específicos:
+```
+@GUIA_COMPLETA_REPLICACION.txt 
+Implementa el FinancialCalculator siguiendo exactamente el código de la sección 4.1
+```
+
+### PASO 4: Validar contra las guías
+
+Después de que Cursor genere código:
+```
+Compara el código que acabas de generar con la implementación en 
+@GUIA_COMPLETA_REPLICACION.txt sección 4.1. ¿Hay diferencias? 
+Si las hay, ajusta para que coincida exactamente.
+```
+
+================================================================================================
+PARTE 4: MANEJO DE ARCHIVOS EXISTENTES
+================================================================================================
+
+### Escenario A: Archivo existente diferente a la guía
+
+**Opción 1: Reemplazar completamente** (si confías 100% en la guía)
+```bash
+# Backup primero
+cp src/models/invoice.py src/models/invoice.py.backup
+
+# En Cursor AI:
+"Reemplaza completamente src/models/invoice.py con el código de 
+@GUIA_COMPLETA_REPLICACION.txt sección 2.4"
+```
+
+**Opción 2: Merge inteligente** (si tienes cambios custom)
+```bash
+# En Cursor AI:
+"Compara mi src/models/invoice.py actual con el de @GUIA_COMPLETA_REPLICACION.txt
+y dame un diff. Luego propón un merge que:
+1. Mantenga mis cambios custom en [describir qué]
+2. Adopte toda la lógica fiscal de la guía
+3. Use la estructura de campos de la guía"
+```
+
+**Opción 3: Migración gradual**
+```bash
+# En Cursor AI:
+"Crea src/models/invoice_new.py siguiendo @GUIA_COMPLETA_REPLICACION.txt.
+Luego dame un plan de migración de invoice.py a invoice_new.py sin romper nada."
+```
+
+### Escenario B: Archivo faltante que está en la guía
+
+Simplemente:
+```bash
+# En Cursor AI:
+"Crea src/services/financial_calculator.py copiando exactamente el código de
+@GUIA_COMPLETA_REPLICACION.txt sección 4.1"
+```
+
+### Escenario C: Conflictos de estructura
+
+Si tu proyecto tiene una estructura diferente:
+
+```bash
+# En Cursor AI:
+"Mi proyecto tiene esta estructura:
+[pega tu árbol de directorios]
+
+La guía recomienda esta estructura:
+[referencia la sección de estructura en la guía]
+
+Dame un plan de refactoring gradual para migrar a la estructura recomendada
+sin romper funcionalidad existente. Prioriza por módulos independientes primero."
+```
+
+================================================================================================
+PARTE 5: COMANDOS ESPECÍFICOS PARA CURSOR AI
+================================================================================================
+
+### Comando 1: Setup inicial desde cero
+```
+Usando @GUIA_COMPLETA_REPLICACION.txt como referencia:
+1. Crea la estructura de directorios completa (sección 1.1)
+2. Genera requirements.txt (sección 1.3)
+3. Crea .env con todas las variables (sección 1.4)
+4. Inicializa git con .gitignore apropiado
+```
+
+### Comando 2: Implementar un módulo específico
+```
+Siguiendo @GUIA_COMPLETA_REPLICACION.txt sección 4.1, 
+implementa src/services/financial_calculator.py con:
+- Método calcular_balance_iva() (solo tipo A según Joni)
+- Método calcular_balance_general() (solo movimiento_cuenta=SI)
+- Método validar_coherencia_montos()
+Copia el código EXACTAMENTE como está en la guía.
+```
+
+### Comando 3: Validar implementación
+```
+Compara mi implementación actual de FinancialCalculator con
+@GUIA_COMPLETA_REPLICACION.txt sección 4.1.
+Dame una lista de:
+✅ Lo que está correcto
+⚠️ Lo que está diferente pero funciona
+❌ Lo que está incorrecto y debe corregirse
+```
+
+### Comando 4: Frontend completo
+```
+Usando @GUIA_PARTE_2_ENDPOINTS_FRONTEND.txt y @GUIA_PARTE_3_GRAFICAS_DEPLOYMENT.txt:
+1. Setup de React + Vite (sección 12.1-12.3)
+2. Componente DataTable (sección 13.1)
+3. Componente CurrencyInput (sección 13.2)
+4. Página Dashboard (sección 15.1)
+Implementa cada uno paso por paso, validando que funcione antes de continuar.
+```
+
+### Comando 5: Tests
+```
+Usando @GUIA_PARTE_3_GRAFICAS_DEPLOYMENT.txt sección 16.1,
+crea tests/test_financial_calculator.py con:
+- test_calcular_balance_iva() (verificar solo tipo A)
+- test_calcular_balance_general() (verificar solo mov. cuenta SI)
+- test_validar_coherencia_montos()
+```
+
+================================================================================================
+PARTE 6: BEST PRACTICES CON CURSOR AI
+================================================================================================
+
+### DO's ✅
+
+1. **Siempre mencionar las guías en tus prompts**
+   ```
+   "Siguiendo @GUIA_COMPLETA_REPLICACION.txt..."
+   ```
+
+2. **Validar contra las guías después de cada cambio**
+   ```
+   "Compara lo que acabas de generar con la guía y corrige diferencias"
+   ```
+
+3. **Trabajar en módulos pequeños**
+   ```
+   "Implementa solo el modelo Invoice, nada más"
+   ```
+
+4. **Hacer commits frecuentes**
+   ```bash
+   git add src/models/invoice.py
+   git commit -m "Implementar modelo Invoice según guía de replicación"
+   ```
+
+5. **Usar el formato de la guía como "source of truth"**
+   ```
+   "Si hay conflicto entre mi código y la guía, la guía prevalece"
+   ```
+
+### DON'Ts ❌
+
+1. **NO dejar que Cursor improvise sin contexto**
+   ❌ "Crea un modelo de factura"
+   ✅ "Crea el modelo Invoice siguiendo @GUIA_COMPLETA_REPLICACION.txt sección 2.4"
+
+2. **NO confiar ciegamente sin validar**
+   Siempre: generar → comparar con guía → corregir → probar
+
+3. **NO mezclar tu código viejo con el nuevo sin plan**
+   Usa estrategia de migración gradual
+
+4. **NO ignorar las reglas de negocio de .cursorrules**
+   Son CRÍTICAS para la lógica fiscal
+
+5. **NO implementar todo de una vez**
+   Módulo por módulo, validando que funcione
+
+================================================================================================
+PARTE 7: EJEMPLO COMPLETO DE SESIÓN CON CURSOR
+================================================================================================
+
+**Sesión 1: Setup inicial**
+```
+Franco: Lee .cursorrules y las 3 guías, luego dame resumen.
+
+Cursor: [resumen]
+
+Franco: Perfecto. Usando @GUIA_COMPLETA_REPLICACION.txt:
+1. Crea estructura de directorios (sección 1.1)
+2. Genera requirements.txt (sección 1.3)
+
+[Cursor genera]
+
+Franco: Compara requirements.txt con la guía. ¿Falta algo?
+
+Cursor: [análisis]
+
+Franco: Corrige y dame la versión final.
+
+[Cursor corrige]
+
+Franco: ✅ Commit: "Setup inicial - estructura y requirements"
+```
+
+**Sesión 2: Modelos**
+```
+Franco: Implementa src/models/invoice.py copiando EXACTAMENTE 
+@GUIA_COMPLETA_REPLICACION.txt sección 2.4
+
+[Cursor genera]
+
+Franco: Verifica que todos estos campos estén presentes:
+- tipo_factura (enum A/B/C/X)
+- movimiento_cuenta (enum SI/NO)
+- es_compensacion_iva (bool)
+- socio_responsable (Partner enum)
+
+Cursor: [verifica]
+
+Franco: ✅ Prueba importando el modelo y commit.
+```
+
+**Sesión 3: Servicios**
+```
+Franco: Implementa src/services/financial_calculator.py
+según @GUIA_COMPLETA_REPLICACION.txt sección 4.1.
+IMPORTANTE: La lógica fiscal de Joni DEBE ser exacta.
+
+[Cursor genera]
+
+Franco: Explícame la lógica de calcular_balance_iva().
+¿Está filtrando SOLO tipo A?
+
+Cursor: [explica]
+
+Franco: Correcto. Ahora crea un test rápido para verificar
+que facturas tipo B no se incluyen.
+
+[Cursor crea test inline]
+
+Franco: ✅ Ejecuta test, si pasa, commit.
+```
+
+**Sesión 4: Frontend**
+```
+Franco: Usando @GUIA_PARTE_2_ENDPOINTS_FRONTEND.txt:
+1. Setup React + Vite (sección 12.1)
+2. Instala dependencias (sección 12.2)
+3. Configura Tailwind (sección 12.3)
+
+Hazlo paso por paso, esperando mi confirmación entre pasos.
+
+[Cursor hace paso 1]
+
+Franco: ✅ npm run dev funciona, continúa.
+
+[Cursor hace paso 2]
+
+Franco: ✅ Dependencias instaladas, continúa.
+
+[etc...]
+```
+
+================================================================================================
+PARTE 8: RESOLUCIÓN DE CONFLICTOS
+================================================================================================
+
+### Conflicto: "Cursor quiere usar una librería diferente"
+
+```
+Franco: Veo que propones usar Moment.js para fechas.
+Según las guías, debemos usar las funciones nativas de Python datetime.
+¿Por qué propones esto?
+
+Cursor: [explica]
+
+Franco: Entiendo, pero mantengamos consistencia con las guías.
+Refactoriza para usar datetime nativo.
+```
+
+### Conflicto: "Mi código existente tiene una lógica diferente"
+
+```
+Franco: Mi calculate_balance() actual suma TODAS las facturas.
+Según @GUIA_COMPLETA_REPLICACION.txt sección 4.1, el Balance General
+debe sumar SOLO facturas con movimiento_cuenta=SI.
+
+Dame:
+1. Explicación de por qué la guía lo hace así
+2. Plan de migración de mi función a la correcta
+3. Tests para validar ambas funciones mientras migro
+```
+
+### Conflicto: "La guía y mi código tienen nombres diferentes"
+
+```
+Franco: La guía usa "socio_responsable", yo uso "assigned_partner".
+Quiero migrar a "socio_responsable" porque:
+1. Es más claro en español
+2. Es consistente con el resto del proyecto en las guías
+
+Dame un plan de refactoring que:
+1. Agregue campo nuevo socio_responsable
+2. Migre datos de assigned_partner
+3. Deprece assigned_partner sin romper nada
+4. Elimine assigned_partner en versión futura
+```
+
+================================================================================================
+PARTE 9: ARCHIVO .cursor/prompts.txt (OPCIONAL PERO ÚTIL)
+================================================================================================
+
+Cursor permite guardar prompts frecuentes. Crea `.cursor/prompts.txt`:
+
+```
+# Implementar módulo siguiendo guías
+Implementa {MODULO} siguiendo @GUIA_COMPLETA_REPLICACION.txt sección {SECCION}.
+Copia el código EXACTAMENTE y luego explícame qué hace cada parte.
+
+# Validar contra guías
+Compara mi implementación de {ARCHIVO} con @GUIA_COMPLETA_REPLICACION.txt sección {SECCION}.
+Lista diferencias y recomienda correcciones.
+
+# Debug con contexto de guías
+Tengo este error: {ERROR}
+Basándote en las guías, ¿cuál es la causa probable y la solución?
+
+# Migrar código existente
+Tengo {ARCHIVO_VIEJO}. Quiero migrarlo a la estructura de @GUIA_COMPLETA_REPLICACION.txt.
+Dame plan de migración gradual.
+
+# Crear test
+Crea tests para {MODULO} siguiendo @GUIA_PARTE_3_GRAFICAS_DEPLOYMENT.txt sección 16.1.
+Incluye tests para casos edge.
+```
+
+================================================================================================
+PARTE 10: CHECKLIST FINAL ANTES DE CONSIDERARLO COMPLETO
+================================================================================================
+
+Usa este checklist con Cursor:
+
+```
+Franco: Revisa el proyecto completo y verifica:
+
+Backend:
+□ Todos los modelos siguen estructura de GUIA_COMPLETA_REPLICACION.txt
+□ FinancialCalculator implementa lógica de Joni correctamente
+□ Sistema de permisos tiene a Franco como único superadmin
+□ Endpoints siguen convenciones REST de las guías
+□ Soft delete implementado (no hard delete)
+
+Frontend:
+□ Design system de GUIA_PARTE_2 implementado
+□ CurrencyInput usa formato argentino
+□ DataTable es reutilizable
+□ Auto-save con debounce de 1s
+
+Lógica Fiscal:
+□ Balance IVA: SOLO tipo A
+□ Balance General: SOLO movimiento_cuenta=SI
+□ Validación de coherencia de montos activa
+□ Multi-partner tracking funcionando
+
+Tests:
+□ Tests de lógica fiscal pasan
+□ Tests de validación de montos pasan
+□ Tests de permisos pasan
+
+Dame reporte de cada punto.
+```
+
+================================================================================================
+RESUMEN: REGLA DE ORO CON CURSOR AI
+================================================================================================
+
+**"Las 3 guías son la fuente de verdad. Cursor es tu asistente para implementarlas."**
+
+SIEMPRE:
+1. Referencia las guías en cada prompt
+2. Valida código generado contra las guías
+3. Prioriza las guías sobre sugerencias de Cursor
+4. Usa .cursorrules para mantener contexto
+5. Trabaja módulo por módulo
+
+Con este enfoque, Cursor AI será MUY efectivo en ayudarte a implementar
+exactamente lo que está en las guías, adaptándose a tu entorno local.
+
+================================================================================================
+
+¿Dudas? Pídele a Cursor:
+"Explícame la sección X de @GUIA_COMPLETA_REPLICACION.txt en términos simples"
+
+Cursor leerá la guía y te explicará. Así aprendes mientras implementas.

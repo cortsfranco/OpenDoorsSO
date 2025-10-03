@@ -5,7 +5,18 @@ Modelo de usuario para el sistema Open Doors.
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, Text, JSON
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
+from enum import Enum
 from .base import Base
+
+class UserRole(str, Enum):
+    """Roles de usuario jerárquicos"""
+    SUPERADMIN = "superadmin"  # Solo Franco - acceso total
+    ADMIN = "admin"            # Hernán, Joni - gestión completa
+    ACCOUNTANT = "accountant"  # Contador - ver, crear, aprobar
+    APPROVER = "approver"      # Puede aprobar facturas
+    EDITOR = "editor"          # Puede editar facturas
+    PARTNER = "partner"        # Socios/clientes - solo sus datos
+    VIEWER = "viewer"          # Solo lectura
 
 
 class User(Base):

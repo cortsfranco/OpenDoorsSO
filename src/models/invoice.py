@@ -2,13 +2,46 @@
 Modelo de factura para el sistema Open Doors.
 """
 
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, JSON, Boolean, Float
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, JSON, Boolean, Float, Date, Numeric, Enum as SQLEnum
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from pydantic import BaseModel, Field
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, date
+from decimal import Decimal
+from enum import Enum
 from .base import Base
+
+
+# ==================== ENUMS FISCALES ARGENTINOS ====================
+class TipoFactura(str, Enum):
+    """Tipos de factura según normativa argentina AFIP"""
+    A = "A"  # Factura A - CON IVA discriminado (para Balance IVA según Joni)
+    B = "B"  # Factura B - IVA incluido
+    C = "C"  # Factura C - Sin IVA
+    X = "X"  # Comprobante X - Otros
+
+class MovimientoCuenta(str, Enum):
+    """Indica si la factura afecta el flujo de caja real (lógica de Joni)"""
+    SI = "SI"    # Afecta Balance General (cash flow real)
+    NO = "NO"    # No afecta Balance General (ej: compensaciones)
+
+class MetodoPago(str, Enum):
+    """Métodos de pago disponibles"""
+    EFECTIVO = "efectivo"
+    TRANSFERENCIA = "transferencia"
+    CHEQUE = "cheque"
+    TARJETA = "tarjeta"
+    CREDITO = "credito"
+    OTRO = "otro"
+
+class Partner(str, Enum):
+    """Socios de Open Doors - Multi-partner tracking"""
+    FRANCO = "Franco"
+    JONI = "Joni"
+    HERNAN = "Hernán"
+    MAXI = "Maxi"
+    LEO = "Leo"
 
 
 class Invoice(Base):
@@ -47,11 +80,21 @@ class Invoice(Base):
     approved_at = Column(DateTime(timezone=True), nullable=True)
     payment_status = Column(String(50), default="pending_approval", nullable=False) # pending_approval, approved, paid, rejected
     
+    # ==================== CAMPOS FISCALES CRÍTICOS ====================
+    tipo_factura = Column(SQLEnum(TipoFactura), nullable=False, default=TipoFactura.A)
+    fecha_emision = Column(Date, nullable=False)
+    fecha_vencimiento = Column(Date, nullable=True)
+    subtotal = Column(Numeric(15, 2), default=Decimal("0.00"), nullable=False)
+    monto_iva = Column(Numeric(15, 2), default=Decimal("0.00"), nullable=False)
+    otros_impuestos = Column(Numeric(15, 2), default=Decimal("0.00"), nullable=False)
+    total = Column(Numeric(15, 2), nullable=False)
+    socio_responsable = Column(SQLEnum(Partner), nullable=True)
+    proyecto_asociado = Column(String(100), nullable=True)
+    
     # Campos críticos de lógica financiera
-    movimiento_cuenta = Column(Boolean, default=True, nullable=False)  # CRÍTICO: Si afecta flujo de caja
+    movimiento_cuenta = Column(SQLEnum(MovimientoCuenta), default=MovimientoCuenta.SI, nullable=False)  # CRÍTICO: Si afecta flujo de caja
     tipo_contabilidad = Column(String(20), default="fiscal", nullable=False)  # 'real', 'fiscal', 'ambas'
-    otros_impuestos = Column(Float, default=0.0, nullable=False)  # Otros impuestos además del IVA
-    metodo_pago = Column(String(50), default="transferencia", nullable=False)  # contado, transferencia, tarjeta_credito
+    metodo_pago = Column(SQLEnum(MetodoPago), default=MetodoPago.TRANSFERENCIA, nullable=False)
     es_compensacion_iva = Column(Boolean, default=False, nullable=False)  # Si es solo para compensar IVA
     
     # Soft delete
@@ -76,21 +119,24 @@ class InvoiceBase(BaseModel):
     """Esquema base para facturas."""
     filename: str = Field(..., description="Nombre del archivo de la factura")
     categoria: str = Field(..., description="Categoría: ingreso, egreso, compensacion")
-    clase: str = Field(..., description="Clase de factura: A, B, C")
-    fecha_emision: Optional[datetime] = Field(None, description="Fecha de emisión")
-    fecha_ingreso: Optional[datetime] = Field(None, description="Fecha de ingreso al sistema")
+    tipo_factura: TipoFactura = Field(default=TipoFactura.A, description="Tipo de factura: A, B, C, X")
+    fecha_emision: date = Field(..., description="Fecha de emisión")
+    fecha_vencimiento: Optional[date] = Field(None, description="Fecha de vencimiento")
     cliente_proveedor: Optional[str] = Field(None, description="Cliente o proveedor")
     detalle: Optional[str] = Field(None, description="Detalle de la factura")
     numero_factura: Optional[str] = Field(None, description="Número de factura")
-    monto_total: Optional[float] = Field(None, description="Monto total")
-    monto_iva: Optional[float] = Field(None, description="Monto de IVA")
+    subtotal: Decimal = Field(default=Decimal("0.00"), description="Subtotal sin IVA")
+    monto_iva: Decimal = Field(default=Decimal("0.00"), description="Monto de IVA")
+    otros_impuestos: Decimal = Field(default=Decimal("0.00"), description="Otros impuestos")
+    total: Decimal = Field(..., description="Monto total")
+    socio_responsable: Optional[Partner] = Field(None, description="Socio responsable")
+    proyecto_asociado: Optional[str] = Field(None, description="Proyecto asociado")
     estado_pago: str = Field(default="pendiente", description="Estado del pago")
     owner: Optional[str] = Field(None, description="Propietario de la factura")
     invoice_direction: str = Field(default="recibida", description="Dirección: 'emitida' o 'recibida'")
-    movimiento_cuenta: bool = Field(default=True, description="Si afecta el flujo de caja real")
+    movimiento_cuenta: MovimientoCuenta = Field(default=MovimientoCuenta.SI, description="Si afecta el flujo de caja real")
     tipo_contabilidad: str = Field(default="fiscal", description="Tipo: 'real', 'fiscal', 'ambas'")
-    otros_impuestos: float = Field(default=0.0, description="Otros impuestos")
-    metodo_pago: str = Field(default="transferencia", description="Método de pago")
+    metodo_pago: MetodoPago = Field(default=MetodoPago.TRANSFERENCIA, description="Método de pago")
     es_compensacion_iva: bool = Field(default=False, description="Si es solo para compensar IVA")
 
 class InvoiceCreate(InvoiceBase):
@@ -100,19 +146,23 @@ class InvoiceCreate(InvoiceBase):
 class InvoiceUpdate(BaseModel):
     """Esquema para actualizar facturas."""
     categoria: Optional[str] = None
-    clase: Optional[str] = None
-    fecha_emision: Optional[datetime] = None
+    tipo_factura: Optional[TipoFactura] = None
+    fecha_emision: Optional[date] = None
+    fecha_vencimiento: Optional[date] = None
     cliente_proveedor: Optional[str] = None
     detalle: Optional[str] = None
     numero_factura: Optional[str] = None
-    monto_total: Optional[float] = None
-    monto_iva: Optional[float] = None
+    subtotal: Optional[Decimal] = None
+    monto_iva: Optional[Decimal] = None
+    otros_impuestos: Optional[Decimal] = None
+    total: Optional[Decimal] = None
+    socio_responsable: Optional[Partner] = None
+    proyecto_asociado: Optional[str] = None
     estado_pago: Optional[str] = None
     owner: Optional[str] = None
     invoice_direction: Optional[str] = None
-    movimiento_cuenta: Optional[bool] = None
-    otros_impuestos: Optional[float] = None
-    metodo_pago: Optional[str] = None
+    movimiento_cuenta: Optional[MovimientoCuenta] = None
+    metodo_pago: Optional[MetodoPago] = None
     es_compensacion_iva: Optional[bool] = None
 
 class InvoiceResponse(InvoiceBase):

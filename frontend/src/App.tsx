@@ -1,23 +1,26 @@
-import { AuthProvider } from '@/contexts/AuthContext'
+import React from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
-import { ProtectedRoute } from '@/components/ProtectedRoute'
-import MainLayout from '@/components/MainLayout'
-import { Toaster } from 'sonner'
+import { AuthProvider } from './contexts/AuthContext'
+import { Dashboard } from './pages/Dashboard'
+import { Login } from './pages/Login'
+import { ProtectedRoute } from './components/ProtectedRoute'
 
 function App() {
   return (
     <AuthProvider>
-      <div className="min-h-screen bg-background">
+      <div className="app">
         <Routes>
-          <Route path="/login" element={<MainLayout />} />
+          <Route path="/login" element={<Login />} />
+          <Route 
+            path="/dashboard" 
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            } 
+          />
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          <Route path="/*" element={
-            <ProtectedRoute>
-              <MainLayout />
-            </ProtectedRoute>
-          } />
         </Routes>
-        <Toaster position="bottom-right" />
       </div>
     </AuthProvider>
   )
