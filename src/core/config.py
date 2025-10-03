@@ -54,7 +54,7 @@ class Settings:
         if base_url.startswith("postgresql://"):
             base_url = base_url.replace("postgresql://", "postgresql+asyncpg://")
             if "?sslmode=" in base_url:
-                base_url = base_url.split("?sslmode=")[0]
+                base_url = base_url.split("?sslmode=")[0] + "?ssl=require"
         return base_url
     
     # CORS
