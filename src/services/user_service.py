@@ -6,7 +6,8 @@ import os
 import uuid
 from typing import Optional, List, Dict, Any
 from datetime import datetime, date
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select, func
 from sqlalchemy import and_
 from fastapi import UploadFile, HTTPException
 from ..models.user import User
@@ -17,26 +18,30 @@ from ..core.security import get_password_hash, verify_password
 class UserService:
     """Servicio para gestión de usuarios."""
     
-    def __init__(self, db: Session):
+    def __init__(self, db: AsyncSession):
         self.db = db
         # self.azure_storage = AzureStorageService()
     
-    def get_user_by_id(self, user_id: int) -> Optional[User]:
+    async def get_user_by_id(self, user_id: int) -> Optional[User]:
         """Obtener usuario por ID."""
-        return self.db.query(User).filter(User.id == user_id).first()
+        result = await self.db.execute(select(User).where(User.id == user_id))
+        return result.scalar_one_or_none()
     
-    def get_user_by_email(self, email: str) -> Optional[User]:
+    async def get_user_by_email(self, email: str) -> Optional[User]:
         """Obtener usuario por email."""
-        return self.db.query(User).filter(User.email == email).first()
+        result = await self.db.execute(select(User).where(User.email == email))
+        return result.scalar_one_or_none()
     
-    def get_all_users(self, skip: int = 0, limit: int = 100) -> List[User]:
+    async def get_all_users(self, skip: int = 0, limit: int = 100) -> List[User]:
         """Obtener todos los usuarios con paginación."""
-        return self.db.query(User).offset(skip).limit(limit).all()
+        result = await self.db.execute(select(User).offset(skip).limit(limit))
+        return result.scalars().all()
     
-    def create_user(self, user_data: Dict[str, Any]) -> User:
+    async def create_user(self, user_data: Dict[str, Any]) -> User:
         """Crear nuevo usuario."""
         # Verificar si el email ya existe
-        if self.get_user_by_email(user_data['email']):
+        existing_user = await self.get_user_by_email(user_data['email'])
+        if existing_user:
             raise HTTPException(status_code=400, detail="El email ya está registrado")
         
         # Hash de la contraseña
@@ -59,8 +64,8 @@ class UserService:
         )
         
         self.db.add(user)
-        self.db.commit()
-        self.db.refresh(user)
+        await self.db.commit()
+        await self.db.refresh(user)
         
         return user
     

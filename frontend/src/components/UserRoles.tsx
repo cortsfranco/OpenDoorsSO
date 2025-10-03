@@ -34,37 +34,22 @@ const UserRoles: React.FC<UserRolesProps> = ({ onRoleChange }) => {
   const [tempRole, setTempRole] = useState<string>('');
   const { success, error } = useNotifications();
 
-  // Datos de ejemplo (en producción vendrían de la API)
-  const mockUsers: User[] = [
-    {
-      id: 1,
-      name: 'Franco Cortés',
-      email: 'cortsfranco@hotmail.com',
-      role: 'admin',
-      is_active: true
-    },
-    {
-      id: 2,
-      name: 'Joni Tagua',
-      email: 'joni@opendoors.com',
-      role: 'approver',
-      is_active: true
-    },
-    {
-      id: 3,
-      name: 'Hernán Pagani',
-      email: 'hernan@opendoors.com',
-      role: 'uploader',
-      is_active: true
-    }
-  ];
-
   useEffect(() => {
-    // Simular carga de usuarios
-    setTimeout(() => {
-      setUsers(mockUsers);
-      setLoading(false);
-    }, 1000);
+    // Cargar usuarios reales del backend
+    const fetchUsers = async () => {
+      try {
+        setLoading(true);
+        const response = await apiService.getUsers();
+        setUsers(response.users || []);
+      } catch (err) {
+        console.error('Error fetching users:', err);
+        error('Error', 'No se pudieron cargar los usuarios');
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchUsers();
   }, []);
 
   const getRoleBadge = (role: string) => {

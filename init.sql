@@ -15,7 +15,7 @@ END
 $$;
 
 -- Otorgar permisos
-GRANT ALL PRIVILEGES ON DATABASE opendoors_db TO opendoors_user;
+GRANT ALL PRIVILEGES ON DATABASE opendoors TO opendoors_user;
 
 -- Crear esquema si no existe
 CREATE SCHEMA IF NOT EXISTS public;

@@ -120,25 +120,22 @@ const ExecutiveAnalyticsPage: React.FC = () => {
       console.error('Error fetching executive analytics:', err);
       showError('Error al cargar analytics ejecutivos');
       
-      // Fallback a datos de ejemplo
+      // Sin datos disponibles
       setAnalytics({
-        rentabilidad_promedio: 25.0,
-        facturacion_total: 6.00,
-        balance_iva: -141318,
-        ticket_promedio: 37625,
-        tendencia: "Positiva",
-        analisis_iva: "A FAVOR",
-        eficiencia: "Alta",
-        margen_ganancia: 25.0,
-        ratio_costos: 75.0,
-        ingresos_por_factura: 37625,
-        total_facturas: 10,
-        distribucion_tipo_a: 86352.03,
+        rentabilidad_promedio: 0,
+        facturacion_total: 0,
+        balance_iva: 0,
+        ticket_promedio: 0,
+        tendencia: "Sin datos",
+        analisis_iva: "Sin datos",
+        eficiencia: "Sin datos",
+        margen_ganancia: 0,
+        ratio_costos: 0,
+        ingresos_por_factura: 0,
+        total_facturas: 0,
+        distribucion_tipo_a: 0,
         distribucion_tipo_b: 0,
-        top_clientes: [
-          { nombre: "La Golo sineria", facturas: 0, monto: 0, porcentaje: 0 },
-          { nombre: "Cliente por definir", facturas: 0, monto: 0, porcentaje: 0 }
-        ]
+        top_clientes: []
       });
     } finally {
       setLoading(false);

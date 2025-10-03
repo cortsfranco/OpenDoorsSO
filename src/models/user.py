@@ -53,5 +53,8 @@ class User(Base):
     # Relación con Invoice
     invoices = relationship("Invoice", back_populates="user", foreign_keys="Invoice.user_id")
     
+    # Relación con FiscalSettings
+    fiscal_settings = relationship("FiscalSettings", back_populates="creator")
+    
     def __repr__(self):
         return f"<User(id={self.id}, email='{self.email}', role='{self.role}')>"

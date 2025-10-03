@@ -90,48 +90,9 @@ const ReportsPage: React.FC = () => {
   const fetchReportData = async () => {
     try {
       setLoading(true);
-      // Simular datos de reporte - en la implementación real harías una llamada a la API
-      const mockData: ReportData = {
-        period: periods.find(p => p.value === selectedPeriod)?.label || 'Últimos 30 días',
-        financial_summary: {
-          total_revenue: 2500000,
-          total_expenses: 1800000,
-          net_profit: 700000,
-          profit_margin: 28,
-          iva_balance: 147000
-        },
-        invoice_stats: {
-          total_invoices: 127,
-          sales_count: 85,
-          purchases_count: 42,
-          pending_count: 12,
-          completed_count: 115
-        },
-        top_clients: [
-          { name: 'Cliente Premium A', total_amount: 450000, invoice_count: 15 },
-          { name: 'Cliente Corporativo B', total_amount: 380000, invoice_count: 12 },
-          { name: 'Cliente Estándar C', total_amount: 290000, invoice_count: 18 },
-          { name: 'Cliente Nuevo D', total_amount: 220000, invoice_count: 8 },
-          { name: 'Cliente Fiel E', total_amount: 180000, invoice_count: 10 }
-        ],
-        top_suppliers: [
-          { name: 'Proveedor Principal X', total_amount: 320000, invoice_count: 25 },
-          { name: 'Proveedor Técnico Y', total_amount: 280000, invoice_count: 18 },
-          { name: 'Proveedor Servicios Z', total_amount: 240000, invoice_count: 22 },
-          { name: 'Proveedor Local W', total_amount: 190000, invoice_count: 15 },
-          { name: 'Proveedor Internacional V', total_amount: 150000, invoice_count: 12 }
-        ],
-        monthly_trends: [
-          { month: 'Ene', revenue: 180000, expenses: 120000, profit: 60000 },
-          { month: 'Feb', revenue: 220000, expenses: 150000, profit: 70000 },
-          { month: 'Mar', revenue: 250000, expenses: 170000, profit: 80000 },
-          { month: 'Abr', revenue: 280000, expenses: 190000, profit: 90000 },
-          { month: 'May', revenue: 310000, expenses: 210000, profit: 100000 },
-          { month: 'Jun', revenue: 290000, expenses: 200000, profit: 90000 }
-        ]
-      };
-      
-      setReportData(mockData);
+      // Cargar datos reales del backend
+      const response = await apiService.getReportData(selectedPeriod);
+      setReportData(response);
     } catch (error) {
       console.error('Error fetching report data:', error);
       showError('Error al cargar datos del reporte');

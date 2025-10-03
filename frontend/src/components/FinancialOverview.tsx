@@ -90,30 +90,8 @@ const FinancialOverview: React.FC = () => {
       
       const monthlyData = generateMonthlyData(realData);
       
-      // Datos de ejemplo para balances por socio (hasta implementar endpoint específico)
-      const balancesPorSocio = [
-        {
-          socio: "Franco",
-          balance_iva: (ivaBalanceData.balance_iva || 0) / 3,
-          balance_general: (generalBalanceData.balance_general || 0) / 3,
-          total_ingresos: (generalBalanceData.ingresos_totales || 0) / 3,
-          total_egresos: (generalBalanceData.egresos_totales || 0) / 3
-        },
-        {
-          socio: "Joni",
-          balance_iva: (ivaBalanceData.balance_iva || 0) / 3,
-          balance_general: (generalBalanceData.balance_general || 0) / 3,
-          total_ingresos: (generalBalanceData.ingresos_totales || 0) / 3,
-          total_egresos: (generalBalanceData.egresos_totales || 0) / 3
-        },
-        {
-          socio: "Hernán",
-          balance_iva: (ivaBalanceData.balance_iva || 0) / 3,
-          balance_general: (generalBalanceData.balance_general || 0) / 3,
-          total_ingresos: (generalBalanceData.ingresos_totales || 0) / 3,
-          total_egresos: (generalBalanceData.egresos_totales || 0) / 3
-        }
-      ];
+      // Los balances por socio vendrán del backend
+      const balancesPorSocio = [];
       
       setSummary({
         total_income: realData.total_income,

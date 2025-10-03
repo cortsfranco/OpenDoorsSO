@@ -77,35 +77,9 @@ const SalesVsPurchasesPage: React.FC = () => {
   const fetchSalesVsPurchasesData = async () => {
     try {
       setLoading(true);
-      // Simular datos por ahora - en la implementación real harías una llamada a la API
-      const mockData: SalesVsPurchasesData = {
-        period: periods.find(p => p.value === selectedPeriod)?.label || 'Últimos 30 días',
-        sales: {
-          total: 1250000,
-          count: 45,
-          invoices: [
-            { id: 1, invoice_number: '0001-00000001', client_name: 'Cliente A', total: 85000, date: '2025-10-01', status: 'completed' },
-            { id: 2, invoice_number: '0001-00000002', client_name: 'Cliente B', total: 120000, date: '2025-09-30', status: 'completed' },
-            { id: 3, invoice_number: '0001-00000003', client_name: 'Cliente C', total: 95000, date: '2025-09-29', status: 'pending' }
-          ]
-        },
-        purchases: {
-          total: 850000,
-          count: 32,
-          invoices: [
-            { id: 101, invoice_number: '0002-00000001', supplier_name: 'Proveedor X', total: 45000, date: '2025-10-01', status: 'completed' },
-            { id: 102, invoice_number: '0002-00000002', supplier_name: 'Proveedor Y', total: 78000, date: '2025-09-30', status: 'completed' },
-            { id: 103, invoice_number: '0002-00000003', supplier_name: 'Proveedor Z', total: 32000, date: '2025-09-29', status: 'pending' }
-          ]
-        },
-        balance: {
-          net_balance: 400000,
-          iva_balance: 84000,
-          profit_margin: 32
-        }
-      };
-      
-      setData(mockData);
+      // Cargar datos reales del backend
+      const response = await apiService.getSalesVsPurchasesData(selectedPeriod);
+      setData(response);
     } catch (error) {
       console.error('Error fetching sales vs purchases data:', error);
       showError('Error al cargar datos de ventas vs compras');

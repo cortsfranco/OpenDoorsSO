@@ -12,43 +12,9 @@ import {
 export function DashboardPage() {
   const { user } = useAuth()
 
-  // Datos de ejemplo - en una implementación real vendrían del backend
-  const stats = [
-    {
-      name: 'Facturas del Mes',
-      value: '24',
-      change: '+4.75%',
-      changeType: 'positive',
-      icon: FileText,
-    },
-    {
-      name: 'Clientes Activos',
-      value: '156',
-      change: '+12.5%',
-      changeType: 'positive',
-      icon: Users,
-    },
-    {
-      name: 'Ingresos del Mes',
-      value: '$2,450,000',
-      change: '+8.2%',
-      changeType: 'positive',
-      icon: DollarSign,
-    },
-    {
-      name: 'Facturas Vencidas',
-      value: '3',
-      change: '-2',
-      changeType: 'negative',
-      icon: AlertCircle,
-    },
-  ]
-
-  const recentInvoices = [
-    { id: 1, number: 'INV-001', client: 'Cliente A', amount: '$150,000', status: 'Pagada' },
-    { id: 2, number: 'INV-002', client: 'Cliente B', amount: '$75,000', status: 'Pendiente' },
-    { id: 3, number: 'INV-003', client: 'Cliente C', amount: '$200,000', status: 'Enviada' },
-  ]
+  // Los datos vendrán del backend a través de FinancialOverview
+  const stats = []
+  const recentInvoices = []
 
   return (
     <div className="p-6 space-y-8">
