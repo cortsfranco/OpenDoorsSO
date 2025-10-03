@@ -3,11 +3,11 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider } from './contexts/AuthContext'
 import { Layout } from './components/Layout'
 import { Dashboard } from './pages/Dashboard'
-import { Invoices } from './pages/Invoices'
-import { Users } from './pages/Users'
+import { InvoicesPage } from './pages/InvoicesPage'
+import { UsersPage } from './pages/UsersPage'
 import { Partners } from './pages/Partners'
-import { Reports } from './pages/Reports'
-import { Settings } from './pages/Settings'
+import { ReportsPage } from './pages/ReportsPage'
+import { SettingsPage } from './pages/SettingsPage'
 import { Login } from './pages/Login'
 import { ProtectedRoute } from './components/ProtectedRoute'
 
@@ -31,7 +31,7 @@ function App() {
             path="/invoices" 
             element={
               <ProtectedRoute>
-                <Invoices />
+                <InvoicesPage />
               </ProtectedRoute>
             } 
           />
@@ -39,7 +39,7 @@ function App() {
             path="/users" 
             element={
               <ProtectedRoute>
-                <Users />
+                <UsersPage />
               </ProtectedRoute>
             } 
           />
@@ -55,7 +55,7 @@ function App() {
             path="/reports" 
             element={
               <ProtectedRoute>
-                <Reports />
+                <ReportsPage />
               </ProtectedRoute>
             } 
           />
@@ -63,7 +63,7 @@ function App() {
             path="/settings" 
             element={
               <ProtectedRoute>
-                <Settings />
+                <SettingsPage />
               </ProtectedRoute>
             } 
           />
