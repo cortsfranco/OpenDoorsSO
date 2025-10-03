@@ -1,0 +1,1997 @@
+buenas noches
+hola hola
+cómo están chicos buenas noches un gustazo
+no sé si está el Johnny no sé si era Cristo
+no sé qué estará haciendo este pelotudo
+ja ja ja ja ja bueno no sé
+él yo creo que él sabía
+pero bueno lo que vos digas hermano sí
+obvio que sabía
+bueno cómo andás primero gracias
+sé que estás al palo así que ni te jodo y adelanto
+rápido nomás para no meter la pata y hoy un día
+viajé a las
+4 de la mañana estoy cansado che estoy llegando con
+con la última
+sí con la última gota de energía
+cómo hermano
+sí estoy llegando con con el aire que me quedan tan quedan
+no bueno con más razón no no te
+no te jodo hermano
+eh bueno lo que vos dispongas mi hermano
+este lo esperamos te voy mostrando
+lo que sí lo que no vos dirás eh mostrá no sé como no me
+hago pelota no sé si estaré haciendo algo viste no sé
+bueno voy te parece
+voy voy arrancando sí sí
+bueno da un minuto
+bueno da un minuto saco acá un toque esto
+un segundón diría un conocido en común que tenemos
+y ahí arranco
+un segundón
+bueno
+sí estaba pensando que vamos a hacer una sesión ahí cuando
+cuando
+vos tengas esa semana libre con él y y un par de personajes
+más
+bueno pinulis técnico pinulis tech sí justamente
+eh avisame cuando veas avisame que veis
+me imagino que ya estás viendo
+sí estamos
+para que me minimice acá así como que
+veo que te veo que me veo pero no me veo
+ahí estamos bueno
+de esto qué es una
+aplicación web cómo desarrollaste toda la todo
+todo ese ese
+esos datos te lo te los voy a dar en esta muy breve
+presentación y muy
+muy no planeada eh eso eso está basado en un
+en un servidor web o lo tenés corriendo en tu máquina
+ahí voy esto está corriendo en mi máquina ahora
+por qué está corriendo en mi máquina ahora ves acá
+eh vas a ver acá arriba el localhost
+por qué está corriendo en mi máquina
+em pará eh voy a dejar de compartir un segundo
+así te muestro todo que no sé por qué no se ve
+allá no lo ves allá no me ves no cierto
+no te veo a vos dale ahí comparto todo y ahí te muestro
+avísame
+bueno ahí me ahí
+eh como ves yo estoy corriendo todo en servidor local
+eh con mi código local con docker
+que un alguna vez habrás escuchado esa tecnología eh
+es eh una herramienta
+superútil para
+virtualizar ciertas cosas por qué utilicé
+eh esta herramienta
+respondiendo un poco a tu pregunta
+porque bueno para una base de datos
+de este estilo
+eh que debería ser eh un rack vectorial
+claramente necesitaríamos un servicio en la nube servicio
+que eh utilicé a través de de azure de Microsoft por qué
+porque justamente mi desarrollo eh del
+del sistema y del código fuente en sí
+que se basa en tecnologías
+de lángraf y lanchain no tenés por qué saberlo
+pero lo que sí eh tenés que saber
+es que son las últimas tecnologías en cuanto a
+eh desarrollo de inteligencia artificial eh
+para la aplicación en de de código fuente
+o sea estamos hablando de lo último de lo último
+por qué es importante esto porque
+se eh aplica y se complementa perfectamente con eh azure
+azul ya tiene un modelo de inteligencia artificial
+el cual eh eh vamos entrenando con todos los datos
+que yo le voy a ir este eh pasando
+el sistema funciona eh
+con las últimas directivas
+básicamente de inteligencia artificial y
+y actuales del mercado por qué
+porque al cargar facturas este es un dashboard principal
+este básicamente ya está
+este Asus es eh Asus
+Asus eh claro es como decir a w s
+o Asus en este caso de Microsoft
+por qué elegimos Asus de Microsoft porque
+no no no sé qué qué es ese Asus qué sería ahí te digo ahí
+ahí te digo Asus es como
+los servicios de nube de Microsoft
+tenés un montón de
+exactamente tenés un servicio
+tenés un montón de servicios de nube
+para inteligencia artificial
+para desarrollo
+de un montón de cuestiones técnicas
+eh obviamente
+a abocadas al a los datos y la programación qué pasa
+qué qué qué te brinda aparte de la nube te brinda
+la interfaz te brinda la interfaz está
+la exactamente
+la base de datos este
+la vamos a utilizar en azure qué nos brinda nos brinda
+tokens token para la respuesta de inteligencia artificial
+por qué necesitamos esos
+token para la respuesta de inteligencia artificial fácil
+porque para una carga y un procesamiento
+correcto de las facturas
+y de los datos que vamos a ver en las facturas
+en eh ya te lo voy a mostrar más en detalle
+pero por ejemplo vamos a acá a las recibidas eh no sé
+vos vos vos las
+habrás visto mejor que yo a ver creo que tengo alguna
+cargada acá
+estas por ejemplo
+para un mejor procesamiento de los datos más rápido
+más efectivo
+necesitamos un modelo de inteligencia artificial
+qué pasa hay modelos gratuitos
+obviamente y hay modelos pagos
+como azure tiene la gran ventaja de
+un modelo gratuito que nos permite interactuar
+procesar un montón de tokens
+un montón de de
+de solicitudes
+eh gratis en 1/1 instancia utilicé azure
+porque es la que mejor también se complementa con
+langrafi launch
+que es el mi código fuente no te
+no te da la eh la interfaz en sí
+todo lo que vos ves lo he desarrollado yo no hay nada
+eh desarrollado en base a algo por qué
+no no no no justamente justamente
+es lo que te cuento si te pones a ver acá
+para que voy a abrir el chat este
+para que lo veas más grandecito
+es un HTML sí
+eh pero es una mezcla de un montón de de
+de tecnología no es
+HTML como tal es React es typecript lo hacen
+y d s n lo hacen tremor
+muchas tecnologías de desarrollo la base es Python
+pero por qué es Python porque es la que mejor se lleva
+en el vaquén
+con langraf y lanching vos me estás diciendo bueno pero
+que por qué vaquén porque tuve que armar dos sistemas
+en uno el vaquén que son todos los datos procesados
+todas la forma toda la estructura del sistema
+que va a trabajar con ashur que va a trabajar
+eh con las facturas cómo em modelizar
+modelar mejor dicho todas las solicitudes pero por qué
+porque estamos haciendo un arquetipo este arquetipo
+no solamente va a servir para las facturas
+yo ya lo venía desarrollando
+algo te había contado
+un arquetipo de agentes de inteligencia artificial
+no los agentes típicos de
+no sé n 8 n estos son agentes reales
+en con código puro
+esa es la gran diferencia y gran ventaja que tenemos
+entonces cómo lo desarrollé básicamente
+vamos a decir que está en Python que está en Python que está
+no no no preguntame yo te lo
+te o sea te te lo te pregunto como para entender claro claro
+el el y y y cómo eh este agente que que
+que usa el el el motor de inteligencia artificial de azure
+exactamente exactamente usa el motor
+de inteligencia artificial de azure por qué como te digo
+porque nos da básicamente
+varios tokens
+no gratuitos pero muy baratos
+yo yo tengo mi mi curso de de de guía generativa con azure
+eh hace un mes ha salido digamos básicamente esta tecnología
+eh eh eh ya fuertemente al mercado
+por eso te digo que eso eso a ver
+el sistema de Microsoft es muy parecido a lo que hace
+con copiloto hace lo mismo digamos viste que
+sí que grabando tokens
+sí tal cual
+sí
+en realidad cuando vos me decís lo que te da todo
+sí perdón sí
+oye yo lo utilizo mucho en el paquete de de de Microsoft y
+está buenísimo y bueno te
+estoy dando tokens
+por su lo va gastando y claro claro
+exactamente esos tokens lo va gastando y demás pero qué pasa
+eh hay como bien dijiste vos
+hay una cantidad de herramientas
+impresionantes acá en azul
+para que no es le apague no estoy acá en donde quiero acá
+sí voy a estar
+ahí te voy a mostrar
+la importancia
+no solamente es un toque
+como bien dijiste vos hay un montón de herramientas
+hay un montón de herramientas
+este que nos van a servir como bien te
+te decía yo tuve que utilizar una base de datos local está
+doquerizada doquer como te digo es un es un sistema
+muy muy muy avanzado para eh
+um poder justamente
+virtualizar datos en este caso
+la base de datos
+por qué ya mientras carga ahí el servicio de azure dándome
+lenteja mi internet
+por qué era importante
+trabajar así el avance de datos el avance de datos es eh
+eh el avance de datos relacionados es de doca digamos
+ese sería el eh eh
+vamos a trabajarla en en postgresql y además en azure
+pero qué pasa como
+eh hay que pagar también yo ya he hecho varias eh eh varias
+este ah no por eso te pregunto eh eh te digo por el
+sí en imsa eh pensamos ese cu ele y vale
+un huevo
+vale la licencia de vale eso es lo que vos me preguntabas
+exactamente exactamente por por eso que hice
+como vale un huevo la licencia
+doquericé o sea
+simulé que yo tengo
+en mi base de datos
+creada en s q
+l pero la simulé en doker
+esa es la gran ventaja de virtualizar con esta herramienta
+con acá la que ves acá eh ya la vas a ver ah bueno
+ahí con doker entonces ve
+yo tengo acá mi mi base de datos simulada de de open Doors
+en realidad eh es totalmente simulada
+claramente por qué
+una por los costos
+pero cuál es la ventaja acá que yo te voy a poder mostrar
+eh todo el proceso
+desventaja y bueno la velocidad
+va a haber obviamente una velocidad
+mucho más inferior y sustancialmente
+eh eh negativa en en cuanto a la utilización de asfalto
+pero más más allá de de esta muestra digo para
+para implementarlo ya en la vida real sí
+esa esa licencia que tenés en cuenta digo
+no por supuesto
+ahora lo vamos a hablar eso ahora lo vamos a hablar igual
+igual no va a ser una licencia muy cara
+la que nosotros vamos a utilizar
+cuando te estoy diciendo que no
+va a ser una licencia muy cara
+te estoy hablando de que puede llegar a ser
+entre 100 y $200
+dependiendo de la necesidad de token que usemos nosotros
+ese va a ser otro tema que ya voy a tocar
+en un principio
+sí vamos a utilizar más token pero no vamos a usar
+este
+1 1 1 barbaridad de token tal vez terminamos gastando $50
+$20 por qué en un principio sí
+y ahí voy y vuelvo a la presentación
+acá te estoy mostrando básicamente un poco
+de todo lo que de lo que tiene assurance sí eh
+a ver eh
+yo he tenido que
+trabajar mucho estos días con axon justamente
+para entrenar
+a los modelos de la carga de facturas el Johnny me pasó
+15 20 eh
+de enchelea fueron 19 facturas ahora las vamos a ver
+qué he tenido que hacer yo claramente bueno
+eh entrenarlas a través de este modelo
+vamos a lo que importa a lo que realmente
+eh querés ver
+y cómo aplico todo esto que te estoy diciendo
+ya sabemos que estamos trabajando
+como te digo con las últimas tecnologías
+vaquén y fronen el vaquén todo lo que no se ve o sea
+todo esto escrito acá toda la estructura fronte
+todo lo que se ve vos me dijiste
+um cómo lo desarrollaste
+esta plantilla esta plantilla la desarrollé
+pura y exclusivamente yo la diseñé yo en base
+a las necesidades que el Johnny me planteó
+en cuanto a eh la facturación
+todo lo que me mostraron bueno que es el el el Excel
+que obviamente tenés y yo por ahí lo tengo pero ahora no
+no no no me es necesario
+está plasmado acá de una manera más visual y ordenada
+tiene mi estilo pero es totalmente personalizable yo lo hice
+para que fuese
+a gusto de ustedes y que lo vayamos escalando
+esta es 1/1 versión no es la versión final
+es la primera
+versión obviamente para que vayamos viendo
+que sí que no pero
+resaltando siempre los datos más importantes el dashboard
+principal
+sí
+pero pero me gustaría que también me fuera
+diciendo si va por acá no va por acá el dashboard
+donde te va a mostrar el total
+de los ingresos de los egresos
+el balance deriva y bueno un balance general claramente
+tomá los datos como lo que ya eh vas a ver ahora
+la poca carga de facturas
+que va a haber y la que vamos a hacer
+facturas de tipo
+de noventas compras y demás donde obviamente
+podés hacer una exportación
+con los eh eh datos eh eh
+bueno en este caso que que vos elijas eh importar exportar
+ya lo vamos a a tocar un poquito más en profundidades
+vamos a la a la más importante sección de todas según yo
+a la carga de facturas
+porque al fin y al cabo lo que dijimos es el
+acá el el muchacho
+el el hijo de la de la expareja del Johnny que cargaba
+bueno por qué es importante todo lo que yo te mencioné
+Azur langraf lanche y pan Python Mel vaquén por esto
+porque en lo primero que vamos a hacer
+nosotros ustedes como usuarios
+usuario como ves acá
+en este caso Franco cromeo administrador
+donde también vamos a tener
+una configuración de perfiles donde vamos a crear
+los usuarios que sean verdad que está medio lentejuela
+mi mi connection no sos vos
+donde está eh
+ves la configuración de usuarios la creación de usuarios
+específicos donde vamos a tener este siempre em a alguien
+logueado que nosotros queramos o no es importante por qué
+porque yo voy a ser el usuario eh activo
+Franco en este caso puede ser John o puede ser Hernán
+vamos a cargar una factura
+quién es el propietario de la factura o sea
+ustedes sabrán
+che yo fui a cargar eh no sé acá la caímos acá eh la Golo
+bueno quién hizo esta compra Maya
+que obviamente ha sido pues
+hecha por open Doors en general
+pero para tener un desglose
+más específico entre ustedes también
+sí che bueno mirá esta en realidad eh no sé la la hizo el
+Johnny o sea esta le corresponde
+al Johnny él hizo la gestión la compra
+la la la venta lo que fuese bueno dale
+entonces la hizo el Johnny
+puede ser otro socio lo
+vamos a especificar al nombre y nos va a quedar
+yo les puse a
+ustedes dos como los principales
+en este caso bueno vamos a decir Hernán
+dale perfecto
+qué hacemos usamos la camarita porque obviamente
+vamos a escalar la una versión ya estamos guay
+no tenemos una aplicación esto es totalmente web
+eh lo podemos hacer offline y demás
+por qué tiene que ser web
+porque se tiene que sincronizar
+con los servicios como te digo de
+azure y demás servicios en tiempo real
+lo podemos hacer offline sí
+pero eh obviamente está muy limitado
+lo vamos a hacer online también
+pero va a estar muy limitado
+obviamente si nos vamos a
+este es lo importante
+eh sí claramente mira si achicamos
+vamos a ir viendo obviamente la versión Mobile también
+para que veas que
+tiene también
+eh su su versión
+pero bueno eso lo lo vemos enseguida
+vamos de vuelta a a lo más importante
+vamos a cargar o arrastrar un archivo en este caso
+ah bueno mirá vamos a
+forrar acá las notificacioncitas porque yo estuve haciendo
+unas pruebas
+instrucciones de carga ve asegurate cómo está el archivo
+ta ta ta ta ta
+podés eh em
+hacer una carga de archivos múltiples
+sí en Asus no habría problema acá yo no recomiendo tantos
+a la par porque obviamente
+se demora el proceso
+vamos eh a las facturas en este caso a las recibidas
+eh dijimos que era una
+yo ya había cargado 4 y 4 así que vamos a la 9ª
+vamos a decir
+ves que hay distintos
+tipos de formato que me dolió y fijate que esas hojas
+tal vez no sean tan fácil de interpretar
+me entendés por la gente por eso azure
+es importante
+y por eso yo lo voy programando y le voy diciendo mirá
+eh este dato
+eh referencialo como iba este dato referencialo como
+eh no sé descripción y demás por ejemplo hice una carga
+entonces el propietario
+de la factura
+que es el socio de upendor llamado Hernán Pagani
+cargó esta factura que se procesó
+correctamente
+a través de la ida
+y como ves acá eh
+ese proceso ya está completo si quiero
+algún detalle como bien dice acá
+hacé clic en la barra entonces
+hago el clic y me va a dar un pequeño desglose
+de la información que captó
+repito por ejemplo ahí
+eh todavía no termino de armar
+la estructura
+para algunos datos importantes como la descripción
+en este caso yo lo que quería mostrar más eran los valores
+entonces dicen KPI mostrar
+el tipo de factura que sea ingreso
+o egreso la clase que va a ser a b o c obviamente las fechas
+bueno el cliente
+factura y los totales el detalle
+es importante obviamente también pero ya lo vamos a hacer
+acá esta parte es importante porque
+claro exactamente exactamente
+o lo que ustedes
+o lo que ustedes me me
+planteen pero sí voy a eh eh voy a ir por ese camino
+en la información del usuario por qué es importante
+bueno porque yo cargué la factura yo como
+usuario vos vos seguime al mouse creo que me seguís bien
+yo como el usuario
+eh eh actual del sistema
+cargué la factura pero el propietario es Hernán Pagani
+por eso es importante acá
+eh seleccionar
+primero el usuario no vas a poder cargar una factura
+este eh sin el usuario previo
+eh si quiero lo voy a ingresar manualmente el dato
+che porque tengo una factura
+mandame el necesito hacer no sé un cálculo rápido
+no tengo el papel todavía pero ya sé los datos bueno
+lo ingresás manualmente me entendés la categoría ingreso
+egreso el nombre del socio
+otro especificamos ta ta ta ta ta
+tipo de factura a b o c
+o lo que nosotros queramos cancelamos perfecto
+eh vamos a hacer una carga más eh un poco más fuerte
+te te dije que eras bola
+7 bueno vamos a tirar no sé la
+no perdón la 9 vamos con la 9 de la de la 10 a la 12
+este con Hernán y vamos de la
+eh que no tengo acá de la no sé 13
+a la 17 con Johnny fijate que ahí me va a estar tirando
+el las que están faltando las procesadas y demás
+mira qué me dice acá importante
+factura
+duplicada es decir que ya había cargado esas dos antes
+entonces si está duplicada
+te va a tirar ese mensaje tú y obviamente no se va a poder
+cargar pasó rápido el mensaje pero
+este ahí te tiraba los detalles de esa factura duplicada
+vos la podés seguir
+obviamente por acá acá está todo el tema de carga y demás
+eh yo elegí que en la factura duplicada te tirara
+ese mensajito y te lo borrara rápido lo podemos modificar
+como ves eh
+está procesando
+todo eso archivo
+mientras tanto vos te podés ir al otro lado mientras
+esto sigue cargando
+y sigue procesando
+vos te puedes ir a cualquier otra parte del sistema
+en esta sección en el historial de facturas
+donde vos puedes filtrar
+te te las va qué no te entendí
+si te la vas ordenando por feo
+vos podés después ordenarla claro fecha de ingreso fecha de
+ahí voy todo eso te lo te lo voy a decir
+todo eso te lo te lo explico ahora sí
+vos podés ordenarla pero bueno pará mirá acá
+eh vas a ver el enlace
+de todas las últimas facturas cargadas
+em así que eso también es importante se va a quedar
+no te gusta bueno lo voy borrando por ahí y demás
+eh por archivo o por cámara ni hablar por el teléfono
+entonces cargamos las facturas
+vamos al al historial
+sí vos me dijiste
+eh por fecha de más bueno tenés
+primero que tenés el filtro para buscar obviamente qué sé yo
+eh no sé cualquier factura vamos a tirarle
+qué dice ahí la Golo
+tanto bueno buscás ahí por la Golo y listo pero te
+y le das enter obvio no quiero dar enter para no marearte
+le das a los filtros avanzados
+vos bien dijiste bueno a ver cómo la vamos a ordenar
+bueno ingreso de ingreso
+qué no sé ah si le sacaba una foto a sí
+a a algo que no sea una factura convencional
+te lo identifica
+por ejemplo no sé
+eh con qué nos ha pasado que
+que los datos no nos tiene ordenado como una factura normal
+por ejemplo un
+eh un ticket de de un pasaje de avión por ejemplo
+bien eh que
+que es medio choto cómo te muestra los los datos ves
+que también te lo puede llegar a reconocer
+te lo va a reconocer por qué fija o sea
+porque yo la estoy entrenando
+y el proceso de entrenamiento no es
+eh dos semanas
+proceso de entrenamiento es bastante
+mientras más facturas tenga
+más entrenamiento por ejemplo yo la puedo entrenar
+no por ejemplo una factura no
+eh pará ahí voy ahí voy algo así estamos hablando
+esa por ejemplo está bien
+esa está bien
+pero vos decís ese tipo de cosas así
+sí no pero buscate
+a ver si tengo estas las que me pasó Johnny son estas así
+no sé si el avión te va a pasar una de avión a ver
+porque yo el otro día mandé una
+no de la de despegar
+tengo acá pero está bien
+está en PDF así que no esa está impecable obviamente
+no eso es formato factura no no
+eso es factura no ah no
+una de dorina que rechote de dorina son unos hijos de puta
+ah sí no bueno pero no te hagas problema
+por qué hermano
+yo la entreno
+a medida a a gusto de lo que vos me digás para eso
+utilizo justamente este vaquén con el angraf y lanching
+ahí está digamos mi
+mi fuerte en la programación para entrenarla
+qué es lo que hace azure
+bueno es el modelo
+de inteligencia artificial
+que me ayuda mucho y se complementa con lo que yo hago eh
+pero eh yo la voy entrenando por eso te digo
+necesito
+más fotos necesito más facturas
+fíjate que ahí yo tengo de
+de ingreso egreso Johnny me pasó varias
+varias facturas recibidas
+pero en mis tías tengo dos nada más me entendés es como que
+me entrené muy poquito
+muy poquito a las emitidas
+pero no me hizo falta tanto porque al fin y al cabo
+yo sé que ciertos datos van a ser exactamente lo mismo
+exactamente pero qué me pasaba o qué me pasa
+fijate que esto es un detalle que sí quería compartirte
+mirá eh en esta tabla con las características
+principales bueno yo voy a tener
+ingreso o egreso creo que las de ingreso están
+ves acá por ejemplo son dos de ingreso
+por todas las otras que tengo de egreso
+bueno tipo a de verdad tipo b
+fijate que ya me identifica
+esas dos cosas la fecha de emisión viste acá sin fecha
+esos datos como por ejemplo cliente
+por definir que yo lo puse en coloradito
+ya lo voy a poner acá también
+este son datos que obviamente hay que
+hay que seguir entrenando
+fijate acá el detalle
+si yo toco un detalle y me dice la la factura
+la posta hace 29 más
+me entendés es como que
+honestamente todavía no entreno el detalle yo
+como te dije lo que sí he entrenado han sido los valores
+ingreso y egreso a y los números
+pero a propósito no te entrené
+esto por qué para que veas justamente por qué
+por qué pasa lo que pasa
+en Camp bueno vos me dijiste algo de ordenar sí obviamente
+podemos ordenar por fecha de emisión por fecha de ingreso
+por cliente proveedor por detalle
+está este filtro de búsqueda
+avanzada como bien dijimos mirá por propietario
+eh de factura
+máximo mínimo estado de pago pendiente pagado vencido a ver
+cómo edito esas cosas fácil
+desde acá mirá tenés el número de factura
+que eso sí lo identificó
+sí identifiqué obviamente la fecha de ingreso al sistema
+de emisión de la factura eso sí está identificado perdón
+eh ingreso egreso ya lo sabe la clase
+eh cliente proveedor
+eso es importantísimo
+fijate que hay algunos que hice por definir
+porque no se entienden bien o hay algunos como
+la Golo creo que era
+eh creo que es la Golo
+sidería no me acuerdo dónde está acá ves
+eh justamente lo tengo acá
+la Golo la Golo
+o que no sé que no sabía que lo que era la Golo mira
+la Golo es ya pero es la Golo sin haría sí
+qué es lo que es qué es lo que es
+ah bien entonces fijate cómo quedó la golosí
+claro claro
+fijate que hay valores acá que voy a decir bueno pero qué
+está pasando acá 0 0
+bueno porque esta no la tomó bien
+ahora por qué no la tomó bien
+bueno pues justamente
+estarían desordenados un poco los datos como decía Emma
+fijate que dentro de las que no tomó bien
+las que ya ha tomado como pésimas si se quiere repito
+porque son hasta acá muy pocas más
+allá que los datos sean los mismos
+los formatos son diferentes
+ha tomado como pésima dos facturas para que yo estoy acá
+eh ves la número tres y la número 4
+fíjate que tomó le falta el número de factura que son datos
+que yo dije son vitales si no tengo estos datos directamente
+no me la mandés al historial
+obviamente tiene que estar todos los datos bien
+ahora en modo presentación te puse algunos ves en este
+ya le falta el número de factura
+y en este la fecha por ejemplo
+cliente proveedor
+cliente por definir pero ya sabemos que es ti por
+eso el total no lo tiene
+bueno pero qué hacemos acá bueno
+editemos los campos
+faltantes me entendés si yo tengo la factura
+obviamente los puedo editar
+una vez que los edite
+listo eh eh lo mando
+lo mando para allá eh ahí con un okey y me voy
+esto creo que es para
+repetime
+ahí te envío una de Argentina
+eh al WhatsApp
+ten
+a ver acá al WhatsApp vamos a descargarla
+vamos a guardarla esto qué es lo que es te acordás
+ingreso egreso
+obviamente pará lo vamos a agregar por acá
+no es una figura de compensaciones
+bueno de compensación
+mira la vamos a tirar acá no es ingreso ni no es
+ingreso ni egreso
+bueno mira facilísimo y aparte mira me das una buena
+vamos a poner compensación
+compensación después de tener otro dato que que cargar
+también cuando se
+cuando sean ingreso cuando sean egresos
+repetime perdón que no te escuché
+tenía otro dato para cargar cuando sean egresos
+porque esos egresos se pueden dar al contado
+se puede pagar por transferencia
+bancaria por pago con tarjeta de crédito
+el medio de el
+medio de el medio de pago tenés que fundamental
+fundamental esto que vos me digas
+y obviamente esto lo vamos a escalar
+yo acá lo hice pura exclusivamente
+en base a lo que lo que fuimos
+charlando con Johnny con y lo que obviamente
+porque hay información que la base de datos
+puede ir metiendo y después
+vamos a ir metiendo hoy en día
+hoy en día lo que
+estamos usando pues estamos usando un solo método de pago
+pero más adelante
+vamos a empezar no es que
+hermano es que este sistema es totalmente
+es está escalable para eso
+por eso es personalizado
+y no no lo he basado en nada que ya exista porque
+cada cosa que necesitemos
+la vamos a ir escalando en el arquetipo
+de la caja de de del código o sea eh llama
+esto ya lo habrás visto son como microservicios
+pequeños microservicios o pequeños
+este microagentes en cada sector entonces
+el día de mañana lo agregamos tranquilamente
+para eso lo he desarrollado así vos me dijiste bueno
+esa que me pasaste
+me la paso yo el Hernán
+dónde la guardé
+eh la guardé aquí en open Doors
+facturas para entrenamientos compensación
+no sé qué va a tomar este
+pero es archivo en cola se ha subido correctamente
+vamos a ver qué toma
+este como compensación no está entrenada vamos a ver
+cuál le pintó a la
+a la a la ia pero eh analizándola con la azul de
+con la ia de azul perdón tocamos a ver
+qué tenemos acá
+eh tomó
+egreso clase a cliente por definir ta ta ta ta ta 0 0 0
+exacto no hay un carajo de información obviamente no
+no tengo nada solamente veo una fecha solamente veo ahí un
+un número de factura
+pero no me tomó nada hay que entrenarla
+así che podemos ver la factura sí
+en en ASU la puedo ver acá como yo estoy de manera local
+la configuración se me hace 1 1 embole
+pero fijate que hay una sección que se llama archivos
+donde van a estar todos los archivos cargados
+también para verlos
+ahí no me lo va a dejar ver en este momento me va a tirar
+error qué sé yo
+pero también los puedo descargar y demás
+eh así que lo que vos me estás diciendo
+fundando ves ahí me lo me lo tira
+ahí arriba pero no me va a dar nada
+vamos a entrenar entonces a esas compensaciones
+por qué son importantes esas compensaciones que
+me dijiste también
+ah bueno eh perdoná acá en estas acciones veo factura
+repito no me la va a dejar ver por lo tal pero la
+tiré para que me la deje ver ahí con con Google Drive
+quiero compartir los datos de esa factura y bueno mira
+los comparto por WhatsApp
+lo comparto por
+mail che pasame esta factura de tal o tal cosa
+bueno te la comparto ahí por WhatsApp
+no me valen lentejuelas mi internet pero
+te la comparto eh factura recibida por el cliente
+a ver bueno se la vamos a mandar al nana a ver qué me dice
+ahí eh
+tengo que confirmar no sé qué
+ah pero básicamente va a ser eso ir al chat
+factura recibida por nada por nada no me lo tanto cortit
+por mail también la elimino no me gustó che la edito
+repito tengo que editar estos datos no están bien
+como bien me marcó acá cliente por definir
+o sin fecha o esto lo otro
+fácil la editamos la cargamos y listo la
+no me me gustó por tal cosa esta bueno la elimino
+eh para a la hora de eliminar
+también tengo una papelera la eliminé sin querer me entendés
+bueno devolvámosla
+ahí me tira un error no sé qué es lo que ha pasado
+pero ya ya lo he probado bueno la la
+sí metete en el módulo de reporting a ver qué qué tenés ahí
+sí señor dame un minutito dame un minutito
+ventas contra compras bueno los tipos ya sabemos ya
+ni hablar
+qué te voy a explicar yo de este tema pero va a identificar
+cada una ahí estamos hablando de las de compensación ves
+no teníamos ninguna
+porque no están entrenadas
+pero acá van a estar las de compensación
+fíjate que ya lo tenía previsto también
+bueno vamos a importar
+bueno bueno
+eh perfecto perfecto
+todo esto yo lo voy anotando igual así que tranquilo
+eh eh cola de revisión bueno ya te había dicho
+clientes proveedores o 1 1 grilla
+con los clientes y proveedores ni más ni menos quit
+es un dato que eh
+no tomé en esta tabla pero que
+sí que que que otra cosa que que es importante aplicar
+y ahí cuando
+definimos los roles sí tienen que haber roles de de
+roles que que cargan facturas
+que que hacen gastos y roles que aprueban esos gastos bien
+perfecto perfecto
+perfecto tienen que ver rápido que que prueban esos gastos
+perfecto entonces vamos a eso ya lo tengo
+por ejemplo vos el día el día de mañana yo te contrato
+eh o que en dos te contratan
+eh y vos podés emitir gastos
+tenés una tarjeta de la compañía o podés emitir gastos
+exactamente entonces en un nuevo rol el día de mañana
+exactamente exactamente
+perfecto el día de mañana no sé Juancito está acá
+obviamente va a tener un rol de editor
+pero eh el el que va a terminar em
+eh aprobando o no eso va a ser bueno vos yo y demás perfecto
+bien eh pasamos
+a los clientes y demás acciones bueno ver factura
+editar ya sabemos eliminar reportes son dos eh em
+dos reportes importantes dos secciones de reporte perdón
+ahí el cliente colador está buenísimo esa esa
+de ahí está muy buena
+estaría genial claro
+ahí está perfecto o sea te saca los datos de contacto
+o vos podés agregar de editar los datos de contacto sí
+sí claro fui datos de contacto y datos de
+email teléfono dirección sí sí
+sí tal cual tal cual todo eso
+es importantísimo que vos tenés que emitir un pago
+y ya tenés este
+ya tenés el número de cuenta
+ya registrado o sea tenés que mentir ese cuadro
+no la idea es
+perfecto la idea es escalarlo con unas Apis
+bancarias me entendés también
+todo eso lo amo a
+todo eso lo lo tengo pensado repito hermano
+este es el primer borrador o sea
+bajé un mes de laburo a dos semanas eh este es un
+el primer borrador por eso
+lo voy viendo y ya se me van ocurriendo cosas obviamente acá
+lo principal cosa como la la la la primera
+aplicación es ordenar las facturas que ya veo que está
+espectacular o sea
+eso es lo primero
+después bueno obviamente lo vas viendo
+y se te van ocurriendo un millón de cosas
+tirame todo ahora porque para eso es esta charla
+esta es la esta es el
+la charla del del análisis previo
+para la segunda presentación
+fuerte que voy a hacer
+en 2 3 semanas o en un mes pero esta es pero bueno
+sí está bien
+pero ya el 90 por 100 de lo que de las cosas que te estoy
+diciendo no no aplica en esta primera etapa
+supertranquilo hoy en día con ordenada
+hoy en día con ordenada factura ya es una
+poner una factura que de que tengamos un
+tengamos reportes que que nos sirvan para
+para entender
+eh
+que que cómo van los indicadores con eso
+supertranquilo porque ahora viene esa parte y me
+me pone contento que te sirva
+reporte
+hablamos de reporte tenemos tres métricas acá importantes
+perdón tres secciones vamos con las primeras métricas
+eh mensual anual y de periodo fiscal
+este
+que eso me pareció un detalle importante a tener en cuenta
+entonces
+eh no sé septiembre elegimos el mes que quieras elegir
+eh de qué socio bueno ya sabemos ya
+ingreso egreso
+obviamente eso lo vamos a modificar y lo vamos a exportar
+eh no sé vamos a
+a ver acá septiembre
+cero pero vamos a creo que había
+unas de julio ahí por ejemplo ves
+bueno dale ahí tenés el reporte financiero completo
+total de ingreso total de ingreso en el mes de julio
+el desglose por tipo de factura a be
+monotributista por socio
+por cliente
+y eh una vista detallada ahí de cabo no es cliente
+no sé si a andá tirándome obviamente datos y demás pero
+lo he tratado de hacer lo más
+completo posible desde mi lógica
+básica de de de financiación obviamente de financiamiento
+ese es el primer si se quiere
+eh el el primer reporte grande
+decime si le está faltando algo o no pero por ahí viene
+la mano ya habrás visto como te digo todos estos
+em todos estos ítems ve ahí tenés los los reportes
+de los últimos años bueno toda la cuestión
+vamos a otra que me gustó que apliqué que obviamente estuve
+tocando investigando y dije
+esto va a estar cuando charlé con el Johnny cuando mi agente
+de conversación
+me ayudó a definirlo
+este análisis funcional obviamente
+viene por mi mi agente con las charlas de ustedes
+acá vamos a filtrar ya sabemos ya porque periodos
+este personalizado
+fiscal de AFIP ya le voy a poner arca pero acá obviamente
+los filtros están siempre
+entonces ahí tenés el resumen del período global
+este tendencia positiva
+vamos al análisis um real fijate
+a qué período tomamos perdón no sé qué es
+filtramos el período fiscal
+bueno ahí está
+em ahí te va a dar como el miniresumen en
+en lenguaje natural si se quiere
+y acá te va a dar los números eh eh fehacientes
+rentabilidad facturación
+balance de IVA que eso es algo que
+obviamente el
+Johnny me me pidió que hiciera mucho en cambio
+y los tickets
+querés verlo de una manera más gráfica
+bueno lo tenés por rentabilidad
+lo tenés por crecimiento
+donde vas a ver ingreso egreso crecimiento
+lo tenés por eficiencia
+y lo tenés por flujo de caja
+eh ahí con todo el todos los detallitos ahí por a ver
+cree bueno facturas
+a todas ve una sola y había pero bueno ve
+los top clientes
+y más repito datos que tengo que afinar y entrenar mucho
+la idea era obviamente mostrar
+a dónde pueden escalar y apuntar
+registro de actividades podés decir
+che bueno vos bien dijiste
+yo tengo que aprobar tal o tal bueno ves mira proyecciones
+metas eh em
+trimestrales el Roy bueno
+todo lo que vos me pidas
+todo lo que ustedes me pidan
+lo vamos a ir agregando a los cálculos
+em
+ah el asistente acá pues
+no lo tengo conectado del todo pero por ejemplo
+ves hola Fran ah eh hola
+no me va a responder ahora bien pero yo le puedo decir
+hola cuántas facturas
+eh cargó
+Hernán
+eh
+ahí Hernán
+en septiembre
+qué sé yo no creo que me lo responda bien ahora pero
+eh me me
+ocurrió un error
+claro porque no estoy conectado
+bien con la como estoy en
+manera local no estoy conectado con la azul no importa eh
+pero me responde todo
+me va ahí siempre yo le voy a poder hacer las preguntas
+fáciles y difíciles todas
+en el otro modelo ya ya lo tenía listo con azul
+acá como no lo tengo conectado
+no lo puedo hacer
+eh vos dijiste yo tengo que aprobar o no
+eh los pagos tal o tal cosa bueno perfecto
+che eh quién trabajó con el sistema quién hizo esta carga
+quién se mandó esta macana
+o por qué hubo tal error o por qué no
+registro de actividades es un log
+de desde qué computadora desde qué IP
+se hizo tal o tal cosa acá no me la toma
+porque este estoy trabajando
+de una manera local pero
+em no sé ve Franco
+Romeo cuál fue la acción
+eliminó una factura ve eliminó y la modelo de papelera
+cargó tal factura procesada
+con él ya lo voy a tirar ahí para que me
+tire toda la toda la data
+eh me entendés o bueno 1 000 cosas fijate que
+tengo pruebas a lo boludo a ver no sé eh eh ve inicio
+sesión yo a 13:42 no sé a la una de la mañana qué sé yo
+todo lo que vaya pasando
+te lo va a ir informando esto todo
+entonces vos sabés quién cargó fijate
+quién la eliminó
+si la modifico quién la modificó qué usuario ve acá arriba
+acá está arriba todo eh lo filtrás y todo me entendés
+listo quién actualizó eliminó cargó se rocesión
+de facturas clientes ah
+usuario bien archivo que te mostré
+el Johnny me pidió un ah importar datos
+por qué me pareció esto importante a mí
+porque obviamente tenemos ya las em
+la fa eh bien digo la factura y todos los datos del del
+Excel este que que
+qué bien me compartió el Johnny del Excel de ustedes
+bueno estoy trabajando obviamente en procesar esos datos
+voy a subir el archivo de Excel
+para que con todos los datos que ya tienen
+eh complemente ese
+mejor dicho con se complemente en esos datos con este
+la la carga de facturas y el historial
+que nosotros ya tenemos obviamente
+ese también es una tareíta viste de diagrama importante
+eh entonces estoy en eso pero básicamente eso viste
+subo vamos a detectar si hay una eh duplicación
+y vamos a con a confirmar de cómo manejamos eso obviamente
+sí lo único ahí que no te no no no no vas a tener las
+yo preferiría sinceramente cargarlas todas
+este con con imágenes porque vas a tardar si no las
+no ni hablar ni a ni hablar
+a ver es por una ah ah pero vos decís acá
+no te yo preferiría agarrar todo el paquetito de facturas sí
+no sé la la 50 que hay
+que grabar y sí cargarlas todas ahí que te las procese
+obviamente obviamente obviamente
+esto sabés por qué lo
+no pero pero esa es una gran ventaja
+por por qué yo hice esto pues todo bien eh
+perdón eh te tenemos tenemos por ejemplo
+compilado en un solo PDF 15 facturas si subís
+eso te lo te lo toma igual
+te toma las 15 o siempre va a buscar una sola factura
+mirá eso lo configuro va a buscar una factura
+pero eso me gusta y me sirve
+porque ese compilado
+este yo hago una pequeña modificación 1 1 1 pequeño este ahí
+eh código
+donde directamente la las detecte porque va va a tomar
+eh los valores principales que son los que dijimos acá
+categoría nombre detalle y demás
+acá el problema no es que tome
+como tal o qué detecte o cuántas detecte
+el problema es
+que necesito varios modelos distintos de facturas
+porque como bien vos ves y lo sabés mejor que nadie
+eh son tantos los los los diseños
+te van a terminar siendo
+acotados y y obviamente van a tener un número finito
+pero si te ponés a ver
+acá yo ya tengo varios modelos
+distintos sí tres o 4 que están los de Lumen
+este despegar
+inclusive Google
+pero bueno hasta que todo se se estandarice si se quieren
+cuántas fotos yo voy a tener estos modelitos
+va a llegar un punto en el que ya lo vamos a tener
+recontraentrenado
+ese entrenamiento duró un mes dos meses
+sí te diría tres meses
+una vez que se entrene a la perfección listo
+vos podés cargarme ese PDF con las 15
+ya sean bonitas fieras
+que va a estar obviamente eh eh perfectamente entrenado
+puede tener fallas
+sí ujum decime decime eh para para
+direccionar el laburo sin sentido yo creo
+está buenísimo yo creo que
+abriste un abanico enorme
+eh pero yo te diría
+centrate en el la parte de carga de facturas ven
+después los los reportes análisis ejecutivos
+todo eso
+ahí lo que podés
+hacer es compartirme las pantallas que han diseñado sí sí
+y y yo y yo ahí voy viendo
+qué información
+vas a sacar y qué no vas a sacar sí por supuesto
+dame un segundo
+dame One second
+pero
+pero bueno lo principal es es tener las facturas y tener
+viste el
+tener un o sea lo lo lo que estaba en ese Excel
+que que es el el el IVA
+y el resultado
+este y la cuenta resultado ve sí ingreso sobre su ingreso
+eso digamos que sería lo principal después de ahí teniendo
+ya la base de datos podemos ir haciendo
+30 millones de cosas
+sí claro sí claro sí claro
+como que es tan grande todo lo que se puede hacer es tanto
+pues básicamente acá terminás
+teniendo un software de gestión
+este no sé cómo sabe
+pero
+sí sí terminás terminando de hacer esa pregunta
+no la la diferencia como tal
+eh radica en la
+en la lectura
+y el procesamiento de los datos ni más ni menos sí no
+no está bien pero pero digamos
+que que acá hay un montón de cosas que pudiera explicar
+por ejemplo
+este acá todavía no
+acá no acá no
+no no no veamos no no todavía no lo has pensado pero
+después tenés que salir a procesar compras
+veamos no ja ja ajá
+este y ese procesamiento de compras
+requiere este
+emitir
+eh emitir solicitudes de pedí cargar solicitudes de pedido
+este emitir órdenes de compra este
+recibir facturas pagar facturas
+o sea todo el proceso de compra lo podés meter acá adentro
+veamos no claro cuestionar
+cuestionar stock de
+eh cuestionar stock de materiales
+este no sé o sea podés empezar a meter acá adentro una bola
+gigantesca viste pero
+va a empezar a haber un montón de aristas y por eso
+pues focalicemos yo sí yo te diría no pues si no
+lo va a enroscar en un nivel tan grande
+y no lo va a poder desarmar
+no trae me acabo de lo complicado que se va a hacer
+te entiendo perfecto te entiendo
+yo te diría primero
+que revisemos este tema de la
+desde las facturas pero bueno
+acá después se pueden empezar a ver un montón de claristas
+no por supuesto a ver hermano yo también te lo digo
+eh como como desarrollador
+el el sistema grande en sí o un sistema grande en sí
+son de 4 a 5 meses de desarrollo pues como ven dijiste vos
+vienen todas estas aristas
+como era la principal y y como yo sé que era la principal
+el el el control financiero en este caso o la cara facturada
+fantástico vamos por acá
+porque esto simplemente
+ah vamos por acá sí sí
+vamos por acá pero te digo que se pueden empezar a abrir un
+un montón de cosas
+en líneas generales que yo tengo voy anotando
+obviamente todo lo que vos me acá me pedís
+pero en líneas generales
+va por ahí
+no a ver la parte de facturación
+obviamente que va por ahí digamos
+eh es lo que necesitamos vos agarrate eh
+vos vos sabés que en la empresa tenemos una
+aplicación que se llama Mendel ujum
+que tiene tarjeta de crédito
+que es para el control de gastos exactamente es para eso
+bien eh y
+tiene vinculada
+una herramienta financiera que es una tarjeta de crédito
+entonces vos hacés el pago pasás la menta y automáticamente
+eh
+cuando hacés el pago con esa tarjeta de crédito te pide
+o sea le ponés la aplicación descargar celular
+y te pide cargar el comprobante
+yo seguro que sacás una foto del comprobante
+hace exactamente me voy a parecer lo que estás haciendo
+acá tenés los datos todo te los procesa y te los va
+y te lo va gestionando digamos eh
+y r y ya tiene
+y ya tiene vinculado a centro de costo entonces ya te lo
+te lo manda a determinado
+centro de costo para que lo pague ese fin de semana tiene
+todo toda esa hora
+digamos no que veo la verdad es que recontarle con vos
+porque no tenés que rendir gastos no tenés que hacer
+nada de eso digamos no directamente
+eh que esos los los changos
+que que que están debajo mío yo les apruebo los gastos
+eh los gastos que hago yo me los aprueba
+mi mi jefe viste entonces
+este no tenés que
+que ahora el proceso de emisión de gasto digamos y el
+y el coscodo digamos que lo
+digamos que lo simplifica
+está buenísimo digamos no lo puede digamos y el
+eh a vos te asignan un monto
+que puedes hacer con la tarjeta o tienen un pues tienen
+digamos tienen el
+tiene la pata de la tarjeta de crédito
+metida ahí en el medio que está bueno
+este
+eh
+eh eh eso está
+está interesante hermano se llama Méndez hermano ujum
+este
+eh pero pero digamos eh te ahorra muchísimo
+el hecho de poder sacarle la foto
+a la factura y que que te la cargue
+y te la procese
+o que te pegue los datos y te la cargue y te la procese
+y obviamente hermano te pregunto porque
+obviamente la la
+la efectividad debe ser altísima
+obviamente trabajan con estos modelos
+avanzados recordemos solamente
+eh ni ni por ego ni por defensa
+recordemos bueno que lo estoy eh eh plasmando no no
+no no todo te lo toma yo yo ese para no te para
+para no enroscarme mucho con
+digamos con la sí
+con el proceso de de
+extracción de alto ni lo uso en el proceso de ah
+le saco foto y que
+cargo la la factura
+y chao para que después la mande a finanzas
+ahí está ahí está el número
+el número de gasto lo tiene la operación
+la tiene porque la hizo traer otra gente que
+no entonces los gastos de la operación lo tiene
+por por qué
+por qué tiene la herramienta de extracción de datos que
+la la veces que los utilicé no siempre funcionó claro
+por ejemplo a veces cargaba
+un pasaje de avión que se acababa
+claro obviamente
+1 1 factura un ticket
+no normal digamos sí te lo saca pero
+pero después con
+cuando le encargás algo un poquito más complejo y no
+claro se complicó eh eh está orientado para
+para esto no para el proceso de rendición de asco como eso
+algo como eso eh
+es un poquito diferente a lo que estamos
+teniendo acá nosotros porque nosotros
+queremos darle algún plus adicional que es poder
+este
+eh controlar
+eh llevar un control
+financiero no no no solamente de rendición de gastos
+también le puede dar esa autoridad al son de acá
+cuando no no por supuesto
+a ver a medida que a medida que se va desarrollando
+a ver
+me imagino que ya ya habrás tenido 1 1 desarrollo a medida
+de software el la o sea bajo tu tu dirección
+las etapas eh son el análisis eh funcional y técnico
+una vez que está desarrollado el sistema bajo esas etapas
+después viene lo que se
+denomina el evolutivo obviamente lo sabés
+en el evolutivo vamos tocando
+vamos limpiando los
+bugs o sea los los los errorcitos y demás
+pero en el evolutivo vamos diciendo
+che pero ahora quiero que pase tal o tal cosa bueno
+ahí está la la remaque eh remaquetización me entendés pero
+está preparado para todo
+claro claro
+lo que sí tenés que saber
+no
+haciendo pagos de servicio
+estamos juntando compra de materiales por eso me
+seguramente te amo así che
+eh tenemos que ahora meter
+meter esto acá adentro y vamos a desarrollar la la parte
+para para para gestionar y juntar compras
+viste entonces de a poquito lo vamos a ir completando
+hoy en día es esto
+no pero está perfecto
+o sea yo yo yo a este nivel lo veo bien digamos
+que pueda procesar cargas de facturas y
+y y que nos pueda
+traer los datos
+y sacar algunos indicadores macro
+de de cómo está
+financieramente
+eh el
+cómo se llama el la cuenta resultado y
+y el y el balance iba con eso
+eso es exactamente lo que necesitamos gente
+así que eso lo veo lo veo bien
+bueno bueno eh algo así básicamente
+algo algo encaminado por ahí bien
+bueno lo que sí eh agradezco agradezco obviamente lo que sí
+teniendo en cuenta
+todo lo que me decís y sé que tal vez ahora no es el momento
+de más pero
+sí me gustaría
+que me tires todo es ya lo tengo anotado ya lo tengo calado
+pero si me dijeras o me quisieras pasar también
+más detallado aún de arriba abajo
+eh ese cursograma de acción
+eh dependiendo de la de los
+diferentes sectores que hoy en día maneja
+opendorse más
+allá de cuáles sean pero ya estamos hablando de facturación
+ya estamos hablando
+de compra de venta de administración ya obviamente
+son sectores a tener en cuenta no sé si lo tenés me
+creo que me dijiste que no lo no no lo tenés desarrollado
+nadie más
+yo no bueno yo
+entre comillas me postulo para hacerlo por qué
+primero porque me sirve
+eh a mí a la hora de maquetar ni en ningún
+este analista diseñador puede obviar esa parte
+y aparte es la que parte que me gusta a mí ese análisis
+también me ofrezco por qué
+porque me parece que en esta etapa temprana
+vos me dijiste si tenemos tres meses de facturación
+en esta etapa temprana
+malla de de desarrollador del sistema
+me ofrezco como el analista
+del del sistema me entendés qué se hace
+identifiquemos
+este los sistemas y subsistemas dentro de la empresa
+no hablemos de sistema como un interfaz no no no
+hablemos del sistema como vos ya conocés el el el concepto
+entonces te digo bueno facturación México
+fantástico administración perfecto sistema
+obviamente bueno desarrollo de sistema informático dale
+compra venta
+eh ingeniería eléctrica electromecánica no sé qué
+pero hay un cursograma hay algo que te diga
+bueno cuando nosotros recibimos tal o tal cosa pasamos esto
+así y así no lo hay
+por qué me postulo
+a hacerlo porque es importante después para
+este desarrollo gráfico
+mientras yo más ordenada y como obviamente lo sabemos
+eh tenga la información gráfica
+mucho mejor va a ser nuestra maquetación
+me parece que es una buena oportunidad
+ahora en en este en este
+primer siglo de open Doors
+ojo yo o cualquiera la verdad es que te lo digo dale jornan
+a mí a mí me encantaría porque obviamente me me me
+en cierta forma
+me me encanta sentirme
+participante aunque no lo sea me entendés pero
+eh me parece que eso es algo que sí o sí hay que hacer
+el curso grama el análisis funcional
+de cada uno de los sectores y los sistemas de la empresa
+sí sí estamos totalmente de acuerdo sí sí hay que hacerlo
+ah es así hay que hacerlo es así viejo es así es así
+viejo hay que hacerlo no hay ningún problema aunque
+me ayudes a pensarlo no
+tengo yo tengo ideas en la cabeza
+lo que no lo no lo he plasmado pero
+a qué te referís
+a qué me refiero con qué
+voy a decir tengo ideas en la cabeza
+a qué ideas te referís
+pero más allá de lo que vayas a hacer
+yo te pregunto a qué ideas te referís me refiero a
+me refiero a cómo estructurar la compañía te lo tengo
+lo que pasa es que también depende del volumen del negocio
+viste depende de un montón de cosas claramente
+claramente
+pero hoy en día está así
+sí bueno a ver eh que que el proceso lo tiene que estar
+que el proceso tiene que estar estructurado más allá de que
+de que no tengas los actores para llevar lo
+cabo y lo tengas que terminar resolviendo vos
+sí igualmente
+tiene que estar estructurado el proceso porque alguien
+tiene que resolverlo en claro si no tenés
+10 tipos para llevar
+lo tenés que terminar haciendo vos eh sí hijo
+obvio te entiendo perfecto
+mirá por lo cual eh eh está claro que tiene que
+tiene que estructurarse ah lo que pasa es que bueno eh
+sí es difícil pero bueno acá
+pero por eso lo
+por eso te digo de hacerlo hermano porque mirá
+acá tenés un ejemplo claro este
+yo doy esta materia
+por eso también me gusta mucho
+esta es la materia que yo doy y me encanta
+por qué pues fue la primera herramienta que yo que yo conocí
+primero definí
+el sistema y el sistema de tu empresa
+que ya sabes que va a ser vendedores jefe
+y acá está qué es lo que yo te propongo definir
+las operaciones de cada uno de los sectores
+por qué me sirve
+a mí porque yo en base
+a eso uso los patrones de diseño para el sistema
+por qué te sirve a vos bueno para qué te lo voy a explicar
+pero eso es un curso de gramática me entendés
+che llega la me entendés em acá
+vamos a lo a lo básico básico
+estas son todas las operaciones que vamos a tener
+según las normas mira
+operación control de moneda no hay más
+en base a eso vas a armar el diseño
+de de la empresa listo
+voy a decir tengo varias ideas perfecto
+si lo único que hay que hacer es
+aplacarlas acá
+por eso si vos querés vuelvo al sistema perdón vos me decís
+en un audio repito si para eso también tengo mis agentes
+este es así azafrán la empresa
+hace esto me voy a poner yo acá y
+voy a dejar de compartir con tu permiso eh
+la empresa hace
+esto esto y lo otro los actores son esto esto y lo otro
+yo soy tal vos sos tal listo
+eh y yo lo hago con gusto me encanta
+lo que pasa es que
+a ver
+qué es lo que
+qué es lo que hoy en día
+puede definir lo que se puede definir es
+lo que puede definir es este
+hacia dónde quiero quiero ir eso lo que puedo definir
+no no no lo que es lo que estoy haciendo bien
+eh lo que estoy haciendo ahora es un 10% de lo que yo quiero
+terminar haciendo claro claro
+escuchando hay muchos procesos que todavía
+muchos procesos que todavía no están activos
+pero no no no están funcionando todavía
+y dentro de lo que
+sí claro todavía
+todavía no tengo una dirección de operaciones
+porque no estoy
+este
+una dirección para hacer mi proyecto porque todavía
+eh ustedes están en ingeniería eh claro
+proyecto entendés claro no tengo
+no tengo un proceso de de cos control definido
+no no no no no lo tengo operativo digamos
+lo que hacemos es muy básico
+el proceso de compra ni hablar o sea la
+la
+digamos la lo que estamos haciendo es comprar servicio el
+y el proceso es muy largo de de
+de de de de de de de de de de de de
+no sé si es que tiene operativo
+sí sí te entiendo te entiendo
+me entendés o sea es extremadamente rudimentario hoy en día
+hay un montón de procesos que están
+simplificados o no lo que estamos haciendo eh
+entonces hoy en día contarte cómo estamos operando y
+no me sirve mucho
+si no puede servir que qué es lo que
+qué es lo que debería ser que probablemente
+eh con la ayuda de estos sistemas
+eh siendo inclusive
+poco podés llegar a implementarlo de ojo no ujum
+sí sí tal cual tal cual
+implementar eh
+proceso de gestión implica
+este
+tener estructura
+este pero mirá por ejemplo
+qué te puedo mostrar
+mira
+dale yo te aviso cuando vea
+ah y de paso cañazo necesito ese logo
+porque no lo se los iba a pedir no lo no lo tenía
+y qué es un cerebro con circuitos no me doy cuenta
+ahí algo voy a ver
+vamos a tirar la charla de querer ahí está viendo sí
+pero lo lo caso
+lo caso si me encantan aparte lo caso lo caso
+esto es un dilema que en algún momento me imaginé no sí
+el directorio
+la gerencia
+la gerencia operativa ujum este
+asistencia de
+de legales calidad it y
+y seguridad laboral
+después eh una
+gerencia de ingeniería
+una gerencia de operaciones
+una gerencia de administración y finanzas
+una gerencia comercial
+y acá habíamos
+y habíamos
+eh indicado una gerencia
+de Neuquén para que se encargue de los negocios de Neuquén
+ajá
+la gerencia de ingeniería
+iba a tener debajo jefatura de
+infraestructura electromecánica
+este
+renovable eficiencia energética y mantenimiento industrial
+la gerencia de operaciones servicios proyectos
+y a provisionamiento a provisionamiento
+lo habíamos dejado
+lo había dejado a vuestro criterio
+lo había dejado debajo de la experiencia de operaciones
+de compras básicamente
+administración y finanzas
+eh se queda con recursos humanos tesorería contabilidad
+y control de gestión ujum
+se auditoría gasto
+o sea recursos humanos
+tesorería autoridad
+y control de gestión
+la gerencia comercial con el desarrollo de negocios
+ofertas y márgenes o sea
+a ver imaginate que esto
+no no no
+no por eso te digo es muy difícil
+hablar de lo que se está
+haciendo hoy día con los proyectados
+y hasta dónde puede crecer todo esto y depende
+de la cantidad de negocio que tenemos porque si no a ver
+eh
+comercial hacemos y sí desarrollamos negocios sí
+preparamos ofertas sí
+trabajamos en marketing
+sí lo hacemos tenemos un buen departamento pero lo hacemos
+tenés ingeniería sí es lo que más hacemos
+estamos trabajando en el
+desarrollo de la eficiencia energética y en la factura
+eléctrica se hacen operaciones
+y sí que estamos en este momento
+estamos viendo los servicios
+y estamos gestionando un proyecto
+sí un proyecto de servicio sí lo estoy gestionando
+o sea hoy en día
+estoy gestionando un proyecto sí
+estoy gestionando ingeniería sí sí
+este estoy cocinando recursos humanos sí
+tengo 10 tipos contratados
+este estoy haciendo recursos humanos sí
+eh estoy gestionando guita sí estoy
+gestionando contabilidad sí lo que estamos haciendo ahora
+contable es cuestión no a eso no estoy haciendo una chota eh
+eh
+qué te estás haciendo
+del chusma te pregunto marketing qué estás haciendo
+Margaret y
+nosotros yo yo llamando a tipo y publicitándome eso Margaret
+no no está bien está bien pe pero pensé pensé que
+pensé que estaba en el marketing
+digital ahí voy pensé que estaba en un marketing digital
+eh ponele
+ponele gerencia informática y tirame ahí de de algo un algo
+ahí tenés ahí lo tenemos como un está no no
+ponelo como una gerencia
+vos sos el gerente y dejame abajo como jefe
+vos de no seas tan guacho
+ah no no no no es está este
+porque a ver tener
+tener un departamento de legalidad
+ética o higiene y seguridad
+sí no es algo muy grande lo pueden ir a tener
+ah sí sí sí te entiendo
+no te entiendo te entiendo
+único único error en el organigrama que
+el gráficamente está mal pero nada más
+es más todo lo que es administración y finanzas también
+le termina siendo está
+también digamos con
+con empresas muy chicas
+termina siendo servicio
+contratado no va a tener recursos humanos
+contabilidad lo contratás ujum este
+este este gráfico se lo robé a Instagram
+ujum
+así que bueno si no te gusta no te quejés con IMPS
+no eh no te enojés weon
+no bueno qué sé yo viste
+sí lógico
+no no no no pero me me interesaba que me que me dijeras
+todo esto también
+porque te ahora entiendo
+viste para dónde terminar de un poco de direccionar cierto
+ciertas partes del sistema que está claro no pasa nada
+pero así como
+vos decís en tu en tu mente se te van a ir conectando cosas
+a mí también a mí ya que he hecho este
+empecé yo con 3.3 secciones
+carga factura historial y reporte me entendés y obviamente
+avanzando 1 000 así que sí me voy a enfocar en eso
+que en cada uno de todos esos procesos
+habría que colocar un s che qué proceso habría que ordenar
+si estar
+bien ordenado
+que me gustaría que esté ordenado
+eh mi proceso financiero
+eh y contable
+obviamente si no lo llevás ordenado es un quilombo
+está está claro no eso lo que
+estamos al toque que que no tener ordenados sus procesos
+te genera ilogismo no pero
+pero después nuestros procesos operativos
+operativos puros
+que son los que nos hacen estar acá hoy en día hablando
+con lo que estamos facturando sobre el proceso comercial
+este y el proceso de fusión de proyectos son dos procesos de
+deberíamos empezar a ordenarlos
+deberían quedar
+ordenados pero bueno ordenar esos procesos requiere
+tiempo eh tiempo
+eh hoy en día lo que estamos tratando
+por lo menos de tener estructuras
+de carpeta en medio ambiente ordenado
+de tener la información ordenada
+estamos implementando ya algunas estrategias de
+de tipo de documentación bueno
+tratando de llevarme
+gran cantidad de
+ordenados con pedidos para que no se nos despelote
+perfecto pregunto pregunto
+cuál es esa estrategia
+la estrategia de gestión de eh de órdenes de información
+y bueno son eh extraídas de lo que
+vengo haciendo hace 10 años entre imsa
+cobra la hora
+eso está bien está bien no no no está bien está bien
+están activamente fuertes te quiero decir
+sí porque es lo que he hecho toda mi vida viste entonces
+ujum yo digo viste pero bueno obviamente
+no hay vos si lo querés hacer no lo vas a poder hacer
+no no no no
+seguro yo yo te contrato para que trabajes conmigo así bueno
+dale te gestioname el abogado no
+no lo hago profesional porque no tengo un procedimiento
+armado más eh claro
+cuando le dediqué tiempo a armar un procedimiento
+entonces es un externo a la organización
+si yo contrato a alguien externo claro
+o si vos me querés hacer un auditorio del proceso
+no me lo vas a poder hacer
+porque no tenés cómo hacerlo porque no existe el el
+un procedimiento
+escrito veamos lo tenés que descargar de mi cerebro
+más o menos claro claro claro no no es explicable viste
+no no es perdonar en el tiempo como yo me muero y se acaba
+viste claro claro te entiendo
+la empresa tiene que
+que existir por sí misma viste la empresa claro
+tiene que ser un
+tiene que ser una entidad que te tiene que tener vida
+yo yo puedo no existir
+y lo del Johnny lo que sea y la empresa
+sigue existiendo verdad
+porque vos podés querés poder meterte allá adentro
+y entender cómo funciona
+sí por supuesto es posible porque lo tenemos en la cabeza
+nosotros o sea obviamente lo que tenemos que hacer
+este
+ya sé esa gente que labura haciendo esto
+eh entonces lo tengo claro
+el tema es que eso lo tenés que ir
+trasladando lo tenés que ir ordenando en el procedimiento
+para
+para que perduren en el tiempo
+viste y a ir mejorando esos procesos hoy en día
+nada que hay que darle tiempo viste que hay
+mucho tiempo para hacer
+pues es un proceso negativo complejo entonces seguro
+hay que dedicarle mucho tiempo
+yo solo te digo eh bueno
+felicitaciones y
+como siempre te digo gracias pero te admiro mucho
+te admiro mucho eh
+lo que sí lo que sí yo tengo son muchos procesos tengo de
+la empresa bueno eso sí viste tal vez
+eso sí lo podemos hacer después de esos procesos y
+lo podemos eh tal vez procesar con ya y ver cómo los
+los adaptamos
+seguro sí sí no necesariamente
+obviamente con la guía mejor pero pero
+no no no es que necesitamos
+puramente la guía que sea la herramienta que nos ayuda
+pero sí obvio
+pero más allá de eso gracias gracias por por siempre
+apoyarte por darme
+bueno por darme este lugar
+pues también ya sabés ya cuán importante es
+um pero esto está buenísimo che y bueno y hablemos de
+de lo económico y no
+no puedo
+no puedo este
+definirlo eh de de esta manera
+a ver esto es así hablemos de lo económico
+qué hacemos los que desarrollamos el tema
+esto que hemos hecho la primera
+charla la necesidad de estudio y demás el análisis
+empezamos con eh esta primera etapa
+el lo llamado el el el MVP
+o sea el el el modelo eh mínimo y básico eh
+de
+de un sistema para para que ya sea funcional
+eso que vos viste
+potencialmente
+eh es un en un MVP
+va a ser la primera etapa que va a ser la
+de el servicio de facturación
+pues si vos me decís bueno empecemos por acá fantástico
+ahora qué queremos
+queremos dejar
+este sistema acá que sea el sistema de facturación y punto
+fantástico eso va a ser mi diseño
+que va a llevar no sé
+tres meses ponele como te digo entrenamientos y demás
+bueno y ahí lo voy a
+a tener que a tener no voy a cobrar como
+1 1 proceso eh
+dentro del sistema listo bueno
+cuánto sale y
+entre eh 2 000 $3 000
+$4 000 va a depender de de de la escala total
+me preguntás hoy en día cuánto sale un agente de estos
+de los agentes no del sistema
+el agente está dentro del sistema
+y este
+un agente como te digo entre 1 500 y $3 500 um
+qué estoy usando yo
+y el agente de lectura de factura
+los tengo entrenados así y así
+y el agente el el asistente que tengo ahí donde va
+a hacer más eh día eh financiera que otra cosa
+eh yo lo voy
+lo voy hablando
+fuerte y lo vamos desglosando para charlarlo
+con vos con la confianza
+un sistema grande completo bueno lo que
+lo que planteamos ahí en el en el informe se te decía
+alrededor de de 10 palos
+un sistema completo
+completo y complejo
+como este no va a ser
+el completo y se va a ir escalando
+no este yo te voy ofreciendo mira avance y resultado
+por este cierto número
+cuánto están dispuestos también
+vos o cuánto están dispuestos en los pendora
+así che mira invierto mensualmente para el avance
+más plata obviamente más dedicación le voy a dar a full
+menos no es que no lo voy a hacer simplemente lo
+se demorará un poco más en el tiempo
+eh
+bueno para para todo esto lo que se necesita
+eh yo te propongo el siguiente modelo de negocio
+pero para todo esto lo que se necesita es tener
+previsibilidad en los gastos entonces por supuesto
+este lo lo que
+lo que podemos hacer
+eh a ver pues tenemos
+em
+este bueno el proceso de facturación
+pero yo yo en realidad lo que intentaría ahí
+pensarlo es como un proceso
+este
+a ver esperá déjame pensar tenés
+tenés el el financiero contable
+tenés el proceso de gestión de proyecto
+perdoname lo estás escribiendo o lo estás gráficando
+lo estoy hablando en voz alta bien eh
+tenés espera el proceso comercial
+el comercial
+el de
+gestión de proyectos
+eh el financiero
+4 procesos que nosotros
+deberíamos este
+deberíamos meter acá
+lo que podemos hacer
+es es armar un plan de desarrollo para esos 4 procesos
+entiendo perfecto un año tal vez sí sí
+mínimo los 4 procesos sí sí por lo menos
+este y andá a a armarte hitos de desarrollo claro
+claro claro armá 1 1 programa de desarrollo
+armá un plan de desarrollo y
+y y meterle los los hitos de desarrollo exacto eh
+y cada hito de ese desarrollo que tenga
+es más que quemo un carro mensual que quemo
+me tomo un sueldo mensual
+durante un año para hacer el desarrollo
+dale completo
+dale de de de esos 4 procesos
+este
+estudiaste cuáles pueden ser los ojitos digamos
+que podemos llegar a ser o hacer
+por eso por eh tranquilo que eso lo lo voy viendo por eso
+es importante como veme
+todo esto que hablamos me queda
+eh claro y repito yo lo esto lo estoy
+lo estoy grabando para justamente después
+tomar mis notas y y ver cómo lo voy a
+cómo lo voy a ir desgramando pero
+sí me queda
+me queda claro y como bien dijiste son 4 procesos bueno
+vamos a la par
+estoy solo trabajando a lo sí a ver también puedo
+tener equipo pero
+lo que necesitamos acá es eh menos plata tal vez de ustedes
+invertida y más tiempo así que
+sí eh
+lo voy lo voy a definir vos más te rinde obviamente
+trabajar solo te va a rendir más mirá
+se le tiene que dedicar más tiempo pero la guita te te quedó
+no el tema no eso ni hablar el tema es la
+la necesidad y la urgencia de ustedes yo
+mirá no no no es necesidad weon podemos plantearlo
+porque hoy en día
+mirá surge la necesidad
+porque aparece un proyecto y la guita va a estar y
+y si de repente decimos
+che en 5 meses tenemos que ordenarle bueno
+aparecerá la guita viste
+ni hablar se tiene que esperar en 5 meses porque
+están los proyectos y están las guitas para ordenarlo
+ni hablar ni hablar empecemos
+empecemos en un en 1/1 etapa fuerte para la parte
+financiera que es así es la más
+pica es la que tal vez
+más nos complica viste
+ojo que la parte del proyecto
+en el momento de lanzar un proyecto
+también se nos va a complicar no poder
+vamos a tener que gestionar compras gestionar programas
+gestionar ese bolso
+eh vamos a tener que gestionar una obra
+y y a esa esa parte se nos va a complicar
+veo pero hoy en día no no tenemos eso
+eh ese puede ser un
+digamos y si aparece una hora es eso puede ser un gay
+para disparar viste el el de
+el de proyecto viste pero
+pero hoy en día te diría tranqui hoy en día lo que importa
+es ordenar el financiero y los otros podemos ir de
+lo que tenés que
+de a poco veamos pero sí estaría bueno
+veamos con la idea esta de fijarte a leer no tanto
+o sea para poder fijar un cargo mensual
+donde estaría bueno tener
+definidos digamos
+siempre manejamos siempre manejamos eso por ejemplo
+te doy el el el los clásicos ejemplos los tres
+software grandes digamos que
+que he desarrollado
+en los que hemos estado trabajando en equipo grandes
+me refiero a bueno converge constructora
+eh una estudio arquitectura
+que tiene una
+constructora integral y además inmobiliaria y demás bueno eh
+era un desarrollo también como bien dijiste vos por etapas
+la primera etapa era de 5 meses
+y sí este
+los valores van oscilando
+entre los 10 palos estamos
+hablando en pesos pero bueno entre
+entre los 10 millones y los 15 millones
+claro el equipo era más grande
+solo nada ni hablar este
+pero es un número excesivo para un sistema completo que
+en este caso simplemente va a ser
+simplemente entre comillas va a ser
+como bien dijiste vos uno de los 4 pilares así que
+vamos marcando los hitos sí
+eh lo primero que yo hago el primer hito grande
+allá de los de los de los pequeñitos es el el MVP el básico
+el básico del del
+del servicio del microservicio del sistema financiero
+ustedes ya pueden utilizar
+después lo vamos escalando
+pero una vez que ya está el básico
+bueno podemos empezar con el otro
+la pared pero siempre ir escalándolo
+mientras ya funcione
+este el el auto
+después le peguemos las pegatinas y después le
+el turbo y cambiemosle toda la
+todo de los espejitos y todo lo demás
+ese auto funcional es el MVP
+a la par puedo ir desarrollando puedo ir
+creándole el garaje con los ladrillos mientras tanto pero el
+el MVP básico como bien dijiste vos es la primera de 4
+etapas va a ser la financiera
+me comprometo a eso obviamente
+como bien dijiste vos bueno alguna
+alguna cosa que trabajemos solamente con la financiera
+y después claro dejemos
+dejemos como un plan macro las otras los otros tres módulos
+pero ahora vamos a abrir
+ahorita el detalle del financiero dale
+no sé no sé
+7 8 viejito no no sé cuánto
+sí tranquilo tranquilo eso lo manejo mirá yo lo voy
+me voy a basar
+obviamente en los análisis de siempre
+te voy a mandar un informe te
+hablamos oye pero te mando el informe detalladito ahí eh
+este con ese ojito con los tiempos
+con la producción y con la idea de obviamente
+del análisis que también estoy haciendo de de de todo esto
+así que yo armo eso después bueno repito el número hermano
+a ver vos sabés
+más allá de mi situación lo que vos me digas está bien
+porque yo quiero participar
+siendo parte activa de de esto
+entonces yo ya yo ya gano me entendés y si te gusta
+pensás
+que vas a trabajar no sé cuánto tiempo le podés dedicar vos
+por mes no sé
+para acá y no no sé cuántas horas le podés dedicar
+pero bueno en función de eso mirá
+la hora vos cuándo a ver
+vos te pregunto a vos pero la hora
+ingeniería sabés que está entre de de 30
+$50 yo no voy a cobrar eso ni a palo eh puedo cobrar
+le daré vuelta nosotros nosotros
+le estamos pagando eh le estamos pagando $15 $15
+bueno ahí está pero bueno sí Maya
+de eso fijate un número que
+a vos te sirva
+no no no y y el número que nos sirva a los dos a mí me sirve
+a ustedes les sirve
+perfecto pero Maya de eso
+yo ya con lo que estoy haciendo estoy chocho
+pero obviamente que así va a ser dejarme que lo arme
+dejarme que deslose todo
+que lo ponga en papel y ver si te gusta repito el número
+lo remanejamos en base a lo que vos me digas
+y en base a lo que yo también te pueda plantear pero
+que lo hago
+siguiendo tu tu lógica así va a ser así que gracias hermano
+hola me voy a a dormir estuvo bueno
+quiero más de lo que
+lo que mi cerebro
+quería pero pero bueno todo bueno todo antes tenía
+bueno me alegra mucho ahí te mandé la los
+screen cualquier cosa
+apuntale algo
+algo que quieras a tocar pero ya me queda mucho más claro
+te quiero un montón te agradezco y sí
+es fino pero sabes qué sí te voy a pedir hermano mandame
+todas las facturas que se que vayas teniendo
+porque es la forma en la que yo las voy a entrenar
+no no claro que no es que
+yo ahorita debería compartir todas las que tenemos
+todas absolutamente todas
+no con eso con eso listo yo sabes qué con eso ya tengo
+ahí para para un buen rato acá yo
+todas lo único que
+claro que inclusive hasta
+creo que el Junior la tiene dividida hasta por quién
+ha ejecutado la
+esa factura viste la está está abonadita en el track
+bien este
+bien bien bien bien bien bueno que sirve
+como en el sistema como te
+te había mostrado yo viste el momento de propietario
+de la factura o no socio del opendorse que cargó la factura
+después otra otra cosa que me también tenés que
+darme 1 1 vistazo o sea también
+de los servicios de televisión
+sino que también
+me tenés que decir
+cuánto cuesta
+sí por supuesto quédate tranquilo
+por supuesto
+sí sí
+no sé qué qué qué qué habrá
+que comprar viste no sé lo vamos
+primero que primero que nada eh vos tenés 1 1 host
+adquirido tienen un host o no
+no tengo nada
+bueno te puedo decir algo del vamos
+eh
+necesito que de esta noche mañana
+eh
+pagué 60 000 pesos una vez de de acá a un año
+o que pagué 30 000 al mes
+60 000 no eh ponele no sé 120 000
+y nos compra primero lo primero
+el dominio de opendorse ya lo tenés ya
+el dominio sí
+bueno listo perfecto
+entonces si yo te
+mira cortita y ya con esto me me me despido
+eh vi vi vi
+vi pero lo que necesitamos es esto dame dos segundos
+de cortita es el pie qué mal que andas
+cortitísima entonces yo te digo ya
+lo primero lo primero primero
+primero que vamos a necesitar
+más allá que lo vamos a cargar en la
+en la nube
+en azure y demás porque eso es lo que necesitamos pero del
+vamos mira no estás viendo la pantalla
+sí si me preguntás yo iría por este porque es un cloud
+entre business y entre cloud estaría me inclino siempre por
+ay perdón por cloud
+porque justamente la arquitectura que vamos a trabajar
+es cloud
+eh 15 por mes más tres meses pagando
+a ver mira obtener 48 meses por
+pero básicamente este es el plan el que yo eh elegiría
+sí o sí para cargar todos los datos que vamos a manejar
+más allá de
+lo que hagamos ahora y a futuro acá ya tenés un costo
+eh eh fijísimo
+de servidores y demás no sé
+por cuánto lo va a querer a ver al mes cuánto te se termina
+saliendo esto
+y bueno ahí está 54 000 al mes si lo vas a tirar anual
+ahí tenés 232 000
+eh bueno fijate ahorrás ahí el el todo eso
+andá pensándolo fijate pero si vos me preguntás
+para que yo empiece a trabajar
+fuertemente de una manera tal es más ligera viste
+eh y esto a mí me vendría al pelo
+em podemos pasar para otro modelo
+tenés que pasar todo eso de todo eso necesitamos saber listo
+por supuesto así será
+me escuchaste
+ah
+listo por supuesto ahí te termino la presentación así será
+eh apenas lo tenga
+estoy avisamos no sé si querés
+compartirle esta charla al John y la tengo
+ya sé que le vas a decir todo pero si no la tengo que grabar
+así que
+no no sí yo le
+yo le comento al Johnny
+mañana no sé qué mierda le habrá pasado a este
+no sé conectó
+no no hay problema
+te quiero te quiero mucho así va a ser
+gracias por todo
+espero
+espero entiendas lo contento que me pone
+y agradecido por la mano que siempre
+me das te quiero un montón
+este laburo
+laburo no me va a faltar más laburo hay así que
+um dale me encantó te quiero mucho
+yo también te quiero descansá
+gracias un abrazo chau chau
