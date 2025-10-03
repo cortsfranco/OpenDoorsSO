@@ -5,7 +5,7 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
 
 // Configuración base de la API
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8001';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 class ApiService {
   private api: AxiosInstance;

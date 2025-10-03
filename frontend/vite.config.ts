@@ -55,14 +55,12 @@ export default defineConfig({
   server: {
     host: '0.0.0.0',
     port: 3000,
-    strictPort: true,  // Agregar
-    hmr: {
-      clientPort: 3000  // Agregar para HMR
-    },
+    strictPort: false,
     proxy: {
       '/api': {
-        target: 'http://backend:8000',  // Usar nombre servicio Docker
+        target: process.env.VITE_API_URL || 'http://localhost:5000',
         changeOrigin: true,
+        secure: false,
       },
     },
   },

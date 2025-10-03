@@ -33,21 +33,29 @@ class Settings:
     ACCESS_TOKEN_EXPIRE_MINUTES: int = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "10080"))  # 7 días por defecto
     
     # Configuración de la Base de Datos (PostgreSQL)
+    # Priorizar DATABASE_URL de Replit si existe, sino construir desde partes
+    _DATABASE_URL_ENV: str = os.getenv("DATABASE_URL", "")
+    
     POSTGRES_USER: str = os.getenv("POSTGRES_USER", "postgres")
     POSTGRES_PASSWORD: str = os.getenv("POSTGRES_PASSWORD", "password")
-    POSTGRES_SERVER: str = os.getenv("POSTGRES_SERVER", "db")  # 'db' es el nombre del servicio en docker-compose
+    POSTGRES_SERVER: str = os.getenv("POSTGRES_SERVER", "db")
     POSTGRES_PORT: str = os.getenv("POSTGRES_PORT", "5432")
     POSTGRES_DB: str = os.getenv("POSTGRES_DB", "opendoors_db")
     
-    # Construir la URL de la base de datos de forma asíncrona para SQLAlchemy
-    @property
-    def ASYNC_DATABASE_URL(self) -> str:
-        return f"postgresql+asyncpg://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_SERVER}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
-    
-    # URL síncrona para compatibilidad
     @property
     def DATABASE_URL(self) -> str:
+        if self._DATABASE_URL_ENV:
+            return self._DATABASE_URL_ENV
         return f"postgresql://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_SERVER}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
+    
+    @property
+    def ASYNC_DATABASE_URL(self) -> str:
+        base_url = self.DATABASE_URL
+        if base_url.startswith("postgresql://"):
+            base_url = base_url.replace("postgresql://", "postgresql+asyncpg://")
+            if "?sslmode=" in base_url:
+                base_url = base_url.split("?sslmode=")[0]
+        return base_url
     
     # CORS
     ALLOWED_HOSTS: List[str] = os.getenv("ALLOWED_HOSTS", "http://localhost:3000,http://localhost:5173,http://127.0.0.1:3000,http://127.0.0.1:5173").split(",")

@@ -9,9 +9,10 @@ from src.core.config import settings
 
 # Crear motor asíncrono de SQLAlchemy
 engine = create_async_engine(
-    settings.DATABASE_URL.replace("postgresql://", "postgresql+asyncpg://"),
+    settings.ASYNC_DATABASE_URL,
     echo=settings.DEBUG,
-    future=True
+    future=True,
+    connect_args={"ssl": "require"} if "ssl=require" in settings.ASYNC_DATABASE_URL else {}
 )
 
 # Crear factory de sesiones asíncronas
