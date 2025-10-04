@@ -6,29 +6,38 @@ Sistema completo de facturación con lógica fiscal argentina (Balance IVA vs Ba
 
 ## Estado Actual del Proyecto (03 Oct 2025)
 
-### 🔧 Configuración Reciente (Última actualización: 03 Oct 2025 - 21:27)
+### 🔧 Configuración Reciente (Última actualización: 03 Oct 2025 - 22:45)
 
-**✅ Problemas Resueltos en esta sesión:**
-- ✅ Error crítico de Select.Item con value vacío arreglado
-- ✅ Dashboard actualizado con datos reales de Balance por Socio
-- ✅ Endpoint `/api/v1/financial/balance-por-socio` integrado correctamente
-- ✅ Procesamiento de facturas A/B/C con parámetros fiscales (movimiento_cuenta, es_compensacion_iva)
-- ✅ Menú reorganizado en 5 secciones lógicas
-- ✅ Componente DataTable reutilizable creado
-- ✅ Balance IVA centralizado en FinancialService
+**🎉 FASE 1 COMPLETADA - Docker y Base de Datos Local:**
+- ✅ docker-compose.yml completo con 4 servicios (PostgreSQL, pgAdmin, Backend, Frontend)
+- ✅ Healthchecks configurados correctamente (db, backend con wget)
+- ✅ Variables de entorno parametrizadas (${POSTGRES_*} con defaults)
+- ✅ Volúmenes optimizados (sin montar .:/app que rompía reproducibilidad)
+- ✅ Red bridge personalizada (opendoors_network)
+- ✅ .env.docker creado como plantilla recomendada
+- ✅ .dockerignore para backend y frontend
+- ✅ scripts/startup.sh con daemon de auto-reparación continuo
+- ✅ scripts/export_hostinger.sh para migración a Hostinger Cloud
+- ✅ scripts/init.sql con extensiones PostgreSQL
+- ✅ Dockerfile.backend optimizado con wget
+- ✅ CONFIGURACION_COMPLETA_DOCKER_LOCAL.txt - Guía paso a paso completa
 
-**✅ Problemas Resueltos anteriormente:**
-- ✅ Conflictos de Git resueltos en múltiples archivos
-- ✅ Conexión a base de datos PostgreSQL (Neon) configurada correctamente
-- ✅ SSL/TLS configurado para asyncpg
-- ✅ Frontend configurado con dependencias instaladas
-- ✅ API del frontend apuntando correctamente al backend (puerto 5000)
-- ✅ Variables de entorno configuradas
+**🔐 Credenciales de Azure Configuradas:**
+- ✅ AZURE_OPENAI_ENDPOINT (secreto en Replit)
+- ✅ AZURE_OPENAI_API_KEY (secreto en Replit)
+- ✅ AZURE_DOC_INTELLIGENCE_ENDPOINT (secreto en Replit)
+- ✅ AZURE_DOC_INTELLIGENCE_KEY (secreto en Replit)
+- ✅ AZURE_SEARCH_ENDPOINT (secreto en Replit)
+- ✅ AZURE_STORAGE_ACCOUNT_NAME (secreto en Replit)
 
-**🚀 Sistema Funcionando:**
-- Backend: http://localhost:5000 (FastAPI + PostgreSQL)
-- Frontend: http://localhost:5000 (React + Vite)
-- Documentación API: http://localhost:5000/docs
+**🚀 Sistema Docker Local:**
+- 🗄️ PostgreSQL: localhost:5432
+- 🐘 pgAdmin: http://localhost:5050 (admin@opendoors.com / admin)
+- 🔧 Backend API: http://localhost:8000
+- 📖 API Docs: http://localhost:8000/docs
+- 🌐 Frontend: http://localhost:5000
+
+**⚠️ Nota:** Base de datos Neon está DESHABILITADA. El sistema ahora funciona con Docker PostgreSQL local.
 
 ## Estado Actual del Proyecto (03 Oct 2025)
 
