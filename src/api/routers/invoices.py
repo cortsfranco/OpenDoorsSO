@@ -3,6 +3,7 @@ Router para operaciones relacionadas con facturas.
 """
 
 from typing import List, Optional
+from datetime import date, datetime
 from fastapi import APIRouter, Depends, HTTPException, status, Query, UploadFile, File
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, and_
@@ -148,6 +149,107 @@ async def get_invoices(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error al obtener facturas: {str(e)}"
+        )
+
+
+@router.post("/", status_code=status.HTTP_201_CREATED)
+async def create_invoice(
+    invoice_data: dict,
+    current_user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_session)
+):
+    """
+    Crea una nueva factura.
+    """
+    try:
+        fecha_emision = invoice_data.get('fecha_emision')
+        if fecha_emision and isinstance(fecha_emision, str):
+            fecha_emision = datetime.strptime(fecha_emision, '%Y-%m-%d').date()
+        
+        fecha_vencimiento = invoice_data.get('fecha_vencimiento')
+        if fecha_vencimiento and isinstance(fecha_vencimiento, str):
+            fecha_vencimiento = datetime.strptime(fecha_vencimiento, '%Y-%m-%d').date()
+        
+        new_invoice = Invoice(
+            user_id=current_user.id,
+            filename=invoice_data.get('filename', 'manual.pdf'),
+            status=invoice_data.get('status', 'completed'),
+            tipo_factura=invoice_data.get('tipo_factura'),
+            numero_factura=invoice_data.get('numero_factura'),
+            cuit=invoice_data.get('cuit'),
+            razon_social=invoice_data.get('razon_social'),
+            fecha_emision=fecha_emision,
+            fecha_vencimiento=fecha_vencimiento,
+            subtotal=invoice_data.get('subtotal'),
+            iva_porcentaje=invoice_data.get('iva_porcentaje'),
+            iva_monto=invoice_data.get('iva_monto'),
+            otros_impuestos=invoice_data.get('otros_impuestos'),
+            total=invoice_data.get('total'),
+            invoice_direction=invoice_data.get('invoice_direction', 'recibida'),
+            owner=invoice_data.get('owner'),
+            movimiento_cuenta=invoice_data.get('movimiento_cuenta', True),
+            es_compensacion_iva=invoice_data.get('es_compensacion_iva', False),
+            metodo_pago=invoice_data.get('metodo_pago', 'transferencia'),
+            partner_id=invoice_data.get('partner_id')
+        )
+        
+        session.add(new_invoice)
+        await session.commit()
+        await session.refresh(new_invoice)
+        
+        return new_invoice
+        
+    except Exception as e:
+        await session.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error al crear factura: {str(e)}"
+        )
+
+
+@router.put("/{invoice_id}")
+async def update_invoice(
+    invoice_id: int,
+    invoice_data: dict,
+    current_user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_session)
+):
+    """
+    Actualiza una factura existente.
+    """
+    try:
+        invoice_query = select(Invoice).where(
+            and_(
+                Invoice.id == invoice_id,
+                Invoice.user_id == current_user.id,
+                Invoice.is_deleted == False
+            )
+        )
+        result = await session.execute(invoice_query)
+        invoice = result.scalar_one_or_none()
+        
+        if not invoice:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Factura no encontrada"
+            )
+        
+        for key, value in invoice_data.items():
+            if hasattr(invoice, key):
+                setattr(invoice, key, value)
+        
+        await session.commit()
+        await session.refresh(invoice)
+        
+        return invoice
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        await session.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error al actualizar factura: {str(e)}"
         )
 
 
