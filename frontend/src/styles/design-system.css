@@ -400,6 +400,396 @@
   }
 }
 
+/* ========================================
+   LAYOUT CONTAINERS - Sistema de contenedores unificado
+   ======================================== */
+.container-page {
+  padding: 1rem;
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+@media (min-width: 640px) {
+  .container-page {
+    padding: 1.5rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .container-page {
+    padding: 2rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container-page {
+    padding: 2.5rem;
+  }
+}
+
+.container-section {
+  margin-bottom: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .container-section {
+    margin-bottom: 2rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container-section {
+    margin-bottom: 2.5rem;
+  }
+}
+
+/* ========================================
+   GRID SYSTEMS - Grids responsivos
+   ======================================== */
+.grid-cards {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+}
+
+@media (min-width: 640px) {
+  .grid-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .grid-cards {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1280px) {
+  .grid-cards {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.grid-cards-2 {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+}
+
+@media (min-width: 768px) {
+  .grid-cards-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.grid-dashboard {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+}
+
+@media (min-width: 768px) {
+  .grid-dashboard {
+    gap: 1.5rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .grid-dashboard {
+    gap: 2rem;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* ========================================
+   FLEX UTILITIES - Utilidades de flexbox
+   ======================================== */
+.flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flex-start {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.5rem;
+}
+
+/* ========================================
+   RESPONSIVE UTILITIES - Mostrar/Ocultar
+   ======================================== */
+.hide-mobile {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .hide-mobile {
+    display: block;
+  }
+}
+
+.show-mobile {
+  display: block;
+}
+
+@media (min-width: 768px) {
+  .show-mobile {
+    display: none;
+  }
+}
+
+.stack-mobile {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+@media (min-width: 768px) {
+  .stack-mobile {
+    flex-direction: row;
+    align-items: center;
+    gap: 1rem;
+  }
+}
+
+/* ========================================
+   TYPOGRAPHY - Textos consistentes
+   ======================================== */
+.heading-page {
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+}
+
+@media (min-width: 768px) {
+  .heading-page {
+    font-size: 1.875rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .heading-page {
+    font-size: 2.25rem;
+  }
+}
+
+.heading-section {
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.025em;
+}
+
+@media (min-width: 768px) {
+  .heading-section {
+    font-size: 1.5rem;
+  }
+}
+
+.heading-card {
+  font-size: 1.125rem;
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: -0.025em;
+}
+
+.text-metric {
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (min-width: 768px) {
+  .text-metric {
+    font-size: 1.875rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .text-metric {
+    font-size: 2.25rem;
+  }
+}
+
+.text-metric-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #64748b;
+}
+
+.text-currency {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+.text-muted {
+  font-size: 0.875rem;
+  color: #64748b;
+}
+
+/* ========================================
+   BADGES - Estados de factura
+   ======================================== */
+.badge-base {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 9999px;
+  padding: 0.125rem 0.625rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  transition: all 0.2s ease-in-out;
+}
+
+.badge-invoice-pending {
+  background-color: #F59E0B;
+  color: white;
+}
+
+.badge-invoice-approved {
+  background-color: #10B981;
+  color: white;
+}
+
+.badge-invoice-rejected {
+  background-color: #EF4444;
+  color: white;
+}
+
+.badge-invoice-processing {
+  background-color: #3B82F6;
+  color: white;
+}
+
+.badge-fiscal-iva {
+  background-color: #059669;
+  color: white;
+}
+
+.badge-fiscal-balance {
+  background-color: #3B82F6;
+  color: white;
+}
+
+.badge-fiscal-debt {
+  background-color: #EF4444;
+  color: white;
+}
+
+.badge-fiscal-credit {
+  background-color: #10B981;
+  color: white;
+}
+
+/* ========================================
+   TABLE UTILITIES - Clases de tabla
+   ======================================== */
+.table-container {
+  width: 100%;
+  overflow: auto;
+  border-radius: 0.375rem;
+  border: 1px solid #e2e8f0;
+  background: white;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+}
+
+.table-base {
+  width: 100%;
+  caption-side: bottom;
+  font-size: 0.875rem;
+}
+
+.table-header {
+  border-bottom: 1px solid #e2e8f0;
+  background: rgba(248, 250, 252, 0.5);
+}
+
+.table-header-cell {
+  height: 3rem;
+  padding: 0 1rem;
+  text-align: left;
+  vertical-align: middle;
+  font-weight: 500;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #64748b;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+}
+
+.table-body {
+  
+}
+
+.table-body tr:last-child {
+  border-bottom: none;
+}
+
+.table-row {
+  border-bottom: 1px solid #e2e8f0;
+  transition: all 0.2s ease-in-out;
+}
+
+.table-row:hover {
+  background: rgba(248, 250, 252, 0.5);
+}
+
+.table-cell {
+  padding: 1rem;
+  vertical-align: middle;
+}
+
+/* ========================================
+   FORM INPUTS
+   ======================================== */
+.input-base {
+  display: flex;
+  height: 2.5rem;
+  width: 100%;
+  border-radius: 0.375rem;
+  border: 1px solid #e2e8f0;
+  background: white;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  transition: all 0.2s ease-in-out;
+}
+
+.input-base:focus {
+  outline: none;
+  border-color: #3B82F6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.input-base::placeholder {
+  color: #94a3b8;
+}
+
+.input-base:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* ========================================
+   TRANSITIONS
+   ======================================== */
+.transition-smooth {
+  transition: all 0.2s ease-in-out;
+}
+
 /* Responsive design */
 @media (max-width: 768px) {
   .main-container {

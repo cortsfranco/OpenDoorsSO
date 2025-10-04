@@ -51,49 +51,49 @@ export function DashboardPage() {
   ]
 
   return (
-    <div className="p-6 space-y-8">
+    <div className="container-page">
       {/* Header */}
-      <div className="px-4">
-        <h1 className="text-2xl font-bold text-gray-900">
+      <div className="container-section">
+        <h1 className="heading-page">
           Bienvenido, {user?.full_name}
         </h1>
-        <p className="mt-1 text-sm text-gray-500">
+        <p className="text-muted mt-2">
           Aquí tienes un resumen de tu actividad empresarial
         </p>
       </div>
 
       {/* Componente FinancialOverview */}
-      <div className="px-4">
+      <div className="container-section">
         <FinancialOverview />
       </div>
 
       {/* Contenido principal */}
-      <div className="px-4 grid grid-cols-1 gap-8 lg:grid-cols-2">
+      <div className="grid-cards-2 container-section">
         {/* Facturas recientes */}
-        <div className="card-enhanced">
-          <div className="px-6 py-6">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">
+        <div className="card-enhanced transition-smooth">
+          <div className="p-6">
+            <h3 className="heading-card mb-4">
               Facturas Recientes
             </h3>
             <div className="space-y-3">
               {recentInvoices.map((invoice) => (
                 <div
                   key={invoice.id}
-                  className="flex items-center justify-between p-3 bg-gray-50 rounded-lg list-item-hover cursor-pointer"
+                  className="flex-between p-3 bg-gray-50 rounded-lg list-item-hover cursor-pointer"
                 >
                   <div>
-                    <p className="font-medium text-gray-900">{invoice.number}</p>
-                    <p className="text-sm text-gray-500">{invoice.client}</p>
+                    <p className="font-medium">{invoice.number}</p>
+                    <p className="text-muted">{invoice.client}</p>
                   </div>
                   <div className="text-right">
-                    <p className="font-medium text-gray-900">{invoice.amount}</p>
+                    <p className="font-medium text-currency">{invoice.amount}</p>
                     <span
-                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                      className={`${
                         invoice.status === 'Pagada'
-                          ? 'bg-green-100 text-green-800'
+                          ? 'badge-invoice-approved'
                           : invoice.status === 'Pendiente'
-                          ? 'bg-yellow-100 text-yellow-800'
-                          : 'bg-blue-100 text-blue-800'
+                          ? 'badge-invoice-pending'
+                          : 'badge-invoice-processing'
                       }`}
                     >
                       {invoice.status}
@@ -106,21 +106,21 @@ export function DashboardPage() {
         </div>
 
         {/* Actividad reciente */}
-        <div className="card-enhanced">
-          <div className="px-6 py-6">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">
+        <div className="card-enhanced transition-smooth">
+          <div className="p-6">
+            <h3 className="heading-card mb-4">
               Actividad Reciente
             </h3>
             <div className="space-y-3">
-              <div className="flex items-center list-item-hover p-2 rounded-lg cursor-pointer">
+              <div className="flex-start list-item-hover p-2 rounded-lg cursor-pointer">
                 <div className="flex-shrink-0">
-                  <FileText className="h-5 w-5 text-gray-400 icon-hover" />
+                  <FileText className="h-5 w-5 text-muted-foreground icon-hover" />
                 </div>
                 <div className="ml-3">
-                  <p className="text-sm text-gray-900">
+                  <p className="text-sm">
                     Nueva factura creada para Cliente D
                   </p>
-                  <p className="text-xs text-gray-500">Hace 2 horas</p>
+                  <p className="text-muted text-xs">Hace 2 horas</p>
                 </div>
               </div>
               <div className="flex items-center list-item-hover p-2 rounded-lg cursor-pointer">

@@ -123,33 +123,32 @@ export function DataTable<T extends { id: number | string }>({
     <div className="space-y-4">
       {/* Barra de búsqueda */}
       {searchable && (
-        <div className="flex items-center space-x-2">
+        <div className="stack-mobile">
           <div className="relative flex-1 max-w-sm">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               type="text"
               placeholder={searchPlaceholder}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
+              className="input-base pl-10"
             />
           </div>
           {selectedItems.size > 0 && (
-            <span className="text-sm text-gray-600">
+            <span className="text-muted">
               {selectedItems.size} seleccionado{selectedItems.size !== 1 ? 's' : ''}
             </span>
           )}
         </div>
       )}
 
-      {/* Tabla */}
-      <div className="border rounded-lg overflow-hidden bg-white shadow-sm">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50 border-b">
+      {/* Vista Desktop: Tabla */}
+      <div className="hide-mobile table-container">
+        <table className="table-base table-sorter">
+            <thead className="table-header">
               <tr>
                 {selectable && (
-                  <th className="px-4 py-3 text-left w-12">
+                  <th className="table-header-cell w-12">
                     <Checkbox
                       checked={paginatedData.length > 0 && selectedItems.size === paginatedData.length}
                       onCheckedChange={handleSelectAll}
@@ -159,29 +158,24 @@ export function DataTable<T extends { id: number | string }>({
                 {columns.map((column) => (
                   <th
                     key={column.key}
-                    className={`px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider ${column.width || ''}`}
+                    className={`table-header-cell ${column.sortable !== false ? 'sortable' : ''} ${column.width || ''} ${
+                      sortConfig?.key === column.key 
+                        ? sortConfig.direction === 'asc' ? 'sort-asc' : 'sort-desc'
+                        : ''
+                    }`}
+                    onClick={() => column.sortable !== false && handleSort(column.key)}
                   >
-                    {column.sortable !== false ? (
-                      <button
-                        onClick={() => handleSort(column.key)}
-                        className="flex items-center space-x-1 hover:text-gray-900 transition-colors"
-                      >
-                        <span>{column.label}</span>
-                        {getSortIcon(column.key)}
-                      </button>
-                    ) : (
-                      <span>{column.label}</span>
-                    )}
+                    <span>{column.label}</span>
                   </th>
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200">
+            <tbody className="table-body">
               {paginatedData.length === 0 ? (
                 <tr>
                   <td
                     colSpan={columns.length + (selectable ? 1 : 0)}
-                    className="px-4 py-8 text-center text-gray-500"
+                    className="table-cell text-center py-8 text-muted"
                   >
                     {emptyMessage}
                   </td>
@@ -190,15 +184,14 @@ export function DataTable<T extends { id: number | string }>({
                 paginatedData.map((item) => (
                   <tr
                     key={item.id}
-                    className={`
-                      transition-colors
-                      ${onRowClick ? 'cursor-pointer hover:bg-blue-50' : ''}
-                      ${selectedItems.has(item.id) ? 'bg-blue-50' : ''}
+                    className={`table-row transition-smooth
+                      ${onRowClick ? 'cursor-pointer' : ''}
+                      ${selectedItems.has(item.id) ? 'bg-primary/5' : ''}
                     `}
                     onClick={() => onRowClick?.(item)}
                   >
                     {selectable && (
-                      <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                      <td className="table-cell" onClick={(e) => e.stopPropagation()}>
                         <Checkbox
                           checked={selectedItems.has(item.id)}
                           onCheckedChange={() => handleSelectItem(item)}
@@ -206,7 +199,7 @@ export function DataTable<T extends { id: number | string }>({
                       </td>
                     )}
                     {columns.map((column) => (
-                      <td key={column.key} className="px-4 py-3 text-sm text-gray-900">
+                      <td key={column.key} className="table-cell">
                         {column.render ? column.render(item) : (item as any)[column.key]}
                       </td>
                     ))}
@@ -215,32 +208,76 @@ export function DataTable<T extends { id: number | string }>({
               )}
             </tbody>
           </table>
-        </div>
+      </div>
+
+      {/* Vista Mobile: Cards */}
+      <div className="show-mobile space-y-3">
+        {paginatedData.length === 0 ? (
+          <div className="card-base p-8 text-center text-muted">
+            {emptyMessage}
+          </div>
+        ) : (
+          paginatedData.map((item) => (
+            <div
+              key={item.id}
+              className={`card-base p-4 transition-smooth
+                ${onRowClick ? 'cursor-pointer hover:shadow-md' : ''}
+                ${selectedItems.has(item.id) ? 'bg-primary/5 border-primary' : ''}
+              `}
+              onClick={() => onRowClick?.(item)}
+            >
+              {selectable && (
+                <div className="mb-3 pb-3 border-b" onClick={(e) => e.stopPropagation()}>
+                  <Checkbox
+                    checked={selectedItems.has(item.id)}
+                    onCheckedChange={() => handleSelectItem(item)}
+                    className="mr-2"
+                  />
+                  <span className="text-sm text-muted">Seleccionar</span>
+                </div>
+              )}
+              <div className="space-y-2">
+                {columns.map((column) => (
+                  <div key={column.key} className="flex justify-between items-start gap-2">
+                    <span className="text-muted text-sm font-medium min-w-[100px]">
+                      {column.label}:
+                    </span>
+                    <span className="text-sm text-right flex-1">
+                      {column.render ? column.render(item) : (item as any)[column.key]}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))
+        )}
       </div>
 
       {/* Paginación */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-between">
-          <div className="text-sm text-gray-600">
+        <div className="stack-mobile">
+          <div className="text-muted hide-mobile">
             Mostrando {((currentPage - 1) * itemsPerPage) + 1} a {Math.min(currentPage * itemsPerPage, sortedData.length)} de {sortedData.length} resultados
           </div>
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center gap-2 justify-center md:justify-end flex-1">
             <Button
               variant="outline"
               size="sm"
               onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
               disabled={currentPage === 1}
+              className="btn-sm"
             >
               Anterior
             </Button>
-            <span className="text-sm text-gray-600">
-              Página {currentPage} de {totalPages}
+            <span className="text-muted text-sm whitespace-nowrap">
+              Pág. {currentPage} de {totalPages}
             </span>
             <Button
               variant="outline"
               size="sm"
               onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
               disabled={currentPage === totalPages}
+              className="btn-sm"
             >
               Siguiente
             </Button>
