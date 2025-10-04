@@ -188,7 +188,14 @@ export function DataTable<T extends { id: number | string }>({
                       ${onRowClick ? 'cursor-pointer' : ''}
                       ${selectedItems.has(item.id) ? 'bg-primary/5' : ''}
                     `}
-                    onClick={() => onRowClick?.(item)}
+                    onClick={(e) => {
+                      // No ejecutar onRowClick si se clickeó un elemento interactivo
+                      const target = e.target as HTMLElement;
+                      if (target.closest('button, a, input, [role="button"]')) {
+                        return;
+                      }
+                      onRowClick?.(item);
+                    }}
                   >
                     {selectable && (
                       <td className="table-cell" onClick={(e) => e.stopPropagation()}>
@@ -224,7 +231,14 @@ export function DataTable<T extends { id: number | string }>({
                 ${onRowClick ? 'cursor-pointer hover:shadow-md' : ''}
                 ${selectedItems.has(item.id) ? 'bg-primary/5 border-primary' : ''}
               `}
-              onClick={() => onRowClick?.(item)}
+              onClick={(e) => {
+                // No ejecutar onRowClick si se clickeó un elemento interactivo
+                const target = e.target as HTMLElement;
+                if (target.closest('button, a, input, [role="button"]')) {
+                  return;
+                }
+                onRowClick?.(item);
+              }}
             >
               {selectable && (
                 <div className="mb-3 pb-3 border-b" onClick={(e) => e.stopPropagation()}>
