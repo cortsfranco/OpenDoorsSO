@@ -1,5 +1,6 @@
 # Open Doors Billing - AI Assistant Rules
 
+<<<<<<< HEAD
 ## IMPORTANTE: ESTE ES CÓDIGO DE REFERENCIA DESDE REPLIT
 
 Este código fue desarrollado en Replit y es la FUENTE DE VERDAD.
@@ -371,3 +372,62 @@ Refs: GUIA_COMPLETA_REPLICACION.txt sección 4.1"
 **Última actualización**: 03 de octubre de 2025
 **Versión**: 1.0.0
 **Entorno**: Replit (Python 3.11 + FastAPI + PostgreSQL)
+=======
+## IMPORTANTE: TRABAJAR SOBRE CÓDIGO EXISTENTE
+
+Este proyecto YA EXISTE. NO crear carpetas nuevas ni duplicar estructura.
+Trabajar DIRECTAMENTE sobre los archivos existentes en src/, frontend/, etc.
+
+## ARQUITECTURA EXISTENTE
+
+Estructura actual:
+/
+├── src/ ← Trabajar aquí (backend)
+├── frontend/ ← Trabajar aquí (si existe)
+├── alembic/ ← Migraciones DB
+├── tests/ ← Tests
+└── ...
+
+
+## GUÍAS DE REFERENCIA
+
+Las guías en la raíz son REFERENCIA para mejorar el código existente:
+- GUIA_COMPLETA_REPLICACION.txt
+- GUIA_PARTE_2_ENDPOINTS_FRONTEND.txt  
+- GUIA_PARTE_3_GRAFICAS_DEPLOYMENT.txt
+
+**NO crear estructura nueva. MEJORAR la existente.**
+
+## ESTRATEGIA DE TRABAJO
+
+1. **Comparar**: Comparar archivo existente con el de la guía
+2. **Identificar diferencias**: ¿Qué falta? ¿Qué es diferente?
+3. **Ajustar**: Modificar el archivo existente para incluir mejoras de la guía
+4. **Validar**: Probar que sigue funcionando
+
+## REGLAS FISCALES (NO MODIFICAR)
+
+### Balance IVA
+SOLO facturas tipo A (con IVA discriminado)
+
+### Balance General  
+SOLO facturas con movimiento_cuenta=SI
+
+### Formato Moneda
+SIEMPRE $1.234,56 (punto miles, coma decimales)
+
+## SUPERADMIN ÚNICO
+
+Email: cortsfranco@hotmail.com
+Rol: SUPERADMIN
+**NUNCA** crear otro superadmin
+
+## COMANDOS PARA USAR CON CURSOR
+
+### ❌ NO HACER (incorrecto):
+"Crea la estructura de directorios src/"
+
+### ✅ SÍ HACER (correcto):
+"Compara mi src/models/invoice.py actual con @GUIA_COMPLETA_REPLICACION.txt sección 2.4. 
+Dame un diff y propón cambios para mejorar el archivo existente."
+>>>>>>> refs/remotes/origin/master

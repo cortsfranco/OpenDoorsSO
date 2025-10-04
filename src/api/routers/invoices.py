@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 """
 Router para operaciones relacionadas con facturas.
 """
@@ -5,93 +6,39 @@ Router para operaciones relacionadas con facturas.
 from typing import List, Optional
 from datetime import date, datetime
 from fastapi import APIRouter, Depends, HTTPException, status, Query, UploadFile, File
+=======
+from fastapi import APIRouter, Depends, HTTPException, Query
+>>>>>>> refs/remotes/origin/master
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func, and_
-from sqlalchemy.orm import selectinload
+from sqlalchemy import select, and_
+from typing import List, Optional
+from datetime import date, datetime
 
 from src.core.database import get_session
+from src.core.permissions import require_permission, Permission
 from src.core.security import get_current_user
 from src.models.user import User
-from src.models.invoice import Invoice
+from src.models.invoice import Invoice, TipoFactura, MovimientoCuenta
+from src.services.financial_calculator import FinancialCalculator
 
 router = APIRouter()
 
-
-@router.get("/summary")
-async def get_invoices_summary(
-    current_user: User = Depends(get_current_user),
-    session: AsyncSession = Depends(get_session)
-):
-    """
-    Obtiene un resumen de las métricas financieras del usuario.
-    
-    Returns:
-        Resumen con total facturado, IVA a favor y facturas pendientes
-    """
-    try:
-        # Obtener facturas completadas del usuario (excluyendo eliminadas)
-        completed_invoices_query = select(Invoice).where(
-            and_(
-                Invoice.user_id == current_user.id,
-                Invoice.status == "completed",
-                Invoice.is_deleted == False
-            )
-        )
-        result = await session.execute(completed_invoices_query)
-        completed_invoices = result.scalars().all()
-        
-        # Calcular métricas
-        total_facturado = 0
-        iva_a_favor = 0
-        
-        for invoice in completed_invoices:
-            if invoice.extracted_data:
-                # Extraer datos de la factura
-                total = invoice.extracted_data.get("total", 0)
-                iva = invoice.extracted_data.get("iva", 0)
-                
-                if isinstance(total, (int, float)):
-                    total_facturado += total
-                if isinstance(iva, (int, float)):
-                    iva_a_favor += iva
-        
-        # Contar facturas pendientes (excluyendo eliminadas)
-        pending_invoices_query = select(func.count(Invoice.id)).where(
-            and_(
-                Invoice.user_id == current_user.id,
-                Invoice.status.in_(["pending", "processing"]),
-                Invoice.is_deleted == False
-            )
-        )
-        result = await session.execute(pending_invoices_query)
-        facturas_pendientes = result.scalar() or 0
-        
-        return {
-            "total_facturado": total_facturado,
-            "iva_a_favor": iva_a_favor,
-            "facturas_pendientes": facturas_pendientes,
-            "total_facturado_change": 0,  # TODO: Implementar cálculo de cambio
-            "iva_a_favor_change": 0,      # TODO: Implementar cálculo de cambio
-            "facturas_pendientes_change": 0  # TODO: Implementar cálculo de cambio
-        }
-        
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error al obtener resumen de facturas: {str(e)}"
-        )
-
-
 @router.get("/")
-async def get_invoices(
-    page: int = Query(1, ge=1),
-    limit: int = Query(10, ge=1, le=100),
-    current_user: User = Depends(get_current_user),
-    session: AsyncSession = Depends(get_session)
+async def list_invoices(
+    skip: int = Query(0),
+    limit: int = Query(100),
+    tipo_factura: Optional[TipoFactura] = None,
+    socio: Optional[str] = None,
+    fecha_desde: Optional[date] = None,
+    fecha_hasta: Optional[date] = None,
+    include_deleted: bool = False,
+    session: AsyncSession = Depends(get_session),
+    current_user: User = Depends(get_current_user)
 ):
-    """
-    Obtiene la lista de facturas del usuario con paginación.
+    """Lista todas las facturas con filtros"""
+    query = select(Invoice)
     
+<<<<<<< HEAD
     Args:
         page: Número de página
         limit: Número de elementos por página
@@ -261,289 +208,94 @@ async def delete_invoice(
 ):
     """
     Elimina una factura (soft delete).
+=======
+    # Filtro de soft delete
+    if not include_deleted:
+        query = query.where(Invoice.is_deleted == False)
+>>>>>>> refs/remotes/origin/master
     
-    Args:
-        invoice_id: ID de la factura a eliminar
-        current_user: Usuario autenticado
-        session: Sesión de base de datos
-        
-    Returns:
-        Mensaje de confirmación
-    """
-    try:
-        # Verificar que la factura existe y pertenece al usuario
-        invoice_query = select(Invoice).where(
-            and_(
-                Invoice.id == invoice_id,
-                Invoice.user_id == current_user.id,
-                Invoice.is_deleted == False
-            )
-        )
-        result = await session.execute(invoice_query)
-        invoice = result.scalar_one_or_none()
-        
-        if not invoice:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Factura no encontrada"
-            )
-        
-        # Soft delete
-        invoice.is_deleted = True
-        invoice.deleted_at = func.now()
-        invoice.updated_at = func.now()
-        
-        await session.commit()
-        
-        return {
-            "message": "Factura eliminada exitosamente",
-            "invoice_id": invoice_id,
-            "deleted_at": invoice.deleted_at
-        }
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        await session.rollback()
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error al eliminar factura: {str(e)}"
-        )
-
-
-@router.post("/{invoice_id}/restore")
-async def restore_invoice(
-    invoice_id: int,
-    current_user: User = Depends(get_current_user),
-    session: AsyncSession = Depends(get_session)
-):
-    """
-    Restaura una factura desde la papelera.
+    # Filtros opcionales
+    if tipo_factura:
+        query = query.where(Invoice.tipo_factura == tipo_factura)
+    if socio:
+        query = query.where(Invoice.socio_responsable == socio)
+    if fecha_desde:
+        query = query.where(Invoice.fecha_emision >= fecha_desde)
+    if fecha_hasta:
+        query = query.where(Invoice.fecha_emision <= fecha_hasta)
     
-    Args:
-        invoice_id: ID de la factura a restaurar
-        current_user: Usuario autenticado
-        session: Sesión de base de datos
-        
-    Returns:
-        Mensaje de confirmación
-    """
-    try:
-        # Verificar que la factura existe y está eliminada
-        invoice_query = select(Invoice).where(
-            and_(
-                Invoice.id == invoice_id,
-                Invoice.user_id == current_user.id,
-                Invoice.is_deleted == True
-            )
-        )
-        result = await session.execute(invoice_query)
-        invoice = result.scalar_one_or_none()
-        
-        if not invoice:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Factura no encontrada en la papelera"
-            )
-        
-        # Restaurar
-        invoice.is_deleted = False
-        invoice.deleted_at = None
-        invoice.updated_at = func.now()
-        
-        await session.commit()
-        
-        return {
-            "message": "Factura restaurada exitosamente",
-            "invoice_id": invoice_id,
-            "restored_at": invoice.updated_at
-        }
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        await session.rollback()
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error al restaurar factura: {str(e)}"
-        )
-
+    # Paginación
+    query = query.offset(skip).limit(limit)
+    
+    result = await session.execute(query)
+    invoices = result.scalars().all()
+    
+    return {
+        "invoices": invoices,
+        "total": len(invoices),
+        "skip": skip,
+        "limit": limit
+    }
 
 @router.get("/{invoice_id}")
 async def get_invoice(
     invoice_id: int,
-    current_user: User = Depends(get_current_user),
-    session: AsyncSession = Depends(get_session)
+    session: AsyncSession = Depends(get_session),
+    current_user: User = Depends(get_current_user)
 ):
-    """
-    Obtiene los detalles de una factura específica.
+    """Obtiene una factura por ID"""
+    query = select(Invoice).where(Invoice.id == invoice_id)
+    result = await session.execute(query)
+    invoice = result.scalar_one_or_none()
     
-    Args:
-        invoice_id: ID de la factura
-        
-    Returns:
-        Detalles de la factura
-    """
-    try:
-        # Obtener la factura
-        invoice_query = select(Invoice).where(
-            and_(
-                Invoice.id == invoice_id,
-                Invoice.user_id == current_user.id
-            )
-        )
-        result = await session.execute(invoice_query)
-        invoice = result.scalar_one_or_none()
-        
-        if not invoice:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Factura no encontrada"
-            )
-        
-        return {
-            "id": invoice.id,
-            "filename": invoice.filename,
-            "status": invoice.status,
-            "upload_date": invoice.upload_date,
-            "created_at": invoice.created_at,
-            "extracted_data": invoice.extracted_data,
-            "blob_url": invoice.blob_url,
-            "user_id": invoice.user_id,
-            "owner": invoice.owner
-        }
-        
-    except HTTPException:
-        raise
-    except Exception as e:
+    if not invoice:
+        raise HTTPException(status_code=404, detail="Factura no encontrada")
+    
+    # Validar coherencia de montos
+    validacion = FinancialCalculator.validar_coherencia_montos(invoice)
+    
+    return {
+        "invoice": invoice,
+        "validacion_montos": validacion
+    }
+
+@router.post("/")
+async def create_invoice(
+    invoice_data: dict,
+    session: AsyncSession = Depends(get_session),
+    current_user: User = Depends(get_current_user)
+):
+    """Crea una nueva factura"""
+    # Validar permisos
+    from src.core.permissions import has_permission
+    if not has_permission(current_user, Permission.INVOICE_CREATE):
+        raise HTTPException(status_code=403, detail="Sin permisos para crear facturas")
+    
+    # Crear invoice
+    invoice = Invoice(**invoice_data, user_id=current_user.id)
+    
+    # Validar coherencia de montos
+    validacion = FinancialCalculator.validar_coherencia_montos(invoice)
+    if not validacion["es_coherente"]:
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error al obtener factura: {str(e)}"
+            status_code=400, 
+            detail=f"Montos incoherentes: {validacion['mensaje']}"
         )
+    
+    session.add(invoice)
+    await session.commit()
+    await session.refresh(invoice)
+    
+    return {"invoice": invoice, "message": "Factura creada exitosamente"}
 
-
-@router.patch("/{invoice_id}")
+@router.put("/{invoice_id}")
 async def update_invoice(
     invoice_id: int,
-    update_data: dict,
-    current_user: User = Depends(get_current_user),
-    session: AsyncSession = Depends(get_session)
-):
-    """
-    Actualiza campos específicos de una factura (autoguardado).
-    
-    Args:
-        invoice_id: ID de la factura
-        update_data: Diccionario con los campos a actualizar
-        
-    Returns:
-        Factura actualizada
-    """
-    try:
-        # Obtener la factura
-        invoice_query = select(Invoice).where(
-            and_(
-                Invoice.id == invoice_id,
-                Invoice.user_id == current_user.id
-            )
-        )
-        result = await session.execute(invoice_query)
-        invoice = result.scalar_one_or_none()
-        
-        if not invoice:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Factura no encontrada"
-            )
-        
-        # Campos permitidos para actualización
-        allowed_fields = ['extracted_data', 'owner', 'status']
-        
-        # Actualizar solo los campos permitidos
-        for field, value in update_data.items():
-            if field in allowed_fields and hasattr(invoice, field):
-                setattr(invoice, field, value)
-        
-        # Marcar como actualizado
-        invoice.updated_at = func.now()
-        
-        await session.commit()
-        await session.refresh(invoice)
-        
-        return {
-            "id": invoice.id,
-            "filename": invoice.filename,
-            "status": invoice.status,
-            "upload_date": invoice.upload_date,
-            "created_at": invoice.created_at,
-            "extracted_data": invoice.extracted_data,
-            "blob_url": invoice.blob_url,
-            "user_id": invoice.user_id,
-            "owner": invoice.owner,
-            "updated_at": invoice.updated_at
-        }
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        await session.rollback()
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error al actualizar factura: {str(e)}"
-        )
-
-
-@router.get("/trash", summary="Obtiene facturas eliminadas (papelera)")
-async def get_deleted_invoices(
-    current_user: User = Depends(get_current_user),
-    session: AsyncSession = Depends(get_session)
-):
-    """
-    Obtiene todas las facturas eliminadas (en la papelera) del usuario.
-    """
-    try:
-        result = await session.execute(
-            select(Invoice).where(
-                and_(
-                    Invoice.user_id == current_user.id,
-                    Invoice.is_deleted == True
-                )
-            ).order_by(Invoice.deleted_at.desc())
-        )
-        invoices = result.scalars().all()
-        
-        return {
-            "invoices": [
-                {
-                    "id": invoice.id,
-                    "filename": invoice.filename,
-                    "status": invoice.status,
-                    "upload_date": invoice.upload_date,
-                    "created_at": invoice.created_at,
-                    "deleted_at": invoice.deleted_at,
-                    "extracted_data": invoice.extracted_data,
-                    "blob_url": invoice.blob_url,
-                    "user_id": invoice.user_id,
-                    "owner": invoice.owner
-                }
-                for invoice in invoices
-            ],
-            "total": len(invoices)
-        }
-        
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error al obtener facturas eliminadas: {str(e)}"
-        )
-
-
-@router.post("/manual", summary="Crear factura manualmente")
-async def create_manual_invoice(
     invoice_data: dict,
-    current_user: User = Depends(get_current_user),
-    session: AsyncSession = Depends(get_session)
+    session: AsyncSession = Depends(get_session),
+    current_user: User = Depends(get_current_user)
 ):
+<<<<<<< HEAD
     """
     Crea una factura manualmente sin archivo.
     """
@@ -623,3 +375,111 @@ async def check_duplicate_invoice(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error al verificar duplicados: {str(e)}"
         )
+=======
+    """Actualiza una factura"""
+    from src.core.permissions import has_permission
+    if not has_permission(current_user, Permission.INVOICE_EDIT):
+        raise HTTPException(status_code=403, detail="Sin permisos para editar")
+    
+    query = select(Invoice).where(Invoice.id == invoice_id)
+    result = await session.execute(query)
+    invoice = result.scalar_one_or_none()
+    
+    if not invoice:
+        raise HTTPException(status_code=404, detail="Factura no encontrada")
+    
+    # Actualizar campos
+    for key, value in invoice_data.items():
+        if hasattr(invoice, key):
+            setattr(invoice, key, value)
+    
+    invoice.updated_at = datetime.utcnow()
+    
+    # Validar coherencia
+    validacion = FinancialCalculator.validar_coherencia_montos(invoice)
+    if not validacion["es_coherente"]:
+        raise HTTPException(
+            status_code=400, 
+            detail=f"Montos incoherentes: {validacion['mensaje']}"
+        )
+    
+    await session.commit()
+    await session.refresh(invoice)
+    
+    return {"invoice": invoice, "message": "Factura actualizada"}
+
+@router.delete("/{invoice_id}")
+async def soft_delete_invoice(
+    invoice_id: int,
+    session: AsyncSession = Depends(get_session),
+    current_user: User = Depends(get_current_user)
+):
+    """Soft delete de una factura"""
+    from src.core.permissions import has_permission
+    if not has_permission(current_user, Permission.INVOICE_DELETE):
+        raise HTTPException(status_code=403, detail="Sin permisos para eliminar")
+    
+    query = select(Invoice).where(Invoice.id == invoice_id)
+    result = await session.execute(query)
+    invoice = result.scalar_one_or_none()
+    
+    if not invoice:
+        raise HTTPException(status_code=404, detail="Factura no encontrada")
+    
+    invoice.is_deleted = True
+    invoice.deleted_at = datetime.utcnow()
+    await session.commit()
+    
+    return {"message": "Factura eliminada (soft delete)"}
+
+@router.post("/{invoice_id}/restore")
+async def restore_invoice(
+    invoice_id: int,
+    session: AsyncSession = Depends(get_session),
+    current_user: User = Depends(get_current_user)
+):
+    """Restaura una factura eliminada"""
+    from src.core.permissions import has_permission
+    if not has_permission(current_user, Permission.INVOICE_RESTORE):
+        raise HTTPException(status_code=403, detail="Sin permisos para restaurar")
+    
+    query = select(Invoice).where(Invoice.id == invoice_id)
+    result = await session.execute(query)
+    invoice = result.scalar_one_or_none()
+    
+    if not invoice:
+        raise HTTPException(status_code=404, detail="Factura no encontrada")
+    
+    invoice.is_deleted = False
+    invoice.deleted_at = None
+    await session.commit()
+    
+    return {"message": "Factura restaurada"}
+
+@router.post("/{invoice_id}/approve")
+async def approve_invoice(
+    invoice_id: int,
+    session: AsyncSession = Depends(get_session),
+    current_user: User = Depends(get_current_user)
+):
+    """Aprueba una factura"""
+    from src.core.permissions import has_permission
+    if not has_permission(current_user, Permission.INVOICE_APPROVE):
+        raise HTTPException(status_code=403, detail="Sin permisos para aprobar")
+    
+    query = select(Invoice).where(Invoice.id == invoice_id)
+    result = await session.execute(query)
+    invoice = result.scalar_one_or_none()
+    
+    if not invoice:
+        raise HTTPException(status_code=404, detail="Factura no encontrada")
+    
+    invoice.payment_status = "approved"
+    invoice.approver_id = current_user.id
+    invoice.approved_at = datetime.utcnow()
+    
+    await session.commit()
+    await session.refresh(invoice)
+    
+    return {"invoice": invoice, "message": "Factura aprobada"}
+>>>>>>> refs/remotes/origin/master

@@ -14,8 +14,12 @@ Si estás empezando desde cero, es lo más simple:
 1. Crea un directorio nuevo y limpio:
 ```bash
 mkdir open-doors-billing-new
+<<<<<<< HEAD
 cd 
 -new
+=======
+cd open-doors-billing-new
+>>>>>>> refs/remotes/origin/master
 ```
 
 2. Inicializa git:

@@ -1,61 +1,33 @@
-/**
- * Servicio de API para comunicación con el backend.
- */
+import axios from 'axios'
 
-import axios, { AxiosInstance, AxiosResponse } from 'axios';
+const API_BASE = 'http://localhost:5000/api'
 
+<<<<<<< HEAD
 // Configuración base de la API
 const API_BASE_URL = import.meta.env.VITE_API_URL || window.location.origin.replace(':5000', ':8000');
+=======
+// Configurar axios con token automático
+const api = axios.create({
+  baseURL: API_BASE
+})
+>>>>>>> refs/remotes/origin/master
 
-class ApiService {
-  private api: AxiosInstance;
-
-  constructor() {
-    this.api = axios.create({
-      baseURL: `${API_BASE_URL}/api`,
-      timeout: 30000,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-
-    // Interceptor para agregar token de autenticación
-    this.api.interceptors.request.use(
-      (config) => {
-        const token = localStorage.getItem('access_token');
-        if (token) {
-          config.headers.Authorization = `Bearer ${token}`;
-        }
-        return config;
-      },
-      (error) => {
-        return Promise.reject(error);
-      }
-    );
-
-    // Interceptor para manejar respuestas y errores
-    this.api.interceptors.response.use(
-      (response: AxiosResponse) => {
-        return response;
-      },
-      (error) => {
-        if (error.response?.status === 401) {
-          // Token expirado o inválido
-          localStorage.removeItem('access_token');
-          localStorage.removeItem('user');
-          window.location.href = '/login';
-        }
-        return Promise.reject(error);
-      }
-    );
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('access_token')
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`
   }
+  return config
+})
 
-  // Métodos de autenticación
-  async login(email: string, password: string) {
-    const formData = new URLSearchParams();
-    formData.append('username', email);
-    formData.append('password', password);
+// ========== AUTH ========== 
+export const authAPI = {
+  login: async (email: string, password: string) => {
+    const formData = new FormData()
+    formData.append('username', email)
+    formData.append('password', password)
     
+<<<<<<< HEAD
     const response = await this.api.post('/auth/login', formData, {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -442,10 +414,114 @@ class ApiService {
   async formatCurrency(amount: number) {
     const response = await this.api.post('/v1/system/format/currency', { amount });
     return response.data;
+=======
+    const response = await api.post('/auth/login', formData)
+    localStorage.setItem('access_token', response.data.access_token)
+    return response.data
+  },
+  
+  logout: () => {
+    localStorage.removeItem('access_token')
+  },
+  
+  getCurrentUser: async () => {
+    const response = await api.get('/auth/me')
+    return response.data
+>>>>>>> refs/remotes/origin/master
   }
 }
 
-// Instancia singleton del servicio
-const apiService = new ApiService();
+// ========== INVOICES ========== 
+export const invoicesAPI = {
+  list: async (filters?: any) => {
+    const response = await api.get('/invoices', { params: filters })
+    return response.data
+  },
+  
+  get: async (id: number) => {
+    const response = await api.get(`/invoices/${id}`)
+    return response.data
+  },
+  
+  create: async (data: any) => {
+    const response = await api.post('/invoices', data)
+    return response.data
+  },
+  
+  // Auto-save con debounce
+  update: async (id: number, data: any) => {
+    const response = await api.put(`/invoices/${id}`, data)
+    return response.data
+  },
+  
+  delete: async (id: number) => {
+    const response = await api.delete(`/invoices/${id}`)
+    return response.data
+  },
+  
+  restore: async (id: number) => {
+    const response = await api.post(`/invoices/${id}/restore`)
+    return response.data
+  },
+  
+  approve: async (id: number) => {
+    const response = await api.post(`/invoices/${id}/approve`)
+    return response.data
+  }
+}
 
-export default apiService;
+// ========== FINANCIAL ========== 
+export const financialAPI = {
+  balanceIVA: async (params?: any) => {
+    const response = await api.get('/v1/financial/balance-iva', { params })
+    return response.data
+  },
+  
+  balanceGeneral: async (params?: any) => {
+    const response = await api.get('/v1/financial/balance-general', { params })
+    return response.data
+  },
+  
+  balancePorSocio: async (socio: string) => {
+    const response = await api.get('/v1/financial/balance-por-socio', { 
+      params: { socio } 
+    })
+    return response.data
+  },
+  
+  resumenCompleto: async (params?: any) => {
+    const response = await api.get('/v1/financial/resumen-completo', { params })
+    return response.data
+  }
+}
+
+// ========== PARTNERS ========== 
+export const partnersAPI = {
+  list: async () => {
+    const response = await api.get('/partners')
+    return response.data
+  },
+  
+  get: async (id: number) => {
+    const response = await api.get(`/partners/${id}`)
+    return response.data
+  },
+  
+  create: async (data: any) => {
+    const response = await api.post('/partners', data)
+    return response.data
+  },
+  
+  update: async (id: number, data: any) => {
+    const response = await api.put(`/partners/${id}`, data)
+    return response.data
+  }
+}
+
+// Export por defecto para compatibilidad
+export default {
+  authAPI,
+  invoicesAPI,
+  financialAPI,
+  partnersAPI
+}

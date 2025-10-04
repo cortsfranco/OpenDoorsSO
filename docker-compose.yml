@@ -1,10 +1,16 @@
 version: '3.8'
 
 services:
+  # Base de datos PostgreSQL
   db:
-    image: postgres:16-alpine
+    image: postgres:14-alpine
     container_name: opendoors_db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-opendoors_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-TuPasswordSegura}
+      POSTGRES_DB: ${POSTGRES_DB:-opendoors_billing}
     volumes:
+<<<<<<< HEAD
       - postgres_data:/var/lib/postgresql/data/
       - ./scripts/init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
@@ -37,11 +43,22 @@ services:
     restart: unless-stopped
     networks:
       - opendoors_network
+=======
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-opendoors_user}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+>>>>>>> refs/remotes/origin/master
 
+  # Backend FastAPI
   backend:
-    container_name: opendoors_backend
-    build:
+    build: 
       context: .
+<<<<<<< HEAD
       dockerfile: Dockerfile.backend
     command: uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
     volumes:
@@ -98,3 +115,36 @@ volumes:
 networks:
   opendoors_network:
     driver: bridge
+=======
+      dockerfile: Dockerfile
+    container_name: opendoors_backend
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-opendoors_user}:${POSTGRES_PASSWORD:-TuPasswordSegura}@db:5432/${POSTGRES_DB:-opendoors_billing}
+      SECRET_KEY: ${SECRET_KEY:-cambiar-en-produccion}
+      AZURE_OPENAI_ENDPOINT: ${AZURE_OPENAI_ENDPOINT:-}
+      AZURE_OPENAI_API_KEY: ${AZURE_OPENAI_API_KEY:-}
+      AZURE_DOC_INTELLIGENCE_ENDPOINT: ${AZURE_DOC_INTELLIGENCE_ENDPOINT:-}
+      AZURE_DOC_INTELLIGENCE_KEY: ${AZURE_DOC_INTELLIGENCE_KEY:-}
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./src:/app/src
+    command: gunicorn src.main:app -w 4 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:5000
+
+  # Frontend React (opcional - para producción)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: opendoors_frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
+>>>>>>> refs/remotes/origin/master
