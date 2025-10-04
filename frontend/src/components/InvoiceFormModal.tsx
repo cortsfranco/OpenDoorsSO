@@ -204,38 +204,32 @@ export function InvoiceFormModal({ open, onClose, onSave, invoice, mode }: Invoi
 
             <div className="space-y-2">
               <Label htmlFor="subtotal">Subtotal *</Label>
-              <Input
+              <CurrencyInput
                 id="subtotal"
-                type="number"
-                step="0.01"
                 value={formData.subtotal}
-                onChange={(e) => handleInputChange('subtotal', e.target.value)}
-                placeholder="0.00"
+                onChange={(value) => handleInputChange('subtotal', value)}
+                placeholder="0,00"
                 required
               />
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="iva_porcentaje">IVA % *</Label>
-              <Input
+              <CurrencyInput
                 id="iva_porcentaje"
-                type="number"
-                step="0.01"
                 value={formData.iva_porcentaje}
-                onChange={(e) => handleInputChange('iva_porcentaje', e.target.value)}
-                placeholder="21.00"
+                onChange={(value) => handleInputChange('iva_porcentaje', value)}
+                placeholder="21,00"
                 required
               />
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="iva_monto">IVA Monto (calculado)</Label>
-              <Input
+              <CurrencyInput
                 id="iva_monto"
-                type="number"
-                step="0.01"
                 value={formData.iva_monto}
-                readOnly
+                onChange={() => {}}
                 disabled
                 className="bg-muted"
               />
@@ -243,24 +237,20 @@ export function InvoiceFormModal({ open, onClose, onSave, invoice, mode }: Invoi
 
             <div className="space-y-2">
               <Label htmlFor="otros_impuestos">Otros Impuestos</Label>
-              <Input
+              <CurrencyInput
                 id="otros_impuestos"
-                type="number"
-                step="0.01"
                 value={formData.otros_impuestos}
-                onChange={(e) => handleInputChange('otros_impuestos', e.target.value)}
-                placeholder="0.00"
+                onChange={(value) => handleInputChange('otros_impuestos', value)}
+                placeholder="0,00"
               />
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="total">Total (calculado)</Label>
-              <Input
+              <CurrencyInput
                 id="total"
-                type="number"
-                step="0.01"
                 value={formData.total}
-                readOnly
+                onChange={() => {}}
                 disabled
                 className="bg-muted font-semibold"
               />
