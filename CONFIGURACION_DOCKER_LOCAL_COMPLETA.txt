@@ -1,0 +1,937 @@
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                                                                              ║
+║        OPEN DOORS - CONFIGURACIÓN COMPLETA PARA DOCKER LOCAL                ║
+║        Sistema de Facturación con Azure AI + PostgreSQL                     ║
+║                                                                              ║
+║        Fecha: 03 Octubre 2025                                               ║
+║        Versión: 1.0.0 - Migración desde Replit                             ║
+║                                                                              ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+════════════════════════════════════════════════════════════════════════════════
+📋 ÍNDICE DE CONTENIDOS
+════════════════════════════════════════════════════════════════════════════════
+
+1. REQUISITOS PREVIOS
+2. ESTRUCTURA DE ARCHIVOS
+3. ARCHIVO .env (CONFIGURACIÓN COMPLETA)
+4. DOCKER-COMPOSE.YML (PRODUCCIÓN LOCAL)
+5. DOCKERFILE BACKEND
+6. SCRIPTS DE INICIO (Windows y Linux)
+7. MIGRACIÓN DE BASE DE DATOS DESDE REPLIT
+8. EXPORTACIÓN DE BASE DE DATOS PARA HOSTINGER
+9. COMANDOS ÚTILES
+10. SOLUCIÓN DE PROBLEMAS COMUNES
+
+════════════════════════════════════════════════════════════════════════════════
+1. REQUISITOS PREVIOS
+════════════════════════════════════════════════════════════════════════════════
+
+Asegúrate de tener instalado en tu máquina local:
+
+✅ Docker Desktop (Windows/Mac) o Docker Engine (Linux)
+   Descargar: https://www.docker.com/products/docker-desktop
+
+✅ Docker Compose (viene incluido en Docker Desktop)
+   Verificar: docker-compose --version
+
+✅ Git (para descargar el código desde Replit)
+   Descargar: https://git-scm.com/downloads
+
+✅ Node.js 18+ (para desarrollo del frontend)
+   Descargar: https://nodejs.org/
+
+✅ Python 3.11+ (opcional, para desarrollo local sin Docker)
+   Descargar: https://www.python.org/downloads/
+
+════════════════════════════════════════════════════════════════════════════════
+2. ESTRUCTURA DE ARCHIVOS
+════════════════════════════════════════════════════════════════════════════════
+
+Descarga desde Replit y organiza así:
+
+open-doors-billing/
+├── .env                          ← CRÍTICO: Credenciales Azure + DB
+├── docker-compose.yml            ← Orquestación de servicios
+├── Dockerfile.backend            ← Imagen del backend Python
+├── requirements.txt              ← Dependencias Python
+├── init.sql                      ← Script inicial de BD (opcional)
+├── INICIAR-OPENDOORS.bat        ← Script Windows
+├── INICIAR-OPENDOORS.sh         ← Script Linux/Mac
+├── DETENER-OPENDOORS.bat        ← Detener en Windows
+├── DETENER-OPENDOORS.sh         ← Detener en Linux/Mac
+├── EXPORTAR-BD.bat              ← Exportar BD en Windows
+├── EXPORTAR-BD.sh               ← Exportar BD en Linux/Mac
+├── src/                          ← Código backend
+│   ├── main.py
+│   ├── api/
+│   ├── core/
+│   ├── models/
+│   ├── services/
+│   └── agents/
+├── frontend/                     ← Código frontend React
+│   ├── package.json
+│   ├── src/
+│   └── public/
+└── backups/                      ← Carpeta para exports de BD (crear)
+
+════════════════════════════════════════════════════════════════════════════════
+3. ARCHIVO .env (CONFIGURACIÓN COMPLETA)
+════════════════════════════════════════════════════════════════════════════════
+
+Crea este archivo en la raíz del proyecto: .env
+
+IMPORTANTE: Este archivo contiene credenciales REALES. Franco autoriza su uso.
+
+────────────────────────────────────────────────────────────────────────────────
+Contenido del archivo .env:
+────────────────────────────────────────────────────────────────────────────────
+
+# ====== Configuración General ======
+DEBUG=True
+LOG_LEVEL=INFO
+PROJECT_NAME=Sistema de Gestión Open Doors
+VERSION=1.0.0
+
+# ====== Seguridad JWT ======
+# IMPORTANTE: Genera una clave segura con: openssl rand -hex 32
+SECRET_KEY=09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=10080
+
+# ====== Credenciales de la Base de Datos Local (Docker) ======
+POSTGRES_USER=opendoors_user
+POSTGRES_PASSWORD=opendoors_password_2025
+POSTGRES_SERVER=db
+POSTGRES_PORT=5432
+POSTGRES_DB=opendoors_billing
+DATABASE_URL=postgresql://opendoors_user:opendoors_password_2025@db:5432/opendoors_billing
+
+# ====== Credenciales de Azure OpenAI ======
+AZURE_OPENAI_ENDPOINT=https://mfn-opendoors-openai.openai.azure.com/
+AZURE_OPENAI_API_KEY=Ab2T1zO11h8pvAhw4qKU7KdBEPe0kBYLSWkWKBcn45ZaHvB1gxOIJQQJ99BIACYeBjFXJ3w3AAABACOGtIj4
+AZURE_OPENAI_DEPLOYMENT_NAME=gpt-4o
+OPENAI_API_VERSION=2024-02-01
+
+# ====== Credenciales de Azure Document Intelligence ======
+AZURE_DOC_INTELLIGENCE_ENDPOINT=https://mfn-opendoors-docintel.cognitiveservices.azure.com/
+AZURE_DOC_INTELLIGENCE_KEY=Bfly4Mb9ElydDPQNh2lEJo6vF2PYNPtgBOPE6WjcWgrhdlyB5nHhJQQJ99BIACYeBjFXJ3w3AAALACOGZJ2f
+
+# ====== Credenciales de Azure Cognitive Search ======
+AZURE_SEARCH_ENDPOINT=https://mfnsearchv2.search.windows.net
+AZURE_SEARCH_ADMIN_KEY=gk3y5ExYXjx4XwN5p4e6JcnUzruRZgPaxZ2nqkQ0ULAzSeCy5DiN
+AZURE_SEARCH_INDEX_NAME=opendoors-invoices
+
+# ====== Credenciales de Azure Storage (Blob) ======
+AZURE_STORAGE_ACCOUNT_NAME=mfnopendoorssearchbyidt
+AZURE_STORAGE_ACCOUNT_KEY=ls1dWh3RV7z7FtFTsVjUmQGVWp6RBfrn4WnfBTloGWP0sUOIf4GA8QWDWEf6iDdj39KD7p60/nQs+AStmmgwBg==
+AZURE_STORAGE_CONTAINER_NAME=invoices
+
+# ====== CORS (Permitir frontend) ======
+ALLOWED_HOSTS=http://localhost:3000,http://localhost:5000,http://localhost:5173,http://127.0.0.1:3000,http://127.0.0.1:5000,http://127.0.0.1:5173
+
+# ====== AFIP (Opcional - para futuras integraciones) ======
+AFIP_TAX_ID=
+AFIP_CERTIFICATE_PATH=
+AFIP_PRIVATE_KEY_PATH=
+
+════════════════════════════════════════════════════════════════════════════════
+4. DOCKER-COMPOSE.YML (PRODUCCIÓN LOCAL)
+════════════════════════════════════════════════════════════════════════════════
+
+Crea este archivo en la raíz del proyecto: docker-compose.yml
+
+────────────────────────────────────────────────────────────────────────────────
+Contenido del archivo docker-compose.yml:
+────────────────────────────────────────────────────────────────────────────────
+
+version: '3.8'
+
+services:
+  # ════════════════════════════════════════════════════════════
+  # Base de Datos PostgreSQL 14
+  # ════════════════════════════════════════════════════════════
+  db:
+    image: postgres:14-alpine
+    container_name: opendoors-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=es_AR.UTF-8"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./backups:/backups
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - opendoors-network
+
+  # ════════════════════════════════════════════════════════════
+  # Backend FastAPI + Python
+  # ════════════════════════════════════════════════════════════
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: opendoors-backend
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      - POSTGRES_SERVER=db
+    volumes:
+      - ./src:/app/src
+      - ./uploads:/app/uploads
+      - ./logs:/app/logs
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    command: uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - opendoors-network
+
+  # ════════════════════════════════════════════════════════════
+  # Frontend React + Vite (Desarrollo)
+  # ════════════════════════════════════════════════════════════
+  frontend:
+    image: node:18-alpine
+    container_name: opendoors-frontend
+    restart: unless-stopped
+    working_dir: /app
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    ports:
+      - "5000:5000"
+    environment:
+      - VITE_API_URL=http://localhost:8000
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0 --port 5000"
+    depends_on:
+      - backend
+    networks:
+      - opendoors-network
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  opendoors-network:
+    driver: bridge
+
+════════════════════════════════════════════════════════════════════════════════
+5. DOCKERFILE BACKEND
+════════════════════════════════════════════════════════════════════════════════
+
+Crea este archivo en la raíz del proyecto: Dockerfile.backend
+
+────────────────────────────────────────────────────────────────────────────────
+Contenido del archivo Dockerfile.backend:
+────────────────────────────────────────────────────────────────────────────────
+
+FROM python:3.11-slim
+
+# Variables de entorno para Python
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+
+# Instalar dependencias del sistema
+RUN apt-get update && apt-get install -y \
+    gcc \
+    postgresql-client \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Directorio de trabajo
+WORKDIR /app
+
+# Copiar requirements y instalar dependencias Python
+COPY requirements.txt .
+RUN pip install --upgrade pip && \
+    pip install -r requirements.txt
+
+# Copiar código fuente
+COPY ./src ./src
+COPY ./alembic ./alembic
+COPY ./alembic.ini .
+
+# Crear directorios necesarios
+RUN mkdir -p /app/uploads /app/logs
+
+# Exponer puerto
+EXPOSE 8000
+
+# Comando por defecto (se sobrescribe en docker-compose)
+CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000"]
+
+════════════════════════════════════════════════════════════════════════════════
+6. SCRIPTS DE INICIO (Windows y Linux)
+════════════════════════════════════════════════════════════════════════════════
+
+────────────────────────────────────────────────────────────────────────────────
+6.1 INICIAR-OPENDOORS.bat (Windows)
+────────────────────────────────────────────────────────────────────────────────
+
+Crea este archivo en la raíz del proyecto: INICIAR-OPENDOORS.bat
+
+@echo off
+chcp 65001 >nul
+cls
+echo.
+echo ╔══════════════════════════════════════════════════════════════════╗
+echo ║                                                                  ║
+echo ║         🚀 INICIANDO OPEN DOORS - SISTEMA DE FACTURACIÓN        ║
+echo ║                                                                  ║
+echo ╚══════════════════════════════════════════════════════════════════╝
+echo.
+
+REM Verificar si Docker está corriendo
+docker info >nul 2>&1
+if errorlevel 1 (
+    echo ❌ ERROR: Docker no está corriendo
+    echo.
+    echo Por favor inicia Docker Desktop y vuelve a ejecutar este script.
+    pause
+    exit /b 1
+)
+
+echo ✅ Docker está corriendo
+echo.
+
+REM Verificar si existe .env
+if not exist .env (
+    echo ❌ ERROR: No se encontró el archivo .env
+    echo.
+    echo Por favor crea el archivo .env con las credenciales necesarias.
+    pause
+    exit /b 1
+)
+
+echo ✅ Archivo .env encontrado
+echo.
+
+REM Crear directorio de backups si no existe
+if not exist backups mkdir backups
+
+echo 📦 Construyendo e iniciando servicios...
+echo.
+docker-compose up -d --build
+
+if errorlevel 1 (
+    echo.
+    echo ❌ ERROR al iniciar los servicios
+    pause
+    exit /b 1
+)
+
+echo.
+echo ╔══════════════════════════════════════════════════════════════════╗
+echo ║                                                                  ║
+echo ║         ✅ OPEN DOORS INICIADO CORRECTAMENTE                    ║
+echo ║                                                                  ║
+echo ╚══════════════════════════════════════════════════════════════════╝
+echo.
+echo 🌐 URLs de acceso:
+echo    - Frontend: http://localhost:5000
+echo    - Backend API: http://localhost:8000
+echo    - Documentación API: http://localhost:8000/docs
+echo    - Base de Datos: localhost:5432
+echo.
+echo 👤 Credenciales Superadmin:
+echo    Email: cortsfranco@hotmail.com
+echo    Password: Ncc1701E@
+echo.
+echo 📊 Para ver logs en tiempo real:
+echo    docker-compose logs -f
+echo.
+echo 🛑 Para detener el sistema:
+echo    Ejecuta: DETENER-OPENDOORS.bat
+echo.
+pause
+
+────────────────────────────────────────────────────────────────────────────────
+6.2 INICIAR-OPENDOORS.sh (Linux/Mac)
+────────────────────────────────────────────────────────────────────────────────
+
+Crea este archivo en la raíz del proyecto: INICIAR-OPENDOORS.sh
+
+#!/bin/bash
+
+clear
+echo ""
+echo "╔══════════════════════════════════════════════════════════════════╗"
+echo "║                                                                  ║"
+echo "║         🚀 INICIANDO OPEN DOORS - SISTEMA DE FACTURACIÓN        ║"
+echo "║                                                                  ║"
+echo "╚══════════════════════════════════════════════════════════════════╝"
+echo ""
+
+# Verificar si Docker está corriendo
+if ! docker info > /dev/null 2>&1; then
+    echo "❌ ERROR: Docker no está corriendo"
+    echo ""
+    echo "Por favor inicia Docker y vuelve a ejecutar este script."
+    exit 1
+fi
+
+echo "✅ Docker está corriendo"
+echo ""
+
+# Verificar si existe .env
+if [ ! -f .env ]; then
+    echo "❌ ERROR: No se encontró el archivo .env"
+    echo ""
+    echo "Por favor crea el archivo .env con las credenciales necesarias."
+    exit 1
+fi
+
+echo "✅ Archivo .env encontrado"
+echo ""
+
+# Crear directorio de backups si no existe
+mkdir -p backups
+
+echo "📦 Construyendo e iniciando servicios..."
+echo ""
+docker-compose up -d --build
+
+if [ $? -ne 0 ]; then
+    echo ""
+    echo "❌ ERROR al iniciar los servicios"
+    exit 1
+fi
+
+echo ""
+echo "╔══════════════════════════════════════════════════════════════════╗"
+echo "║                                                                  ║"
+echo "║         ✅ OPEN DOORS INICIADO CORRECTAMENTE                    ║"
+echo "║                                                                  ║"
+echo "╚══════════════════════════════════════════════════════════════════╝"
+echo ""
+echo "🌐 URLs de acceso:"
+echo "   - Frontend: http://localhost:5000"
+echo "   - Backend API: http://localhost:8000"
+echo "   - Documentación API: http://localhost:8000/docs"
+echo "   - Base de Datos: localhost:5432"
+echo ""
+echo "👤 Credenciales Superadmin:"
+echo "   Email: cortsfranco@hotmail.com"
+echo "   Password: Ncc1701E@"
+echo ""
+echo "📊 Para ver logs en tiempo real:"
+echo "   docker-compose logs -f"
+echo ""
+echo "🛑 Para detener el sistema:"
+echo "   Ejecuta: ./DETENER-OPENDOORS.sh"
+echo ""
+
+# Hacer el script ejecutable: chmod +x INICIAR-OPENDOORS.sh
+
+────────────────────────────────────────────────────────────────────────────────
+6.3 DETENER-OPENDOORS.bat (Windows)
+────────────────────────────────────────────────────────────────────────────────
+
+Crea este archivo en la raíz del proyecto: DETENER-OPENDOORS.bat
+
+@echo off
+chcp 65001 >nul
+cls
+echo.
+echo ╔══════════════════════════════════════════════════════════════════╗
+echo ║                                                                  ║
+echo ║         🛑 DETENIENDO OPEN DOORS                                ║
+echo ║                                                                  ║
+echo ╚══════════════════════════════════════════════════════════════════╝
+echo.
+
+docker-compose down
+
+echo.
+echo ✅ Open Doors detenido correctamente
+echo.
+pause
+
+────────────────────────────────────────────────────────────────────────────────
+6.4 DETENER-OPENDOORS.sh (Linux/Mac)
+────────────────────────────────────────────────────────────────────────────────
+
+Crea este archivo en la raíz del proyecto: DETENER-OPENDOORS.sh
+
+#!/bin/bash
+
+clear
+echo ""
+echo "╔══════════════════════════════════════════════════════════════════╗"
+echo "║                                                                  ║"
+echo "║         🛑 DETENIENDO OPEN DOORS                                ║"
+echo "║                                                                  ║"
+echo "╚══════════════════════════════════════════════════════════════════╝"
+echo ""
+
+docker-compose down
+
+echo ""
+echo "✅ Open Doors detenido correctamente"
+echo ""
+
+# Hacer el script ejecutable: chmod +x DETENER-OPENDOORS.sh
+
+════════════════════════════════════════════════════════════════════════════════
+7. MIGRACIÓN DE BASE DE DATOS DESDE REPLIT
+════════════════════════════════════════════════════════════════════════════════
+
+Como Neon (Replit) está deshabilitado, deberás:
+
+OPCIÓN A: EMPEZAR CON BASE DE DATOS LIMPIA (RECOMENDADO)
+────────────────────────────────────────────────────────────────────────────────
+
+1. Inicia Docker con: INICIAR-OPENDOORS.bat (o .sh)
+
+2. El sistema creará automáticamente las tablas vacías
+
+3. Accede a http://localhost:8000/docs
+
+4. Haz login con:
+   Email: cortsfranco@hotmail.com
+   Password: Ncc1701E@
+
+5. Empieza a cargar facturas desde cero usando Azure AI
+
+
+OPCIÓN B: SI TIENES BACKUP DE NEON (cuando lo re-habiliten)
+────────────────────────────────────────────────────────────────────────────────
+
+Si logras exportar datos desde Neon:
+
+1. Desde Neon dashboard, exporta tu base de datos como SQL:
+   pg_dump -h [NEON_HOST] -U [USER] -d [DB] > backup_neon.sql
+
+2. Copia backup_neon.sql a la carpeta backups/
+
+3. Importa a tu Docker:
+   docker exec -i opendoors-db psql -U opendoors_user -d opendoors_billing < backups/backup_neon.sql
+
+════════════════════════════════════════════════════════════════════════════════
+8. EXPORTACIÓN DE BASE DE DATOS PARA HOSTINGER
+════════════════════════════════════════════════════════════════════════════════
+
+Cuando Hernán y Joni decidan usar Hostinger Cloud u otro servicio:
+
+────────────────────────────────────────────────────────────────────────────────
+8.1 EXPORTAR-BD.bat (Windows)
+────────────────────────────────────────────────────────────────────────────────
+
+Crea este archivo en la raíz del proyecto: EXPORTAR-BD.bat
+
+@echo off
+chcp 65001 >nul
+cls
+echo.
+echo ╔══════════════════════════════════════════════════════════════════╗
+echo ║                                                                  ║
+echo ║         📦 EXPORTAR BASE DE DATOS OPEN DOORS                    ║
+echo ║                                                                  ║
+echo ╚══════════════════════════════════════════════════════════════════╝
+echo.
+
+REM Generar nombre de archivo con fecha
+for /f "tokens=2 delims==" %%I in ('wmic os get localdatetime /value') do set datetime=%%I
+set FECHA=%datetime:~0,8%
+set HORA=%datetime:~8,6%
+set TIMESTAMP=%FECHA%_%HORA%
+
+set BACKUP_FILE=backups/opendoors_backup_%TIMESTAMP%.sql
+
+echo 📊 Exportando base de datos...
+echo    Archivo: %BACKUP_FILE%
+echo.
+
+docker exec opendoors-db pg_dump -U opendoors_user -d opendoors_billing > %BACKUP_FILE%
+
+if errorlevel 1 (
+    echo.
+    echo ❌ ERROR al exportar la base de datos
+    pause
+    exit /b 1
+)
+
+echo.
+echo ╔══════════════════════════════════════════════════════════════════╗
+echo ║                                                                  ║
+echo ║         ✅ BASE DE DATOS EXPORTADA CORRECTAMENTE                ║
+echo ║                                                                  ║
+echo ╚══════════════════════════════════════════════════════════════════╝
+echo.
+echo 📁 Archivo guardado en: %BACKUP_FILE%
+echo.
+echo 📤 SIGUIENTE PASO - IMPORTAR A HOSTINGER:
+echo.
+echo 1. Accede al panel de Hostinger Cloud
+echo 2. Abre phpMyAdmin o el gestor de PostgreSQL
+echo 3. Crea una nueva base de datos: opendoors_billing
+echo 4. Importa el archivo: %BACKUP_FILE%
+echo 5. Actualiza .env con las credenciales de Hostinger:
+echo    DATABASE_URL=postgresql://[usuario]:[password]@[host]:[puerto]/opendoors_billing
+echo.
+pause
+
+────────────────────────────────────────────────────────────────────────────────
+8.2 EXPORTAR-BD.sh (Linux/Mac)
+────────────────────────────────────────────────────────────────────────────────
+
+Crea este archivo en la raíz del proyecto: EXPORTAR-BD.sh
+
+#!/bin/bash
+
+clear
+echo ""
+echo "╔══════════════════════════════════════════════════════════════════╗"
+echo "║                                                                  ║"
+echo "║         📦 EXPORTAR BASE DE DATOS OPEN DOORS                    ║"
+echo "║                                                                  ║"
+echo "╚══════════════════════════════════════════════════════════════════╝"
+echo ""
+
+# Generar nombre de archivo con timestamp
+TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
+BACKUP_FILE="backups/opendoors_backup_${TIMESTAMP}.sql"
+
+echo "📊 Exportando base de datos..."
+echo "   Archivo: $BACKUP_FILE"
+echo ""
+
+docker exec opendoors-db pg_dump -U opendoors_user -d opendoors_billing > $BACKUP_FILE
+
+if [ $? -ne 0 ]; then
+    echo ""
+    echo "❌ ERROR al exportar la base de datos"
+    exit 1
+fi
+
+echo ""
+echo "╔══════════════════════════════════════════════════════════════════╗"
+echo "║                                                                  ║"
+echo "║         ✅ BASE DE DATOS EXPORTADA CORRECTAMENTE                ║"
+echo "║                                                                  ║"
+echo "╚══════════════════════════════════════════════════════════════════╝"
+echo ""
+echo "📁 Archivo guardado en: $BACKUP_FILE"
+echo ""
+echo "📤 SIGUIENTE PASO - IMPORTAR A HOSTINGER:"
+echo ""
+echo "1. Accede al panel de Hostinger Cloud"
+echo "2. Abre phpMyAdmin o el gestor de PostgreSQL"
+echo "3. Crea una nueva base de datos: opendoors_billing"
+echo "4. Importa el archivo: $BACKUP_FILE"
+echo "5. Actualiza .env con las credenciales de Hostinger:"
+echo "   DATABASE_URL=postgresql://[usuario]:[password]@[host]:[puerto]/opendoors_billing"
+echo ""
+
+# Hacer el script ejecutable: chmod +x EXPORTAR-BD.sh
+
+────────────────────────────────────────────────────────────────────────────────
+8.3 IMPORTAR EN HOSTINGER (Instrucciones)
+────────────────────────────────────────────────────────────────────────────────
+
+Cuando tengas acceso a Hostinger Cloud:
+
+1. CREAR BASE DE DATOS EN HOSTINGER:
+   - Accede al panel de Hostinger
+   - Crea una nueva base de datos PostgreSQL
+   - Nombre sugerido: opendoors_billing
+   - Usuario: opendoors_user
+   - Guarda las credenciales que te den
+
+2. IMPORTAR EL BACKUP:
+   
+   Método A - Desde la web (si Hostinger lo permite):
+   - Abre phpMyAdmin o gestor de BD
+   - Selecciona "Importar"
+   - Sube el archivo .sql generado
+   - Ejecuta la importación
+
+   Método B - Desde terminal:
+   psql -h [HOSTINGER_HOST] -U [HOSTINGER_USER] -d opendoors_billing < backups/opendoors_backup_XXXXXXXX.sql
+
+3. ACTUALIZAR .env PARA PRODUCCIÓN:
+   
+   Reemplaza estas líneas en tu .env:
+   
+   POSTGRES_USER=[usuario_hostinger]
+   POSTGRES_PASSWORD=[password_hostinger]
+   POSTGRES_SERVER=[host_hostinger]  # Ej: postgresql.hostinger.com
+   POSTGRES_PORT=5432
+   POSTGRES_DB=opendoors_billing
+   DATABASE_URL=postgresql://[usuario]:[password]@[host]:5432/opendoors_billing
+
+4. REINICIAR DOCKER:
+   docker-compose down
+   docker-compose up -d
+
+════════════════════════════════════════════════════════════════════════════════
+9. COMANDOS ÚTILES
+════════════════════════════════════════════════════════════════════════════════
+
+────────────────────────────────────────────────────────────────────────────────
+9.1 Docker Compose
+────────────────────────────────────────────────────────────────────────────────
+
+# Iniciar todos los servicios
+docker-compose up -d
+
+# Iniciar y reconstruir
+docker-compose up -d --build
+
+# Ver logs en tiempo real
+docker-compose logs -f
+
+# Ver logs de un servicio específico
+docker-compose logs -f backend
+docker-compose logs -f frontend
+docker-compose logs -f db
+
+# Detener servicios
+docker-compose down
+
+# Detener y eliminar volúmenes (CUIDADO: borra la BD)
+docker-compose down -v
+
+# Reiniciar un servicio específico
+docker-compose restart backend
+docker-compose restart frontend
+
+# Ver estado de servicios
+docker-compose ps
+
+────────────────────────────────────────────────────────────────────────────────
+9.2 Acceso a Contenedores
+────────────────────────────────────────────────────────────────────────────────
+
+# Acceder al contenedor del backend
+docker exec -it opendoors-backend bash
+
+# Acceder al contenedor de la base de datos
+docker exec -it opendoors-db psql -U opendoors_user -d opendoors_billing
+
+# Acceder al contenedor del frontend
+docker exec -it opendoors-frontend sh
+
+────────────────────────────────────────────────────────────────────────────────
+9.3 Base de Datos
+────────────────────────────────────────────────────────────────────────────────
+
+# Conectarse a PostgreSQL desde el host
+psql -h localhost -U opendoors_user -d opendoors_billing
+
+# Hacer backup manual
+docker exec opendoors-db pg_dump -U opendoors_user opendoors_billing > backup.sql
+
+# Restaurar backup
+docker exec -i opendoors-db psql -U opendoors_user opendoors_billing < backup.sql
+
+# Ver tablas
+docker exec -it opendoors-db psql -U opendoors_user -d opendoors_billing -c "\dt"
+
+# Ver usuarios
+docker exec -it opendoors-db psql -U opendoors_user -d opendoors_billing -c "SELECT * FROM users;"
+
+# Ver facturas
+docker exec -it opendoors-db psql -U opendoors_user -d opendoors_billing -c "SELECT * FROM invoices LIMIT 10;"
+
+────────────────────────────────────────────────────────────────────────────────
+9.4 Python (Dentro del contenedor backend)
+────────────────────────────────────────────────────────────────────────────────
+
+# Acceder al backend
+docker exec -it opendoors-backend bash
+
+# Ejecutar migraciones de Alembic
+alembic upgrade head
+
+# Crear una nueva migración
+alembic revision --autogenerate -m "Descripción del cambio"
+
+# Ver historial de migraciones
+alembic history
+
+# Ejecutar script Python
+python create_user.py
+
+════════════════════════════════════════════════════════════════════════════════
+10. SOLUCIÓN DE PROBLEMAS COMUNES
+════════════════════════════════════════════════════════════════════════════════
+
+────────────────────────────────────────────────────────────────────────────────
+PROBLEMA 1: "Docker no está corriendo"
+────────────────────────────────────────────────────────────────────────────────
+
+SOLUCIÓN:
+- Windows/Mac: Abre Docker Desktop y espera que inicie
+- Linux: sudo systemctl start docker
+
+────────────────────────────────────────────────────────────────────────────────
+PROBLEMA 2: Puerto 5432 ya está en uso
+────────────────────────────────────────────────────────────────────────────────
+
+SOLUCIÓN:
+Si tienes PostgreSQL instalado localmente:
+
+Opción A - Detener PostgreSQL local:
+  Windows: services.msc → PostgreSQL → Detener
+  Linux: sudo systemctl stop postgresql
+
+Opción B - Cambiar puerto en docker-compose.yml:
+  ports:
+    - "5433:5432"  # Cambiar el primer número
+
+────────────────────────────────────────────────────────────────────────────────
+PROBLEMA 3: Backend no conecta con la BD
+────────────────────────────────────────────────────────────────────────────────
+
+SOLUCIÓN:
+1. Verifica que la BD esté corriendo:
+   docker-compose ps
+
+2. Verifica logs de la BD:
+   docker-compose logs db
+
+3. Verifica que .env tenga:
+   POSTGRES_SERVER=db
+   (NO localhost, debe ser "db")
+
+────────────────────────────────────────────────────────────────────────────────
+PROBLEMA 4: Frontend no carga o muestra errores
+────────────────────────────────────────────────────────────────────────────────
+
+SOLUCIÓN:
+1. Verifica que backend esté corriendo:
+   curl http://localhost:8000
+
+2. Reconstruye el frontend:
+   docker-compose down
+   docker-compose up -d --build frontend
+
+3. Si persiste, accede al contenedor y reinstala:
+   docker exec -it opendoors-frontend sh
+   rm -rf node_modules
+   npm install
+
+────────────────────────────────────────────────────────────────────────────────
+PROBLEMA 5: Azure AI no procesa facturas
+────────────────────────────────────────────────────────────────────────────────
+
+SOLUCIÓN:
+1. Verifica credenciales en .env (deben estar SIN comillas)
+
+2. Verifica logs del backend:
+   docker-compose logs -f backend
+
+3. Prueba endpoint de salud de Azure:
+   curl -X GET https://mfn-opendoors-openai.openai.azure.com/openai/deployments?api-version=2024-02-01 \
+     -H "api-key: Ab2T1zO11h8pvAhw4qKU7KdBEPe0kBYLSWkWKBcn45ZaHvB1gxOIJQQJ99BIACYeBjFXJ3w3AAABACOGtIj4"
+
+4. Si falló la key, regenera las credenciales en Azure Portal
+
+────────────────────────────────────────────────────────────────────────────────
+PROBLEMA 6: Error al cargar facturas PDF
+────────────────────────────────────────────────────────────────────────────────
+
+SOLUCIÓN:
+1. Verifica que el directorio uploads existe:
+   docker exec opendoors-backend ls -la /app/uploads
+
+2. Si no existe, créalo:
+   docker exec opendoors-backend mkdir -p /app/uploads
+
+3. Reinicia el backend:
+   docker-compose restart backend
+
+────────────────────────────────────────────────────────────────────────────────
+PROBLEMA 7: No puedo acceder como Superadmin
+────────────────────────────────────────────────────────────────────────────────
+
+SOLUCIÓN:
+1. Verifica que el usuario existe en la BD:
+   docker exec -it opendoors-db psql -U opendoors_user -d opendoors_billing -c "SELECT email, role FROM users;"
+
+2. Si no existe, créalo ejecutando el script:
+   docker exec opendoors-backend python create_user.py
+
+3. Credenciales correctas:
+   Email: cortsfranco@hotmail.com
+   Password: Ncc1701E@
+
+════════════════════════════════════════════════════════════════════════════════
+RESUMEN DE PASOS PARA INICIAR
+════════════════════════════════════════════════════════════════════════════════
+
+1. ✅ Descargar código de Replit a tu máquina local
+2. ✅ Crear archivo .env con las credenciales (copiadas arriba)
+3. ✅ Asegurar que Docker Desktop esté corriendo
+4. ✅ Ejecutar: INICIAR-OPENDOORS.bat (o .sh en Linux/Mac)
+5. ✅ Esperar 1-2 minutos que construya las imágenes
+6. ✅ Acceder a http://localhost:5000
+7. ✅ Login con: cortsfranco@hotmail.com / Ncc1701E@
+8. ✅ Empezar a cargar facturas con Azure AI
+
+════════════════════════════════════════════════════════════════════════════════
+CONTACTO Y SOPORTE
+════════════════════════════════════════════════════════════════════════════════
+
+Superadmin: Franco Corts (cortsfranco@hotmail.com)
+Socios: Joni, Hernán, Maxi, Leo
+
+Documentación completa en: replit.md
+
+════════════════════════════════════════════════════════════════════════════════
+NOTAS FINALES
+════════════════════════════════════════════════════════════════════════════════
+
+🔐 SEGURIDAD:
+   - Las credenciales Azure en este archivo son REALES
+   - Franco autorizó su uso público para desarrollo
+   - En producción, considera regenerar keys
+   - Nunca subas el .env a repositorios públicos
+
+💾 BASE DE DATOS:
+   - Los datos se guardan en volumen Docker (postgres_data)
+   - Para borrar todo: docker-compose down -v (CUIDADO)
+   - Backups automáticos: Configura cron job con EXPORTAR-BD.sh
+
+🌐 MIGRACIÓN A PRODUCCIÓN:
+   - Cuando tengas Hostinger, usa EXPORTAR-BD script
+   - Actualiza .env con credenciales de producción
+   - Considera usar un dominio real
+   - Habilita HTTPS con Let's Encrypt
+
+📈 ESCALABILIDAD:
+   - Docker permite escalar fácilmente
+   - Para más usuarios: Aumenta recursos en docker-compose.yml
+   - Para alta disponibilidad: Considera Kubernetes
+
+════════════════════════════════════════════════════════════════════════════════
+FIN DEL DOCUMENTO
+════════════════════════════════════════════════════════════════════════════════
+
+¡Open Doors listo para funcionar localmente con Azure AI!
+
+Última actualización: 03 de Octubre de 2025
+Versión: 1.0.0
