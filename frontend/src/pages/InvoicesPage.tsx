@@ -3,11 +3,11 @@ import { FileText, Plus } from 'lucide-react'
 
 export function InvoicesPage() {
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
+    <div className="container-page space-y-6">
+      <div className="flex-between container-section">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Facturas</h1>
-          <p className="mt-1 text-sm text-gray-500">
+          <h1 className="heading-page">Facturas</h1>
+          <p className="text-muted mt-2">
             Gestiona las facturas de tu empresa
           </p>
         </div>
@@ -17,14 +17,14 @@ export function InvoicesPage() {
         </Button>
       </div>
 
-      <div className="bg-white shadow rounded-lg">
-        <div className="px-4 py-5 sm:p-6">
+      <div className="card-enhanced transition-smooth">
+        <div className="p-6">
           <div className="text-center py-12">
-            <FileText className="mx-auto h-12 w-12 text-gray-400" />
-            <h3 className="mt-2 text-sm font-medium text-gray-900">
+            <FileText className="mx-auto h-12 w-12 text-muted-foreground" />
+            <h3 className="mt-2 heading-card">
               No hay facturas
             </h3>
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="text-muted mt-2">
               Comienza creando tu primera factura.
             </p>
             <div className="mt-6">

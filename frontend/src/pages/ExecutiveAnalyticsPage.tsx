@@ -170,22 +170,22 @@ const ExecutiveAnalyticsPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-        <p className="ml-2 text-gray-600">Cargando analytics ejecutivos...</p>
+      <div className="flex-center h-64">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        <p className="ml-2 text-muted">Cargando analytics ejecutivos...</p>
       </div>
     );
   }
 
   return (
-    <div className="p-6 space-y-8">
+    <div className="container-page">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex-between container-section">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Analytics Ejecutivos</h1>
-          <p className="text-gray-600 mt-2">Análisis financiero avanzado y reportes para Franco</p>
+          <h1 className="heading-page">Analytics Ejecutivos</h1>
+          <p className="text-muted mt-2">Análisis financiero avanzado y reportes para Franco</p>
         </div>
-        <div className="flex gap-3">
+        <div className="stack-mobile">
           <Badge className="bg-blue-100 text-blue-800 px-3 py-1">
             <Calendar className="w-4 h-4 mr-2" />
             Todos los períodos
@@ -197,7 +197,7 @@ const ExecutiveAnalyticsPage: React.FC = () => {
       </div>
 
       {/* KPIs Superiores */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid-cards container-section">
         {/* Rentabilidad Promedio */}
         <Card className="bg-blue-50 border-blue-200">
           <CardContent className="p-6">
