@@ -49,6 +49,17 @@ Sistema completo de facturación con lógica fiscal argentina (Balance IVA vs Ba
 - ✅ Frontend compila sin errores CSS
 - ✅ Arquitectura validada por architect agent
 
+**📝 CRUD DE FACTURAS COMPLETADO (04 Oct 2025 - 02:27):**
+- ✅ InvoiceFormModal: Formulario completo con todos los campos fiscales argentinos
+- ✅ CurrencyInput: Componente especializado para formato argentino ($1.234,56)
+- ✅ InvoicesPage: CRUD completo (Crear/Editar/Eliminar/Listar facturas)
+- ✅ Integración con backend API: POST, PUT, DELETE, GET /api/invoices
+- ✅ Cálculo automático de IVA y total en formulario
+- ✅ Carga completa de factura antes de editar (preserva todos los datos)
+- ✅ Validación de formato argentino (punto para miles, coma para decimales)
+- ✅ Sistema de autenticación JWT integrado
+- ✅ Badges fiscales: Tipo factura, dirección, socio, estado de pago
+
 ## Estado Actual del Proyecto (04 Oct 2025)
 
 ### ✅ Implementado Completamente
