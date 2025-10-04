@@ -1,0 +1,537 @@
+============================================
+OPEN DOORS - CONFIGURACIÓN COMPLETA DOCKER LOCAL
+Sistema de Facturación con Azure AI
+============================================
+
+📋 CONTENIDO:
+1. Requisitos Previos
+2. Instalación Rápida (3 pasos)
+3. Configuración Detallada
+4. Credenciales de Acceso
+5. Arquitectura del Sistema
+6. Comandos Útiles
+7. Migración a Hostinger Cloud
+8. Solución de Problemas
+
+============================================
+1. REQUISITOS PREVIOS
+============================================
+
+✅ Software Necesario:
+   - Docker Desktop (Windows/Mac/Linux): https://www.docker.com/products/docker-desktop
+   - Git: https://git-scm.com/downloads
+   - Node.js 18+ (opcional, solo si no usas Docker): https://nodejs.org
+   - Python 3.11+ (opcional, solo si no usas Docker): https://python.org
+
+✅ Recursos Mínimos:
+   - RAM: 4GB (8GB recomendado)
+   - Disco: 10GB libre
+   - CPU: 2 cores (4 cores recomendado)
+
+✅ Credenciales de Azure (YA CONFIGURADAS):
+   - Azure OpenAI API Key ✅
+   - Azure Document Intelligence Key ✅
+   - Azure Cognitive Search Key ✅
+   - Azure Storage Account Key ✅
+
+============================================
+2. INSTALACIÓN RÁPIDA (3 PASOS)
+============================================
+
+PASO 1: Clonar/Descargar el Proyecto
+-------------------------------------
+# Desde Replit (Descargar ZIP):
+1. Click en "Files" → "Download as ZIP"
+2. Extraer en tu carpeta deseada
+3. Abrir terminal en esa carpeta
+
+# O desde Git (si tienes repositorio):
+git clone <url-del-repo>
+cd open-doors-billing
+
+PASO 2: Configurar Variables de Entorno
+----------------------------------------
+# Opción A - Usar plantilla Docker (RECOMENDADO):
+cp .env.docker .env
+
+# Opción B - Usar plantilla general:
+cp .env.example .env
+
+# Editar .env y completar estas variables:
+# IMPORTANTE: El script startup.sh generará SECRET_KEY automáticamente si falta
+
+# Si estás en Replit, las credenciales de Azure YA están configuradas
+# Si estás en local, debes agregarlas manualmente al .env
+
+# Variables mínimas requeridas:
+POSTGRES_USER=opendoors_user
+POSTGRES_PASSWORD=opendoors_password
+SECRET_KEY=<se genera automáticamente o usar: openssl rand -hex 32>
+
+PASO 3: Iniciar Sistema Completo
+----------------------------------
+# En Linux/Mac:
+chmod +x scripts/startup.sh
+./scripts/startup.sh
+
+# En Windows:
+# Usar Git Bash o WSL, o ejecutar manualmente:
+docker-compose up -d
+
+🎉 ¡LISTO! El sistema estará disponible en:
+   - Frontend: http://localhost:5000
+   - Backend API: http://localhost:8000
+   - API Docs: http://localhost:8000/docs
+   - pgAdmin: http://localhost:5050
+
+============================================
+3. CONFIGURACIÓN DETALLADA
+============================================
+
+ESTRUCTURA DE ARCHIVOS:
+-----------------------
+open-doors-billing/
+├── .env                          # Variables de entorno (crear desde .env.docker)
+├── .env.docker                   # Plantilla para Docker (RECOMENDADO)
+├── .env.example                  # Plantilla general
+├── .dockerignore                 # Exclusiones para build del backend
+├── docker-compose.yml            # Configuración Docker COMPLETA (incluye pgAdmin)
+├── Dockerfile.backend            # Imagen del backend (FastAPI)
+├── frontend/
+│   ├── Dockerfile               # Imagen del frontend (React)
+│   ├── .dockerignore            # Exclusiones para build del frontend
+│   └── ...
+├── scripts/
+│   ├── startup.sh               # ⭐ Script de inicio con auto-reparación
+│   ├── export_hostinger.sh      # Exportación a Hostinger Cloud
+│   └── init.sql                 # Inicialización de BD
+├── src/                         # Código fuente del backend
+├── requirements.txt             # Dependencias Python
+└── CONFIGURACION_COMPLETA_DOCKER_LOCAL.txt  # ⭐ ESTE ARCHIVO
+
+ARCHIVO .env COMPLETO:
+----------------------
+NOTA: Usar .env.docker como plantilla (cp .env.docker .env)
+
+# Base de Datos Local (Docker PostgreSQL)
+POSTGRES_USER=opendoors_user
+POSTGRES_PASSWORD=opendoors_password
+POSTGRES_SERVER=db
+POSTGRES_PORT=5432
+POSTGRES_DB=opendoors_db
+
+# pgAdmin (Interfaz Gráfica para PostgreSQL)
+PGADMIN_EMAIL=admin@opendoors.com
+PGADMIN_PASSWORD=admin
+
+# Seguridad JWT
+# IMPORTANTE: El script startup.sh lo genera automáticamente si falta
+# O generar manualmente con: openssl rand -hex 32
+SECRET_KEY=CAMBIAR_ESTO_CON_VALOR_GENERADO
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=10080
+
+# CORS
+ALLOWED_HOSTS=http://localhost:3000,http://localhost:5173,http://localhost:5000,http://localhost:8000
+
+# Azure OpenAI (YA CONFIGURADO EN REPLIT COMO SECRETOS)
+# En local, agregar tus credenciales:
+AZURE_OPENAI_ENDPOINT=
+AZURE_OPENAI_API_KEY=
+AZURE_OPENAI_DEPLOYMENT_NAME=gpt-4o
+OPENAI_API_VERSION=2024-02-01
+
+# Azure Document Intelligence (YA CONFIGURADO EN REPLIT)
+AZURE_DOC_INTELLIGENCE_ENDPOINT=
+AZURE_DOC_INTELLIGENCE_KEY=
+
+# Azure Cognitive Search (YA CONFIGURADO EN REPLIT)
+AZURE_SEARCH_ENDPOINT=
+AZURE_SEARCH_ADMIN_KEY=
+AZURE_SEARCH_INDEX_NAME=opendoors-invoices
+
+# Azure Storage (YA CONFIGURADO EN REPLIT)
+AZURE_STORAGE_ACCOUNT_NAME=
+AZURE_STORAGE_ACCOUNT_KEY=
+AZURE_STORAGE_CONTAINER_NAME=invoices
+
+# AFIP (Vacío para desarrollo)
+AFIP_TAX_ID=
+AFIP_CERTIFICATE_PATH=
+AFIP_PRIVATE_KEY_PATH=
+
+# Configuración General
+DEBUG=True
+LOG_LEVEL=INFO
+
+SERVICIOS DOCKER:
+-----------------
+El sistema usa 4 contenedores Docker orquestados con docker-compose:
+
+1. opendoors_db (PostgreSQL 16):
+   - Base de datos principal
+   - Puerto: 5432
+   - Usuario: opendoors_user
+   - Contraseña: opendoors_password
+   - Healthcheck: pg_isready cada 10s
+   - Volumen persistente: postgres_data
+
+2. opendoors_pgadmin (pgAdmin 4):
+   - Interfaz gráfica para PostgreSQL
+   - Puerto: 5050
+   - Email: admin@opendoors.com
+   - Contraseña: admin
+   - Volumen persistente: pgadmin_data
+
+3. opendoors_backend (FastAPI):
+   - API REST del sistema
+   - Puerto: 8000 (¡NO 8001!)
+   - Hot-reload activado
+   - Procesamiento de facturas con Azure AI
+   - Healthcheck: /health endpoint cada 30s
+   - Depende de: db (con condición healthy)
+
+4. opendoors_frontend (React + Vite):
+   - Interfaz de usuario
+   - Puerto: 5000
+   - Hot-reload activado (HMR)
+   - Depende de: backend (con condición healthy)
+   - Solo monta /src y /public (optimizado)
+
+Red: opendoors_network (bridge)
+Volúmenes: postgres_data, pgadmin_data (persistentes)
+
+============================================
+4. CREDENCIALES DE ACCESO
+============================================
+
+SUPERADMIN (Acceso Total):
+---------------------------
+Email:    cortsfranco@hotmail.com
+Password: Ncc1701E@
+Rol:      SUPERADMIN
+
+PGADMIN (Gestión de Base de Datos):
+------------------------------------
+URL:      http://localhost:5050
+Email:    admin@opendoors.com
+Password: admin
+
+Conectar a la base de datos desde pgAdmin:
+- Host: db (o localhost si estás fuera de Docker)
+- Port: 5432
+- Database: opendoors_db
+- Username: opendoors_user
+- Password: opendoors_password
+
+============================================
+5. ARQUITECTURA DEL SISTEMA
+============================================
+
+STACK TECNOLÓGICO:
+------------------
+Backend:
+  - Python 3.11
+  - FastAPI 0.104.1
+  - SQLAlchemy 2.0 + SQLModel
+  - PostgreSQL 16
+  - AsyncPG (driver asíncrono)
+  - Azure OpenAI GPT-4o
+  - Azure Document Intelligence
+  - Azure Cognitive Search
+
+Frontend:
+  - React 18 + TypeScript
+  - Vite
+  - TanStack Query
+  - Tailwind CSS
+  - Axios
+
+Infraestructura:
+  - Docker + Docker Compose
+  - PostgreSQL 16 (Alpine)
+  - pgAdmin 4
+  - Nginx (futuro, para producción)
+
+FLUJO DE PROCESAMIENTO DE FACTURAS:
+------------------------------------
+1. Usuario sube PDF/imagen de factura
+2. Frontend envía a: POST /api/v1/invoices/upload
+3. Backend guarda archivo temporalmente
+4. Azure Document Intelligence extrae datos del PDF:
+   - Tipo de factura (A/B/C)
+   - Fecha de emisión
+   - Proveedor/Cliente
+   - Subtotal, IVA, Total
+   - Punto de venta y número
+5. Azure OpenAI valida y estructura datos
+6. Sistema calcula:
+   - Balance IVA (solo facturas tipo A)
+   - Balance General (solo movimiento_cuenta=SI)
+   - Formato argentino ($1.234,56)
+7. Datos se guardan en PostgreSQL
+8. Frontend actualiza dashboard en tiempo real
+
+LÓGICA FISCAL ARGENTINA (Según Joni):
+--------------------------------------
+✅ BALANCE IVA:
+   - SOLO facturas tipo A (IVA discriminado)
+   - Fórmula: IVA emitido - IVA recibido
+   - Excluye facturas con es_compensacion_iva=True
+   
+✅ BALANCE GENERAL:
+   - SOLO facturas con movimiento_cuenta=SI
+   - Representa flujo de caja real
+   - Fórmula: Ingresos - Egresos (solo mov. reales)
+
+✅ TIPOS DE FACTURA:
+   - Tipo A: Con IVA discriminado → Cuenta para Balance IVA
+   - Tipo B: IVA incluido → NO cuenta para Balance IVA
+   - Tipo C: Sin IVA → NO cuenta para Balance IVA
+   - Tipo X: Otros comprobantes
+
+============================================
+6. COMANDOS ÚTILES
+============================================
+
+GESTIÓN DE DOCKER:
+------------------
+# Iniciar todo el sistema
+./scripts/startup.sh
+# o manualmente:
+docker-compose up -d
+
+# Ver logs en tiempo real
+docker-compose logs -f
+
+# Ver logs de un servicio específico
+docker-compose logs -f backend
+docker-compose logs -f frontend
+docker-compose logs -f db
+
+# Reiniciar un servicio
+docker-compose restart backend
+
+# Detener todo
+docker-compose down
+
+# Detener y eliminar volúmenes (¡CUIDADO! Borra la BD)
+docker-compose down -v
+
+# Reconstruir imágenes
+docker-compose build --no-cache
+
+# Ver estado de servicios
+docker-compose ps
+
+# Ejecutar comando en contenedor
+docker-compose exec backend python -c "print('Hola')"
+docker-compose exec db psql -U opendoors_user -d opendoors_db
+
+GESTIÓN DE BASE DE DATOS:
+--------------------------
+# Backup completo
+docker-compose exec db pg_dump -U opendoors_user opendoors_db > backup.sql
+
+# Restaurar backup
+docker-compose exec -T db psql -U opendoors_user opendoors_db < backup.sql
+
+# Conectar a PostgreSQL desde terminal
+docker-compose exec db psql -U opendoors_user -d opendoors_db
+
+# Exportar para Hostinger
+./scripts/export_hostinger.sh
+
+DESARROLLO:
+-----------
+# Instalar dependencias Python (backend)
+pip install -r requirements.txt
+
+# Instalar dependencias Node (frontend)
+cd frontend && npm install
+
+# Ejecutar migraciones
+docker-compose exec backend python -c "
+import asyncio
+from src.core.database import init_db
+asyncio.run(init_db())
+"
+
+# Crear usuario manualmente
+docker-compose exec backend python -c "
+import asyncio
+from src.models.user import User
+from src.core.database import AsyncSessionLocal
+from src.core.security import get_password_hash
+
+async def create_user():
+    async with AsyncSessionLocal() as session:
+        user = User(
+            email='test@example.com',
+            hashed_password=get_password_hash('password123'),
+            full_name='Test User',
+            role='VIEWER',
+            is_active=True
+        )
+        session.add(user)
+        await session.commit()
+        print('Usuario creado')
+
+asyncio.run(create_user())
+"
+
+TESTING:
+--------
+# Ejecutar tests (cuando estén implementados)
+docker-compose exec backend pytest tests/ -v
+
+# Test de autenticación
+curl -X POST http://localhost:8000/api/auth/login \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "username=cortsfranco@hotmail.com&password=Ncc1701E@"
+
+# Test de health check
+curl http://localhost:8000/health
+
+============================================
+7. MIGRACIÓN A HOSTINGER CLOUD
+============================================
+
+PASO A PASO:
+------------
+1. Exportar base de datos local:
+   ./scripts/export_hostinger.sh
+
+2. Esto genera:
+   - exports/opendoors_backup_<fecha>.sql.gz (datos completos)
+   - exports/opendoors_schema_<fecha>.sql (solo estructura)
+   - exports/INSTRUCCIONES_HOSTINGER_<fecha>.txt
+
+3. Obtener credenciales de Hostinger Cloud PostgreSQL:
+   - Host: <hostinger_host>
+   - Port: 5432
+   - Database: <hostinger_db>
+   - Username: <hostinger_user>
+   - Password: <hostinger_password>
+
+4. Importar datos a Hostinger:
+   
+   Opción A - Desde línea de comandos:
+   gunzip exports/opendoors_backup_*.sql.gz
+   psql -h <hostinger_host> -U <hostinger_user> -d <hostinger_db> < exports/opendoors_backup_*.sql
+   
+   Opción B - Desde pgAdmin:
+   a. Abrir http://localhost:5050
+   b. Conectar a servidor Hostinger
+   c. Click derecho en BD → Restore
+   d. Seleccionar archivo .sql
+
+5. Actualizar .env con credenciales de Hostinger:
+   POSTGRES_SERVER=<hostinger_host>
+   POSTGRES_USER=<hostinger_user>
+   POSTGRES_PASSWORD=<hostinger_password>
+   POSTGRES_DB=<hostinger_db>
+   DATABASE_URL=postgresql://<user>:<pass>@<host>:5432/<db>
+
+6. Reiniciar backend:
+   docker-compose restart backend
+
+7. Verificar conexión:
+   curl http://localhost:8000/health
+
+IMPORTANTE - SSL en Hostinger:
+-------------------------------
+Si Hostinger requiere SSL, agregar a DATABASE_URL:
+DATABASE_URL=postgresql://...?sslmode=require
+
+Si hay problemas con certificado:
+DATABASE_URL=postgresql://...?sslmode=require&ssl=true
+
+============================================
+8. SOLUCIÓN DE PROBLEMAS
+============================================
+
+PROBLEMA: Docker no inicia / Contenedores no se crean
+SOLUCIÓN:
+  - Verificar que Docker Desktop esté corriendo
+  - Verificar puertos no estén en uso: 5000, 8000, 5432, 5050
+  - Ejecutar: docker-compose down -v && docker-compose up -d
+
+PROBLEMA: Error "SECRET_KEY not found"
+SOLUCIÓN:
+  - Generar SECRET_KEY: openssl rand -hex 32
+  - Agregarlo a .env
+  - Reiniciar backend: docker-compose restart backend
+
+PROBLEMA: Base de datos no se conecta
+SOLUCIÓN:
+  - Verificar logs: docker-compose logs db
+  - Verificar que el contenedor esté corriendo: docker-compose ps
+  - Esperar 30 segundos (la BD tarda en iniciarse)
+  - Forzar recreación: docker-compose up -d --force-recreate db
+
+PROBLEMA: Frontend muestra página en blanco
+SOLUCIÓN:
+  - Verificar logs: docker-compose logs frontend
+  - Limpiar cache del navegador (Ctrl+Shift+R)
+  - Verificar que VITE_API_URL apunte a http://localhost:8000
+  - Reconstruir imagen: docker-compose build --no-cache frontend
+
+PROBLEMA: Backend retorna 401 Unauthorized en login
+SOLUCIÓN:
+  - Verificar credenciales: cortsfranco@hotmail.com / Ncc1701E@
+  - Verificar que el superusuario exista en la BD
+  - Ejecutar startup.sh que crea el superusuario automáticamente
+
+PROBLEMA: Error de migración de base de datos
+SOLUCIÓN:
+  - Forzar recreación de tablas:
+    docker-compose exec backend python -c "
+    import asyncio
+    from src.core.database import engine, Base
+    async def reset():
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.drop_all)
+            await conn.run_sync(Base.metadata.create_all)
+    asyncio.run(reset())
+    "
+
+PROBLEMA: Azure AI no procesa facturas
+SOLUCIÓN:
+  - Verificar que las credenciales de Azure estén en .env
+  - Verificar logs: docker-compose logs backend | grep -i azure
+  - Verificar cuota de Azure OpenAI en portal.azure.com
+  - Probar endpoint manualmente: POST http://localhost:8000/api/v1/invoices/upload
+
+PROBLEMA: Puerto 5000 ya en uso
+SOLUCIÓN:
+  - Cambiar puerto en docker-compose.override.yml:
+    frontend:
+      ports:
+        - "3001:5000"  # Cambia 3001 por el puerto que quieras
+  - Actualizar VITE_API_URL en consecuencia
+
+PROBLEMA: Cambios en código no se reflejan
+SOLUCIÓN:
+  - Verificar que los volúmenes estén montados correctamente
+  - Para backend: Los cambios son automáticos (hot-reload)
+  - Para frontend: Los cambios son automáticos (Vite HMR)
+  - Si no funciona: docker-compose restart <servicio>
+
+============================================
+CONTACTO Y SOPORTE
+============================================
+
+Superadmin: Franco Corts (cortsfranco@hotmail.com)
+
+Documentación adicional:
+  - replit.md - Estado del proyecto
+  - GUIA_COMPLETA_REPLICACION.txt - Guía de replicación Parte 1
+  - GUIA_PARTE_2_ENDPOINTS_FRONTEND.txt - Guía Parte 2
+  - GUIA_PARTE_3_GRAFICAS_DEPLOYMENT.txt - Guía Parte 3
+
+============================================
+ÚLTIMA ACTUALIZACIÓN: 03 de Octubre 2025
+VERSIÓN: 1.0.0
+ESTADO: ✅ Sistema Funcional con Docker Local
+============================================

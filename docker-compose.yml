@@ -6,19 +6,37 @@ services:
     container_name: opendoors_db
     volumes:
       - postgres_data:/var/lib/postgresql/data/
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./scripts/init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_USER: opendoors_user
-      POSTGRES_PASSWORD: opendoors_password
-      POSTGRES_DB: opendoors_db
+      POSTGRES_USER: ${POSTGRES_USER:-opendoors_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-opendoors_password}
+      POSTGRES_DB: ${POSTGRES_DB:-opendoors_db}
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U opendoors_user -d opendoors_db"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-opendoors_user} -d ${POSTGRES_DB:-opendoors_db}"]
       interval: 10s
       timeout: 5s
       retries: 5
     restart: unless-stopped
+    networks:
+      - opendoors_network
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: opendoors_pgadmin
+    ports:
+      - "5050:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@opendoors.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin}
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      - db
+    restart: unless-stopped
+    networks:
+      - opendoors_network
 
   backend:
     container_name: opendoors_backend
@@ -27,76 +45,56 @@ services:
       dockerfile: Dockerfile.backend
     command: uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
     volumes:
-      - .:/app
-      - /app/__pycache__
+      - ./uploads:/app/uploads
     ports:
-      - "8001:8000"
+      - "8000:8000"
+    env_file:
+      - .env
     environment:
-      # Base de datos
-      POSTGRES_USER: opendoors_user
-      POSTGRES_PASSWORD: opendoors_password
+      POSTGRES_USER: ${POSTGRES_USER:-opendoors_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-opendoors_password}
       POSTGRES_SERVER: db
       POSTGRES_PORT: 5432
-      POSTGRES_DB: opendoors_db
-      
-      # Seguridad
-      SECRET_KEY: tu_clave_secreta_aqui_cambiar_en_produccion
-      ACCESS_TOKEN_EXPIRE_MINUTES: 10080
-      
-      # CORS
-      ALLOWED_HOSTS: http://localhost:3000,http://localhost:5173
-      
-      # Azure Storage - Usar variables de entorno del .env
-      AZURE_STORAGE_ACCOUNT_NAME: ${AZURE_STORAGE_ACCOUNT_NAME}
-      AZURE_STORAGE_ACCOUNT_KEY: ${AZURE_STORAGE_ACCOUNT_KEY}
-      AZURE_STORAGE_CONTAINER_NAME: ${AZURE_STORAGE_CONTAINER_NAME}
-      
-      # Azure OpenAI - Usar variables de entorno del .env
-      AZURE_OPENAI_ENDPOINT: ${AZURE_OPENAI_ENDPOINT}
-      AZURE_OPENAI_API_KEY: ${AZURE_OPENAI_API_KEY}
-      AZURE_OPENAI_DEPLOYMENT_NAME: ${AZURE_OPENAI_DEPLOYMENT_NAME}
-      OPENAI_API_VERSION: ${OPENAI_API_VERSION}
-      
-      # Azure Document Intelligence - Usar variables de entorno del .env
-      AZURE_DOC_INTELLIGENCE_ENDPOINT: ${AZURE_DOC_INTELLIGENCE_ENDPOINT}
-      AZURE_DOC_INTELLIGENCE_KEY: ${AZURE_DOC_INTELLIGENCE_KEY}
-      
-      # Azure Cognitive Search - Usar variables de entorno del .env
-      AZURE_SEARCH_ENDPOINT: ${AZURE_SEARCH_ENDPOINT}
-      AZURE_SEARCH_ADMIN_KEY: ${AZURE_SEARCH_ADMIN_KEY}
-      AZURE_SEARCH_INDEX_NAME: ${AZURE_SEARCH_INDEX_NAME}
-      
-      # AFIP - VACÍO para modo desarrollo
-      AFIP_TAX_ID: ""
-      AFIP_CERTIFICATE_PATH: ""
-      AFIP_PRIVATE_KEY_PATH: ""
+      POSTGRES_DB: ${POSTGRES_DB:-opendoors_db}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-opendoors_user}:${POSTGRES_PASSWORD:-opendoors_password}@db:5432/${POSTGRES_DB:-opendoors_db}
     depends_on:
       db:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:8000/health"]
       interval: 30s
       timeout: 10s
       retries: 3
     restart: unless-stopped
+    networks:
+      - opendoors_network
 
   frontend:
     container_name: opendoors_frontend
-    image: node:20-alpine
-    command: sh -c "npm install && npm run dev"
-    working_dir: /app
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    command: npm run dev -- --host 0.0.0.0 --port 5000
     volumes:
-      - ./frontend:/app
-      - /app/node_modules
+      - ./frontend/src:/app/src
+      - ./frontend/public:/app/public
     ports:
-      - "3000:3000"
+      - "5000:5000"
     environment:
-      - VITE_API_URL=http://localhost:8001
+      - VITE_API_URL=http://localhost:8000
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     stdin_open: true
     tty: true
     restart: unless-stopped
+    networks:
+      - opendoors_network
 
 volumes:
   postgres_data:
+  pgadmin_data:
+
+networks:
+  opendoors_network:
+    driver: bridge
